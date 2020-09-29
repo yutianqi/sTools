@@ -13,10 +13,10 @@ schtasks /create /sc minute /mo 30 /tn "Daily Push" /tr D:\Code\Github\sTools\Da
 
 ### 立即执行任务
 ```bat
-schtasks /run /tn "Hourly Commit" 
+schtasks /run /tn "Daily Push" 
 ```    
 
 ### 删除任务
 ```
-schtasks /delete /tn "Hourly Commit"
+schtasks /delete /tn "Daily Push"
 ```     
