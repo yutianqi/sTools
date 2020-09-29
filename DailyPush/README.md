@@ -17,6 +17,6 @@ schtasks /run /tn "Daily Push"
 ```    
 
 ### 删除任务
-```bat2
+```bat
 schtasks /delete /tn "Daily Push"
 ```     
