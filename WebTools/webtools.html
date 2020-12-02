@@ -77,7 +77,7 @@
 
 				var timestamp = new Date(year,month-1,day,hour,minute,second).getTime();
 				document.getElementById("unixTimeOut").value=timestamp;
-				execCopy("unixTimeOut");
+				// execCopy("unixTimeOut");
 				
 			}
 
@@ -104,27 +104,43 @@
 				}
 				var timestamp = new Date(year,month-1,day,hour,minute,second).getTime();
 				document.getElementById("unixTimeCtzOut").value=timestamp;
-				execCopy("unixTimeCtzOut");
+				// execCopy("unixTimeCtzOut");
 			}
 			
-			function transferUnixTimeToUtcTime(){
+			function transferUnixTimeToBeijingTime(){
 				unixTime = document.getElementById("unixTimeIn").value;
 				commonTime = new Date(parseInt(unixTime));
 				document.getElementById("utcTime").value=commonTime.toLocaleDateString()+" "+commonTime.toTimeString().split(" ")[0];
-				execCopy("utcTime");
+				// execCopy("utcTime");
 			}
+            
+            
+            
+            function transferUnixTimeToLocalTime(localTimeZone){
+                console.log(localTimeZone)
+				unixTime = document.getElementById("unixTimeIn1").value;
+                debugger;
+                console.log(unixTime)
+                var exp = unixTime + new Date().getTimezoneOffset() * 60000 + localTimeZone * 3600000;                
+                // 0时区时间
+				commonTime = new Date(parseInt(unixTime) + new Date().getTimezoneOffset() * 60000 + localTimeZone * 3600000);
+                console.log(commonTime)
+				document.getElementById("utcTime1").value=commonTime.toLocaleDateString()+" "+commonTime.toTimeString().split(" ")[0];
+				// execCopy("utcTime1");
+			}
+			
 			
 			function transferUnicodeToChinese(){
 				unicodeString = document.getElementById("unicodeString").value
 				document.getElementById("chineseString").value=eval("'" + unicodeString + "'");
-				execCopy("chineseString");
+				// execCopy("chineseString");
 			}
 			
 			
 			function transferChineseToUnicode(){ 
 				chineseString = document.getElementById("chineseString2").value;
 				document.getElementById("unicodeString2").value=escape(chineseString).replace(/%/g,"\\").toLowerCase();	
-				execCopy("unicodeString2");
+				// execCopy("unicodeString2");
 			}
 			
 			
@@ -182,7 +198,7 @@
 				day	 = hour > 23 ? (parseInt(hour)+1).toString() : day;
 				
 				document.getElementById("outputZoneTime").value=year+"/"+month+"/"+day+" "+hour+":"+minute+":"+second;
-				execCopy("outputZoneTime");
+				// execCopy("outputZoneTime");
 			}
 
 		</script>
@@ -225,15 +241,55 @@
 				<input id="unixTimeCtzOut" type="text" style="width:125px" size="12" />
 			</div>
 			
+            
+            <!--
 			<p>
-				<label>Unix时间转换为标准时间</label>
+				<label>Unix时间转换为北京时间</label>
 			</p>
 			<div class="field">
 				<input id="unixTimeIn" type="text" style="width:160px" size="12" />
-				<input type="button" value="转换为标准时间" onclick="transferUnixTimeToUtcTime()" />
+				<input type="button" value="转换为北京时间" onclick="transferUnixTimeToBeijingTime()" />
 				<input id="utcTime" type="text" style="width:260px" size="12"/>
 			</div>
+            -->
 			
+
+            <p>
+				<label>Unix时间转换为各时区时间</label>
+			</p>
+			<div class="field">
+				<input id="unixTimeIn1" type="text" style="width:160px" size="12" />
+				<input type="button" value="转换为指定时区时间" onclick="transferUnixTimeToLocalTime(inputTimeZone1.value)" />
+   				<select name="inputTimeZone1" id="inputTimeZone1">   
+                    <option value="-11">-11中途岛</option>
+                    <option value="-10">-10檀香山</option>
+                    <option value="-09">-09阿拉斯加</option>
+                    <option value="-08">-08洛杉矶</option>
+                    <option value="-07">-07凤凰城</option>
+                    <option value="-06">-06墨西哥城</option>
+                    <option value="-05">-05纽约</option>
+                    <option value="-04">-04圣地亚哥</option>
+                    <option value="-03">-03巴西利亚</option>
+                    <option value="-02">-02大西洋中部</option>
+                    <option value="-01">-01格陵兰岛</option>
+                    <option value="+00">00伦敦</option>
+                    <option value="+01">+01巴黎</option>
+                    <option value="+02">+02雅典。</option>
+                    <option value="+03">+03莫斯科</option>
+                    <option value="+04">+04阿布扎比</option>
+                    <option value="+05">+05伊斯兰堡</option>
+                    <option value="+06">+06仰光</option>
+                    <option value="+07">+07新加坡</option>
+                    <option value="+08" selected>+08北京</option>
+                    <option value="+09">+09东京</option>
+                    <option value="+10">+10墨尔本</option>
+                    <option value="+11">+11所罗门群岛</option>
+                    <option value="+12">+12惠灵顿</option>
+				</select> 
+
+				<input id="utcTime1" type="text" style="width:260px" size="12"/>
+			</div>
+
 			
 			<p>
 				<label>世界标准时间转换</label>
