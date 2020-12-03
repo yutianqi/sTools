@@ -1,266 +1,268 @@
 <!--
-	Auther 	: \u4e8e\u5929\u5947
-	Date  	: 1481737888000
-	Version	: 0.9 beta
+    Auther     : \u4e8e\u5929\u5947
+    Date      : 1481737888000
+    Version    : 0.9 beta
 -->
 
 
 <html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<title>sTool</title>
-		<style type="text/css">
-			body {
-			font:14px Consolas;
-			text-align:left;
-			}
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>sTool</title>
+        <style type="text/css">
+            body {
+            font:14px Consolas;
+            text-align:left;
+            }
 
-			#frame {
-			width:1000px;
-			}
+            #frame {
+            width:1000px;
+            }
 
-			#header {
-			font:19px Consolas;
-			font-weight:bold;
-			margin-bottom:15px;
-			}
+            #header {
+            font:19px Consolas;
+            font-weight:bold;
+            margin-bottom:15px;
+            }
 
-			#left {
-			float:left;
-			width:10px;
-			}
+            #left {
+            float:left;
+            width:10px;
+            }
 
-			div.field {
-			margin-bottom:5px;
-			text-align:left;
-			}
-			
-			div.text {
-			margin-bottom:5px;
-			text-align:center;
-			width:40px
-			}
-			
-		</style>
-	
-		<script type="text/javascript">
+            div.field {
+            margin-bottom:5px;
+            text-align:left;
+            }
+            
+            div.text {
+            margin-bottom:5px;
+            text-align:center;
+            width:40px
+            }
+            
+        </style>
+    
+        <script type="text/javascript">
 
-			window.onload=function(){ 
-				var now = new Date(); 
-				var localeDateString = now.toLocaleDateString();
-				var timeString 	= now.toTimeString().split(" ")[0];
-				var dateArr 	= localeDateString.split("/"); 
-				var timeArr 	= timeString.split(":");
-				var year		= dateArr[0]; 
-				var month   	= dateArr[1]; 
-				var day	 		= dateArr[2]; 
-				var hour   	 	= timeArr[0]; 
-				var minute  	= timeArr[1]; 
-				var second  	= timeArr[2]; 
-				
-				document.getElementById("year").value=year;
-				document.getElementById("month").value=month;
-				document.getElementById("day").value=day;
-				document.getElementById("hour").value=hour;
-				document.getElementById("minute").value=minute;
-				document.getElementById("second").value=second; 
-			} 
-			
-			function transferUtcTimeToUnixTime(value) {
+            window.onload=function(){ 
+                var now = new Date(); 
+                var localeDateString = now.toLocaleDateString();
+                var timeString     = now.toTimeString().split(" ")[0];
+                var dateArr     = localeDateString.split("/"); 
+                var timeArr     = timeString.split(":");
+                var year        = dateArr[0]; 
+                var month       = dateArr[1]; 
+                var day             = dateArr[2]; 
+                var hour            = timeArr[0]; 
+                var minute      = timeArr[1]; 
+                var second      = timeArr[2]; 
+                
+                document.getElementById("year").value=year;
+                document.getElementById("month").value=month;
+                document.getElementById("day").value=day;
+                document.getElementById("hour").value=hour;
+                document.getElementById("minute").value=minute;
+                document.getElementById("second").value=second; 
+            } 
+            
+            function transferUtcTimeToUnixTime(value) {
 
-				var year = document.getElementById("year").value;
-				var month = document.getElementById("month").value;
-				var day = document.getElementById("day").value;
-				var hour = document.getElementById("hour").value;
-				var minute = document.getElementById("minute").value;
-				var second = document.getElementById("second").value;
+                var year = document.getElementById("year").value;
+                var month = document.getElementById("month").value;
+                var day = document.getElementById("day").value;
+                var hour = document.getElementById("hour").value;
+                var minute = document.getElementById("minute").value;
+                var second = document.getElementById("second").value;
 
-				var timestamp = new Date(year,month-1,day,hour,minute,second).getTime();
-				document.getElementById("unixTimeOut").value=timestamp;
-				// execCopy("unixTimeOut");
-				
-			}
+                var timestamp = new Date(year,month-1,day,hour,minute,second).getTime();
+                document.getElementById("unixTimeOut").value=timestamp;
+                // execCopy("unixTimeOut");
+                
+            }
 
-			function transferCtzTimeToUnixTime(format,ctzTime) {
-				if(!ctzTime){
-					return;
-				}
-				ctzTime=ctzTime.replace(/[\:\/ ]/g,"");
-				if(1==format){
-					var year = ctzTime.substring(0,4);
-					var month = ctzTime.substring(4,6);
-					var day = ctzTime.substring(6,8);
-					var hour = ctzTime.substring(8,10);
-					var minute = ctzTime.substring(10,12);
-					var second = ctzTime.substring(12,14);
-				}
-				else if(2==format){
-					var year = ctzTime.substring(4,8);
-					var month = ctzTime.substring(2,4);
-					var day = ctzTime.substring(0,2);
-					var hour = ctzTime.substring(8,10);
-					var minute = ctzTime.substring(10,12);
-					var second = ctzTime.substring(12,14);
-				}
-				var timestamp = new Date(year,month-1,day,hour,minute,second).getTime();
-				document.getElementById("unixTimeCtzOut").value=timestamp;
-				// execCopy("unixTimeCtzOut");
-			}
-			
-			function transferUnixTimeToBeijingTime(){
-				unixTime = document.getElementById("unixTimeIn").value;
-				commonTime = new Date(parseInt(unixTime));
-				document.getElementById("utcTime").value=commonTime.toLocaleDateString()+" "+commonTime.toTimeString().split(" ")[0];
-				// execCopy("utcTime");
-			}
+            function transferCtzTimeToUnixTime(format,ctzTime) {
+                if(!ctzTime){
+                    return;
+                }
+                ctzTime=ctzTime.replace(/[\:\/ ]/g,"");
+                if(1==format){
+                    var year = ctzTime.substring(0,4);
+                    var month = ctzTime.substring(4,6);
+                    var day = ctzTime.substring(6,8);
+                    var hour = ctzTime.substring(8,10);
+                    var minute = ctzTime.substring(10,12);
+                    var second = ctzTime.substring(12,14);
+                }
+                else if(2==format){
+                    var year = ctzTime.substring(4,8);
+                    var month = ctzTime.substring(2,4);
+                    var day = ctzTime.substring(0,2);
+                    var hour = ctzTime.substring(8,10);
+                    var minute = ctzTime.substring(10,12);
+                    var second = ctzTime.substring(12,14);
+                }
+                var timestamp = new Date(year,month-1,day,hour,minute,second).getTime();
+                document.getElementById("unixTimeCtzOut").value=timestamp;
+                // execCopy("unixTimeCtzOut");
+            }
+            
+            function transferUnixTimeToBeijingTime(){
+                unixTime = document.getElementById("unixTimeIn").value;
+                commonTime = new Date(parseInt(unixTime));
+                document.getElementById("utcTime").value=commonTime.toLocaleDateString()+" "+commonTime.toTimeString().split(" ")[0];
+                // execCopy("utcTime");
+            }
             
             
             
             function transferUnixTimeToLocalTime(localTimeZone){
-                console.log(localTimeZone)
-				unixTime = document.getElementById("unixTimeIn1").value;
-                debugger;
-                console.log(unixTime)
-                var exp = unixTime + new Date().getTimezoneOffset() * 60000 + localTimeZone * 3600000;                
+                unixTime = document.getElementById("unixTimeIn1").value;             
+                if (unixTime.length == 9 || unixTime.length == 10) {
+                    unixTime += "000";
+                }
+                if (unixTime.length == 19 && unixTime.endsWith("000000")) {
+                    unixTime = unixTime.substr(0,13);
+                }
+                document.getElementById("unixTimeIn1").value=unixTime;
                 // 0时区时间
-				commonTime = new Date(parseInt(unixTime) + new Date().getTimezoneOffset() * 60000 + localTimeZone * 3600000);
-                console.log(commonTime)
-				document.getElementById("utcTime1").value=commonTime.toLocaleDateString()+" "+commonTime.toTimeString().split(" ")[0];
-				// execCopy("utcTime1");
-			}
-			
-			
-			function transferUnicodeToChinese(){
-				unicodeString = document.getElementById("unicodeString").value
-				document.getElementById("chineseString").value=eval("'" + unicodeString + "'");
-				// execCopy("chineseString");
-			}
-			
-			
-			function transferChineseToUnicode(){ 
-				chineseString = document.getElementById("chineseString2").value;
-				document.getElementById("unicodeString2").value=escape(chineseString).replace(/%/g,"\\").toLowerCase();	
-				// execCopy("unicodeString2");
-			}
-			
-			
-			function toUnicode(str){ 
-				return str.replace(/([\u4E00-\u9FA5]|[\uFE30-\uFFA0])/g,function(){
-					return "\\u" + RegExp["$1"].charCodeAt(0).toString(16);
-				});
-			} 
-			
-			function execCopy(str){ 
-				document.getElementById(str).select(); 
-				document.execCommand("Copy"); 
-			} 
-			
-			function execTab(str,maxLen,next){
-				if (str.length>--maxLen){
-					document.getElementById(next).select();
-					document.getElementById(next).focus();
-				}
-				
-			}
-			
-			function jsExecCmd(value) {
-				var  cmd = new ActiveXObject("WScript.Shell");
-				/*
-				命令参数说明
-				cmd.exe /c dir 是执行完dir命令后关闭命令窗口。
-				cmd.exe /k dir 是执行完dir命令后不关闭命令窗口。
-				cmd.exe /c start dir 会打开一个新窗口后执行dir指令，原窗口会关闭。
-				cmd.exe /k start dir 会打开一个新窗口后执行dir指令，原窗口不会关闭。
-				*/
-				//执行完cmd命令后不关闭命令窗口。
-				cmd.run("cmd.exe /k "+value);
-
-				//执行完cmd命令后不关闭命令窗口。
-				cmd.run("cmd.exe /k "+value);
-				cmd = null;
-
-				}
-			
-			function worldTimeConvert(inputTimeZone, outputTimeZone){
-				inputZoneTime = document.getElementById("inputZoneTime").value;
-				inputZoneTime=inputZoneTime.replace(/[\:\/ ]/g,"");
-				
-				var year = inputZoneTime.substring(0,4);
-				var month = inputZoneTime.substring(4,6);
-				var day = inputZoneTime.substring(6,8);
-				var hour = inputZoneTime.substring(8,10);
-				var minute = inputZoneTime.substring(10,12);
-				var second = inputZoneTime.substring(12,14);
-
-				hour = (parseInt(hour) - parseInt(inputTimeZone) + parseInt(outputTimeZone)).toString();
-				
-				hour = hour > 23 ? hour-24 : hour;
-				day	 = hour > 23 ? (parseInt(hour)+1).toString() : day;
-				
-				document.getElementById("outputZoneTime").value=year+"/"+month+"/"+day+" "+hour+":"+minute+":"+second;
-				// execCopy("outputZoneTime");
-			}
-
-		</script>
-	</head>
-
-	<body>
-		<div>
-			<img src="http://www.huawei.com/Assets/CBG/img/logo.png"/>
-		</div>
-	
-		<div id="frame">
-			<div id="header">sTool v0.9 beta</div>
-			
-			
-			<p>
-				<label>北京时间(UTC+8)转换为Unix时间</label>
-			</p>
-			<div class="field">
-				<input id="year" type="text" style="width:42px" size="12" onkeyup="execTab(year.value,4,'month')"/>年
-				<input id="month" type="text" style="width:26px" size="12" onkeyup="execTab(month.value,2,'day')"/>月
-				<input id="day" type="text" style="width:26px" size="12" onkeyup="execTab(day.value,2,'hour')"/>日
-				<input id="hour" type="text" style="width:26px" size="12" onkeyup="execTab(hour.value,2,'minute')"/>时
-				<input id="minute" type="text" style="width:26px" size="12" onkeyup="execTab(minute.value,2,'second')"/>分
-				<input id="second" type="text" style="width:26px" size="12" onkeyup="execTab(second.value,2,'transferUtcTimeToUnixTime')"/>秒
-				<input id="transferUtcTimeToUnixTime" type="button" value="转换为Unix时间" onclick="transferUtcTimeToUnixTime()" />
-				<input id="unixTimeOut" type="text" style="width:125px" size="12" />
-			</div>
-
-			<p>
-				<label>自定义时间转换为Unix时间</label>
-			</p>
-			<div class="field">
-				<input id="ctzTime" type="text" style="width:130px" size="12"/>
-				<select name="selectFormat" id="selectFormat">   
-					<option value="1">yyyy/MM/dd hh:mm:ss</option>
-					<option value="1">yyyyMMddhhmmss</option>
-					<option value="2">ddMMyyyyhhmmss</option> 
-				</select> 
-				<input type="button" value="转换为Unix时间" onclick="transferCtzTimeToUnixTime(selectFormat.value,ctzTime.value)" />
-				<input id="unixTimeCtzOut" type="text" style="width:125px" size="12" />
-			</div>
-			
+                commonTime = new Date(parseInt(unixTime) + new Date().getTimezoneOffset() * 60000 + localTimeZone * 3600000);
+                document.getElementById("utcTime1").value=commonTime.toLocaleDateString()+" "+commonTime.toTimeString().split(" ")[0];
+                // execCopy("utcTime1");
+            }
             
-            <!--
-			<p>
-				<label>Unix时间转换为北京时间</label>
-			</p>
-			<div class="field">
-				<input id="unixTimeIn" type="text" style="width:160px" size="12" />
-				<input type="button" value="转换为北京时间" onclick="transferUnixTimeToBeijingTime()" />
-				<input id="utcTime" type="text" style="width:260px" size="12"/>
-			</div>
-            -->
-			
+            
+            function transferUnicodeToChinese(){
+                unicodeString = document.getElementById("unicodeString").value
+                document.getElementById("chineseString").value=eval("'" + unicodeString + "'");
+                // execCopy("chineseString");
+            }
+            
+            
+            function transferChineseToUnicode(){ 
+                chineseString = document.getElementById("chineseString2").value;
+                document.getElementById("unicodeString2").value=escape(chineseString).replace(/%/g,"\\").toLowerCase();    
+                // execCopy("unicodeString2");
+            }
+            
+            
+            function toUnicode(str){ 
+                return str.replace(/([\u4E00-\u9FA5]|[\uFE30-\uFFA0])/g,function(){
+                    return "\\u" + RegExp["$1"].charCodeAt(0).toString(16);
+                });
+            } 
+            
+            function execCopy(str){ 
+                document.getElementById(str).select(); 
+                document.execCommand("Copy"); 
+            } 
+            
+            function execTab(str,maxLen,next){
+                if (str.length>--maxLen){
+                    document.getElementById(next).select();
+                    document.getElementById(next).focus();
+                }
+                
+            }
+            
+            function jsExecCmd(value) {
+                var  cmd = new ActiveXObject("WScript.Shell");
+                /*
+                命令参数说明
+                cmd.exe /c dir 是执行完dir命令后关闭命令窗口。
+                cmd.exe /k dir 是执行完dir命令后不关闭命令窗口。
+                cmd.exe /c start dir 会打开一个新窗口后执行dir指令，原窗口会关闭。
+                cmd.exe /k start dir 会打开一个新窗口后执行dir指令，原窗口不会关闭。
+                */
+                //执行完cmd命令后不关闭命令窗口。
+                cmd.run("cmd.exe /k "+value);
+
+                //执行完cmd命令后不关闭命令窗口。
+                cmd.run("cmd.exe /k "+value);
+                cmd = null;
+
+                }
+            
+            function worldTimeConvert(inputTimeZone, outputTimeZone){
+                inputZoneTime = document.getElementById("inputZoneTime").value;
+                inputZoneTime=inputZoneTime.replace(/[\:\/ ]/g,"");
+                
+                var year = inputZoneTime.substring(0,4);
+                var month = inputZoneTime.substring(4,6);
+                var day = inputZoneTime.substring(6,8);
+                var hour = inputZoneTime.substring(8,10);
+                var minute = inputZoneTime.substring(10,12);
+                var second = inputZoneTime.substring(12,14);
+
+                hour = (parseInt(hour) - parseInt(inputTimeZone) + parseInt(outputTimeZone)).toString();
+                
+                hour = hour > 23 ? hour-24 : hour;
+                day     = hour > 23 ? (parseInt(hour)+1).toString() : day;
+                
+                document.getElementById("outputZoneTime").value=year+"/"+month+"/"+day+" "+hour+":"+minute+":"+second;
+                // execCopy("outputZoneTime");
+            }
+
+        </script>
+    </head>
+
+    <body>
+        <div>
+            <img src="http://www.huawei.com/Assets/CBG/img/logo.png"/>
+        </div>
+    
+        <div id="frame">
+            <div id="header">sTool v0.9 beta</div>
+            
+            
+            <p>
+                <label>北京时间(UTC+8)转换为Unix时间</label>
+            </p>
+            <div class="field">
+                <input id="year" type="text" style="width:42px" size="12" onkeyup="execTab(year.value,4,'month')"/>年
+                <input id="month" type="text" style="width:26px" size="12" onkeyup="execTab(month.value,2,'day')"/>月
+                <input id="day" type="text" style="width:26px" size="12" onkeyup="execTab(day.value,2,'hour')"/>日
+                <input id="hour" type="text" style="width:26px" size="12" onkeyup="execTab(hour.value,2,'minute')"/>时
+                <input id="minute" type="text" style="width:26px" size="12" onkeyup="execTab(minute.value,2,'second')"/>分
+                <input id="second" type="text" style="width:26px" size="12" onkeyup="execTab(second.value,2,'transferUtcTimeToUnixTime')"/>秒
+                <input id="transferUtcTimeToUnixTime" type="button" value="转换为Unix时间" onclick="transferUtcTimeToUnixTime()" />
+                <input id="unixTimeOut" type="text" style="width:125px" size="12" />
+            </div>
 
             <p>
-				<label>Unix时间转换为各时区时间</label>
-			</p>
-			<div class="field">
-				<input id="unixTimeIn1" type="text" style="width:160px" size="12" />
-				<input type="button" value="转换为指定时区时间" onclick="transferUnixTimeToLocalTime(inputTimeZone1.value)" />
-   				<select name="inputTimeZone1" id="inputTimeZone1">   
+                <label>自定义时间转换为Unix时间</label>
+            </p>
+            <div class="field">
+                <input id="ctzTime" type="text" style="width:130px" size="12"/>
+                <select name="selectFormat" id="selectFormat">   
+                    <option value="1">yyyy/MM/dd hh:mm:ss</option>
+                    <option value="1">yyyyMMddhhmmss</option>
+                    <option value="2">ddMMyyyyhhmmss</option> 
+                </select> 
+                <input type="button" value="转换为Unix时间" onclick="transferCtzTimeToUnixTime(selectFormat.value,ctzTime.value)" />
+                <input id="unixTimeCtzOut" type="text" style="width:125px" size="12" />
+            </div>
+            
+            
+            <!--
+            <p>
+                <label>Unix时间转换为北京时间</label>
+            </p>
+            <div class="field">
+                <input id="unixTimeIn" type="text" style="width:160px" size="12" />
+                <input type="button" value="转换为北京时间" onclick="transferUnixTimeToBeijingTime()" />
+                <input id="utcTime" type="text" style="width:260px" size="12"/>
+            </div>
+            -->
+            
+
+            <p>
+                <label>Unix时间转换为各时区时间</label>
+            </p>
+            <div class="field">
+                <input id="unixTimeIn1" type="text" style="width:160px" size="12" />
+                <input type="button" value="转换为指定时区时间" onclick="transferUnixTimeToLocalTime(inputTimeZone1.value)" />
+                   <select name="inputTimeZone1" id="inputTimeZone1">   
                     <option value="-11">-11中途岛</option>
                     <option value="-10">-10檀香山</option>
                     <option value="-09">-09阿拉斯加</option>
@@ -285,59 +287,59 @@
                     <option value="+10">+10墨尔本</option>
                     <option value="+11">+11所罗门群岛</option>
                     <option value="+12">+12惠灵顿</option>
-				</select> 
+                </select> 
 
-				<input id="utcTime1" type="text" style="width:260px" size="12"/>
-			</div>
+                <input id="utcTime1" type="text" style="width:260px" size="12"/>
+            </div>
 
-			
-			<p>
-				<label>世界标准时间转换</label>
-			</p>
-			<div class="field">
-				<select name="inputTimeZone" id="inputTimeZone">   
-					<option value="-5">厄瓜多尔(-5)</option> 
-					<option value="1">尼日利亚(+1)</option>
-					<option value="8">北京(+8)</option>
-					<option value="0">UTC+0</option>
-				</select> 
-				<input id="inputZoneTime" type="text" style="width:130px" size="12"/>
-				<input type="button" value="转换为" onclick="worldTimeConvert(inputTimeZone.value,outputTime.value)" />
-				<select name="outputTime" id="outputTime">  
-					<option value="8">北京(+8)</option>		
-					<option value="0">UTC+0</option>					
-					<option value="-5">厄瓜多尔(-5)</option> 
-					<option value="1">尼日利亚(+1)</option>
-				</select> 
-				<input id="outputZoneTime" type="text" style="width:125px" size="12" />
-			</div>
-			
-			
-			
-			<br/><br/>
-			
-			<p>
-				<label>Unicode转换为中文</label>
-			</p>
-			<div class="field">			
-				<input id="unicodeString" type="text" style="width:275px" size="12" />
-				<input type="button" value="转换为中文" onclick="transferUnicodeToChinese()" />
-				<input id="chineseString" type="text" style="width:170px" size="12"/>
-			</div>
-			
-			<p>
-				<label>中文转换为Unicode</label>
-			</p>
-			<div class="field">
-				<input id="chineseString2" type="text" style="width:160px" size="12" />
-				<input type="button" value="转换为Unicode" onclick="transferChineseToUnicode()" />
-				<input id="unicodeString2" type="text" style="width:265px" size="12"/>
-			</div>
-		</div>
+            
+            <p>
+                <label>世界标准时间转换</label>
+            </p>
+            <div class="field">
+                <select name="inputTimeZone" id="inputTimeZone">   
+                    <option value="-5">厄瓜多尔(-5)</option> 
+                    <option value="1">尼日利亚(+1)</option>
+                    <option value="8">北京(+8)</option>
+                    <option value="0">UTC+0</option>
+                </select> 
+                <input id="inputZoneTime" type="text" style="width:130px" size="12"/>
+                <input type="button" value="转换为" onclick="worldTimeConvert(inputTimeZone.value,outputTime.value)" />
+                <select name="outputTime" id="outputTime">  
+                    <option value="8">北京(+8)</option>        
+                    <option value="0">UTC+0</option>                    
+                    <option value="-5">厄瓜多尔(-5)</option> 
+                    <option value="1">尼日利亚(+1)</option>
+                </select> 
+                <input id="outputZoneTime" type="text" style="width:125px" size="12" />
+            </div>
+            
+            
+            
+            <br/><br/>
+            
+            <p>
+                <label>Unicode转换为中文</label>
+            </p>
+            <div class="field">            
+                <input id="unicodeString" type="text" style="width:275px" size="12" />
+                <input type="button" value="转换为中文" onclick="transferUnicodeToChinese()" />
+                <input id="chineseString" type="text" style="width:170px" size="12"/>
+            </div>
+            
+            <p>
+                <label>中文转换为Unicode</label>
+            </p>
+            <div class="field">
+                <input id="chineseString2" type="text" style="width:160px" size="12" />
+                <input type="button" value="转换为Unicode" onclick="transferChineseToUnicode()" />
+                <input id="unicodeString2" type="text" style="width:265px" size="12"/>
+            </div>
+        </div>
 
-		<!--
-		<input type="button" value="TestButton" onclick="jsExecCmd("dir")" />
-		-->
+        <!--
+        <input type="button" value="TestButton" onclick="jsExecCmd("dir")" />
+        -->
 
-	</body>
+    </body>
 </html
