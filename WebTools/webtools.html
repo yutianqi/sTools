@@ -67,7 +67,8 @@
             } 
             
             function transferUtcTimeToUnixTime(value) {
-
+                debugger;
+                console.log(value);
                 var year = document.getElementById("year").value;
                 var month = document.getElementById("month").value;
                 var day = document.getElementById("day").value;
@@ -75,7 +76,7 @@
                 var minute = document.getElementById("minute").value;
                 var second = document.getElementById("second").value;
 
-                var timestamp = new Date(year,month-1,day,hour,minute,second).getTime();
+                var timestamp = new Date(year,month-1,day,hour,minute,second).getTime() + (8-value) * 3600 * 1000;
                 document.getElementById("unixTimeOut").value=timestamp;
                 // execCopy("unixTimeOut");
                 
@@ -216,16 +217,43 @@
             
             
             <p>
-                <label>北京时间(UTC+8)转换为Unix时间</label>
+                <label>各时区时间(UTC+8)转换为Unix时间</label>
             </p>
+
             <div class="field">
+                <select name="inputTimeZone2" id="inputTimeZone2">   
+                    <option value="-11">-11中途岛</option>
+                    <option value="-10">-10檀香山</option>
+                    <option value="-09">-09阿拉斯加</option>
+                    <option value="-08">-08洛杉矶</option>
+                    <option value="-07">-07凤凰城</option>
+                    <option value="-06">-06墨西哥城</option>
+                    <option value="-05">-05纽约</option>
+                    <option value="-04">-04圣地亚哥</option>
+                    <option value="-03">-03巴西利亚</option>
+                    <option value="-02">-02费尔南多</option>
+                    <option value="-01">-01佛德尔群岛</option>
+                    <option value="+00">00伦敦</option>
+                    <option value="+01">+01巴黎</option>
+                    <option value="+02">+02雅典</option>
+                    <option value="+03">+03莫斯科</option>
+                    <option value="+04">+04阿布扎比</option>
+                    <option value="+05">+05伊斯兰堡</option>
+                    <option value="+06">+06仰光</option>
+                    <option value="+07">+07新加坡</option>
+                    <option value="+08" selected>+08北京</option>
+                    <option value="+09">+09东京</option>
+                    <option value="+10">+10墨尔本</option>
+                    <option value="+11">+11所罗门群岛</option>
+                    <option value="+12">+12惠灵顿</option>
+                </select> 
                 <input id="year" type="text" style="width:42px" size="12" onkeyup="execTab(year.value,4,'month')"/>年
                 <input id="month" type="text" style="width:26px" size="12" onkeyup="execTab(month.value,2,'day')"/>月
                 <input id="day" type="text" style="width:26px" size="12" onkeyup="execTab(day.value,2,'hour')"/>日
                 <input id="hour" type="text" style="width:26px" size="12" onkeyup="execTab(hour.value,2,'minute')"/>时
                 <input id="minute" type="text" style="width:26px" size="12" onkeyup="execTab(minute.value,2,'second')"/>分
                 <input id="second" type="text" style="width:26px" size="12" onkeyup="execTab(second.value,2,'transferUtcTimeToUnixTime')"/>秒
-                <input id="transferUtcTimeToUnixTime" type="button" value="转换为Unix时间" onclick="transferUtcTimeToUnixTime()" />
+                <input id="transferUtcTimeToUnixTime" type="button" value="转换为Unix时间" onclick="transferUtcTimeToUnixTime(inputTimeZone2.value)" />
                 <input id="unixTimeOut" type="text" style="width:125px" size="12" />
             </div>
 
@@ -262,7 +290,7 @@
             <div class="field">
                 <input id="unixTimeIn1" type="text" style="width:160px" size="12" />
                 <input type="button" value="转换为指定时区时间" onclick="transferUnixTimeToLocalTime(inputTimeZone1.value)" />
-                   <select name="inputTimeZone1" id="inputTimeZone1">   
+                <select name="inputTimeZone1" id="inputTimeZone1">   
                     <option value="-11">-11中途岛</option>
                     <option value="-10">-10檀香山</option>
                     <option value="-09">-09阿拉斯加</option>
@@ -272,11 +300,11 @@
                     <option value="-05">-05纽约</option>
                     <option value="-04">-04圣地亚哥</option>
                     <option value="-03">-03巴西利亚</option>
-                    <option value="-02">-02费尔南多迪诺罗尼亚</option>
+                    <option value="-02">-02费尔南多</option>
                     <option value="-01">-01佛德尔群岛</option>
                     <option value="+00">00伦敦</option>
                     <option value="+01">+01巴黎</option>
-                    <option value="+02">+02雅典。</option>
+                    <option value="+02">+02雅典</option>
                     <option value="+03">+03莫斯科</option>
                     <option value="+04">+04阿布扎比</option>
                     <option value="+05">+05伊斯兰堡</option>
