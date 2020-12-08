@@ -217,7 +217,7 @@
             
             
             <p>
-                <label>各时区时间(UTC+8)转换为Unix时间</label>
+                <label>各时区时间转换为Unix时间戳</label>
             </p>
 
             <div class="field">
@@ -247,6 +247,7 @@
                     <option value="+11">+11所罗门群岛</option>
                     <option value="+12">+12惠灵顿</option>
                 </select> 
+                时间
                 <input id="year" type="text" style="width:42px" size="12" onkeyup="execTab(year.value,4,'month')"/>年
                 <input id="month" type="text" style="width:26px" size="12" onkeyup="execTab(month.value,2,'day')"/>月
                 <input id="day" type="text" style="width:26px" size="12" onkeyup="execTab(day.value,2,'hour')"/>日
@@ -258,7 +259,7 @@
             </div>
 
             <p>
-                <label>自定义时间转换为Unix时间</label>
+                <label>自定义格式北京时间(+08)转换为Unix时间</label>
             </p>
             <div class="field">
                 <input id="ctzTime" type="text" style="width:130px" size="12"/>
