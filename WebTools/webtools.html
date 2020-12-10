@@ -6,574 +6,591 @@
 
 
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>sTool</title>
-        <style type="text/css">
-            body {
-                font:14px Consolas;
-                text-align:left;
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>sTool</title>
+    <style type="text/css">
+        body {
+            font: 14px Consolas;
+            text-align: left;
+        }
+
+        #frame {
+            width: 1500px;
+        }
+
+        #header {
+            font: 19px Consolas;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        #left {
+            float: left;
+            width: 10px;
+        }
+
+        div.field {
+            margin-bottom: 5px;
+            text-align: left;
+        }
+
+        div.text {
+            margin-bottom: 5px;
+            text-align: center;
+            width: 40px
+        }
+
+        input[readonly] {
+            background-color: #eeeeee;
+            border: 1px solid #000000;
+        }
+    </style>
+
+    <script type="text/javascript">
+
+        var blurElementId = "";
+
+        /**
+         * 页面加载初始化
+         */
+        window.onload = function () {
+            var now = new Date();
+            initTransferUtcTimeToUnixTime(now);
+            initTransferUnixTimestampToLocalTime(now);
+            initWorldTimeConvert(now);
+        }
+
+
+
+        /**
+         * 初始化各时区时间转换为Unix时间戳
+         */
+        function initTransferUtcTimeToUnixTime(now) {
+            var localeDateString = now.toLocaleDateString();
+            var timeString = now.toTimeString().split(" ")[0];
+            var dateArr = localeDateString.split("/");
+            var timeArr = timeString.split(":");
+            var year = dateArr[0];
+            var month = dateArr[1];
+            var day = dateArr[2];
+            var hour = timeArr[0];
+            var minute = timeArr[1];
+            var second = timeArr[2];
+
+            document.getElementById("year").value = year;
+            document.getElementById("month").value = month;
+            document.getElementById("day").value = day;
+            document.getElementById("hour").value = hour;
+            document.getElementById("minute").value = minute;
+            document.getElementById("second").value = second;
+        }
+
+        /**
+         * 初始化Unix时间转换为各时区时间
+         */
+        function initTransferUnixTimestampToLocalTime(now) {
+            document.getElementById("unixTimeIn1").value = parseInt(now.valueOf() / 1000) * 1000;
+        }
+
+        /**
+         * 初始化世界标准时间转换
+         */
+        function initWorldTimeConvert(now) {
+            document.getElementById("inputZoneTime").value = convertJsDateToString(now);
+        }
+
+        /**
+         * 将各时区时间转换为Unix时间戳
+         */
+        function transferUtcTimeToUnixTime(value) {
+            debugger;
+            console.log(value);
+            var year = document.getElementById("year").value;
+            var month = document.getElementById("month").value;
+            var day = document.getElementById("day").value;
+            var hour = document.getElementById("hour").value;
+            var minute = document.getElementById("minute").value;
+            var second = document.getElementById("second").value;
+
+            var timestamp = new Date(year, month - 1, day, hour, minute, second).getTime() + (8 - value) * 3600 * 1000;
+            document.getElementById("unixTimeOut").value = timestamp;
+            // execCopy("unixTimeOut");
+        }
+
+
+        /**
+         * 将Unix时间戳转换为各时区时间
+         */
+        function transferUnixTimestampToLocalTime(localTimeZone) {
+            unixTime = document.getElementById("unixTimeIn1").value;
+            if (unixTime.length == 9 || unixTime.length == 10) {
+                unixTime += "000";
             }
-
-            #frame {
-                width:1500px;
+            if (unixTime.length == 19 && unixTime.endsWith("000000")) {
+                unixTime = unixTime.substr(0, 13);
             }
-
-            #header {
-                font:19px Consolas;
-                font-weight:bold;
-                margin-bottom:15px;
-            }
-
-            #left {
-                float:left;
-                width:10px;
-            }
-
-            div.field {
-                margin-bottom:5px;
-                text-align:left;
-            }
-
-            div.text {
-                margin-bottom:5px;
-                text-align:center;
-                width:40px
-            }
-            
-            input[readonly] {
-                background-color: #eeeeee;
-                border:1px solid #000000;
-            }
-            
-
-        </style>
-
-        <script type="text/javascript">
-
-            var blurElementId = "";
-
-            window.onload=function(){
-                var now = new Date();
-                initTransferUtcTimeToUnixTime(now);
-                initTransferUnixTimeToLocalTime(now);
-                initWorldTimeConvert(now);
-            }
-
-            /**
-             * 初始化各时区时间转换为Unix时间戳
-             */
-            function initTransferUtcTimeToUnixTime(now) {
-                var localeDateString = now.toLocaleDateString();
-                var timeString     = now.toTimeString().split(" ")[0];
-                var dateArr     = localeDateString.split("/");
-                var timeArr     = timeString.split(":");
-                var year        = dateArr[0];
-                var month       = dateArr[1];
-                var day         = dateArr[2];
-                var hour        = timeArr[0];
-                var minute      = timeArr[1];
-                var second      = timeArr[2];
-
-                document.getElementById("year").value=year;
-                document.getElementById("month").value=month;
-                document.getElementById("day").value=day;
-                document.getElementById("hour").value=hour;
-                document.getElementById("minute").value=minute;
-                document.getElementById("second").value=second;
-            }
-
-            /**
-             * 初始化Unix时间转换为各时区时间
-             */
-            function initTransferUnixTimeToLocalTime(now){
-                document.getElementById("unixTimeIn1").value=parseInt(now.valueOf()/1000)*1000;
-            }
+            document.getElementById("unixTimeIn1").value = unixTime;
+            // 0时区时间
+            commonTime = new Date(parseInt(unixTime) + new Date().getTimezoneOffset() * 60000 + localTimeZone * 3600000);
+            document.getElementById("utcTime1").value = commonTime.toLocaleDateString() + " " + commonTime.toTimeString().split(" ")[0];
+            // execCopy("utcTime1");
+        }
 
 
+        /**
+         * 将源时区的指定时间，转换为目标时区的时间
+         *
+         * @param inputTimeZone 源时区
+         * @param outputTimeZone 目标时区
+         * @param inputZoneTime 源时区时间
+         * @param outputZoneTimeId 页面元素ID
+         */
+        function worldTimeConvert(inputTimeZone, outputTimeZone, inputZoneTime, outputZoneTimeId) {
+            debugger;
+            // 格式化输入时间
+            inputZoneTime = inputZoneTime.replace(/-/g, "/") + " GMT" + inputTimeZone + "00";
+            // inputZoneTime=inputZoneTime.replace(/-/g, "/");
+            // 将输入时间转换为UTC时间戳
+            date = new Date(inputZoneTime);
 
-            /**
-             * 初始化世界标准时间转换
-             */
-            function initWorldTimeConvert(now){
-                var localeDateString = now.toLocaleDateString();
-                var timeString     = now.toTimeString().split(" ")[0];
-                var dateArr     = localeDateString.split("/");
-                var timeArr     = timeString.split(":");
-                var year        = dateArr[0];
-                var month       = dateArr[1];
-                var day         = dateArr[2];
-                var hour        = timeArr[0];
-                var minute      = timeArr[1];
-                var second      = timeArr[2];
+            timestamp = date.getTime() + (date.getTimezoneOffset() / 60 + parseInt(outputTimeZone)) * 3600000;
 
-                document.getElementById("inputZoneTime").value=year + "/" + month + "/" + day + " "+ hour + ":" + minute + ":" + second;
-            }
+            document.getElementById(outputZoneTimeId).value = convertJsDateToString(new Date(timestamp));
+        }
 
 
 
 
-            /**
-             * 各时区时间转换为Unix时间戳
-             */
-            function transferUtcTimeToUnixTime(value) {
-                debugger;
-                console.log(value);
-                var year = document.getElementById("year").value;
-                var month = document.getElementById("month").value;
-                var day = document.getElementById("day").value;
-                var hour = document.getElementById("hour").value;
-                var minute = document.getElementById("minute").value;
-                var second = document.getElementById("second").value;
 
-                var timestamp = new Date(year,month-1,day,hour,minute,second).getTime() + (8-value) * 3600 * 1000;
-                document.getElementById("unixTimeOut").value=timestamp;
-                // execCopy("unixTimeOut");
 
-            }
+        /**
+         * 将unicode转为中文
+         */
+        function transferUnicodeToChinese() {
+            unicodeString = document.getElementById("unicodeString").value
+            document.getElementById("chineseString").value = eval("'" + unicodeString + "'");
+            // execCopy("chineseString");
+        }
 
-            function transferCtzTimeToUnixTime(format,ctzTime) {
-                if(!ctzTime){
-                    return;
+        /**
+         * 将中文转为unicode
+         */
+        function transferChineseToUnicode() {
+            chineseString = document.getElementById("chineseString2").value;
+            document.getElementById("unicodeString2").value = escape(chineseString).replace(/%/g, "\\").toLowerCase();
+            // execCopy("unicodeString2");
+        }
+
+        function toUnicode(str) {
+            return str.replace(/([\u4E00-\u9FA5]|[\uFE30-\uFFA0])/g, function () {
+                return "\\u" + RegExp["$1"].charCodeAt(0).toString(16);
+            });
+        }
+
+
+
+
+
+        /**
+         * 将02进制数转为其他进制 
+         */
+        function transFromBinary() {
+            var inputValue = document.getElementById("binValue").value;
+            radixTrans(inputValue, 2);
+        }
+
+        /**
+         * 将08进制数转为其他进制 
+         */
+        function transFromOctal() {
+            var inputValue = document.getElementById("octValue").value;
+            radixTrans(inputValue, 8);
+        }
+
+        /**
+         * 将10进制数转为其他进制 
+         */
+        function transFromDecimal() {
+            var inputValue = document.getElementById("decValue").value;
+            radixTrans(inputValue, 10);
+        }
+
+        /**
+         * 将16进制数转为其他进制 
+         */
+        function transFromHexadecimal() {
+            var endianValue = document.getElementById("endianValue").value;
+            var inputValue = document.getElementById("hexValue").value;
+            var bigEndianValue = "";
+            debugger;
+            if (endianValue == "0123") {
+                bigEndianValue = inputValue;
+            } else if (endianValue == "3210") {
+                bigEndianValue = inputValue.split('').reverse().join('');
+            } else {
+                for (i = inputValue.length / 2; i > 0; i--) {
+                    console.log(inputValue.charAt(i * 2 - 2) + inputValue.charAt(i * 2 - 1));
+                    bigEndianValue = bigEndianValue + inputValue.charAt(i * 2 - 2) + inputValue.charAt(i * 2 - 1);
                 }
-                ctzTime=ctzTime.replace(/[\:\/ ]/g,"");
-                if(1==format){
-                    var year = ctzTime.substring(0,4);
-                    var month = ctzTime.substring(4,6);
-                    var day = ctzTime.substring(6,8);
-                    var hour = ctzTime.substring(8,10);
-                    var minute = ctzTime.substring(10,12);
-                    var second = ctzTime.substring(12,14);
-                }
-                else if(2==format){
-                    var year = ctzTime.substring(4,8);
-                    var month = ctzTime.substring(2,4);
-                    var day = ctzTime.substring(0,2);
-                    var hour = ctzTime.substring(8,10);
-                    var minute = ctzTime.substring(10,12);
-                    var second = ctzTime.substring(12,14);
-                }
-                var timestamp = new Date(year,month-1,day,hour,minute,second).getTime();
-                document.getElementById("unixTimeCtzOut").value=timestamp;
-                // execCopy("unixTimeCtzOut");
             }
 
-            function transferUnixTimeToBeijingTime(){
-                unixTime = document.getElementById("unixTimeIn").value;
-                commonTime = new Date(parseInt(unixTime));
-                document.getElementById("utcTime").value=commonTime.toLocaleDateString()+" "+commonTime.toTimeString().split(" ")[0];
-                // execCopy("utcTime");
+            radixTrans(bigEndianValue, 16);
+        }
+
+        /**
+         * 进制转换 
+         * 
+         * @param inputValue 原始值
+         * @param fromRadix  原始进制
+         */
+        function radixTrans(inputValue, fromRadix) {
+            debugger;
+            document.getElementById("binValue").value = parseInt(inputValue, fromRadix).toString(2);
+            document.getElementById("octValue").value = parseInt(inputValue, fromRadix).toString(8);
+            document.getElementById("decValue").value = parseInt(inputValue, fromRadix).toString(10);
+
+            var hexValue = parseInt(inputValue, fromRadix).toString(16).toUpperCase();
+            if (hexValue.length % 2 == 1) {
+                hexValue = "0" + hexValue
+            }
+            if (fromRadix != 16) {
+                document.getElementById("hexValue").value = hexValue;
             }
 
+            var hexValue1 = hexValue;
+            document.getElementById("hexValue1").value = hexValue;
 
-            /**
-             * Unix时间转换为各时区时间
-             */
-            function transferUnixTimeToLocalTime(localTimeZone){
-                unixTime = document.getElementById("unixTimeIn1").value;
-                if (unixTime.length == 9 || unixTime.length == 10) {
-                    unixTime += "000";
-                }
-                if (unixTime.length == 19 && unixTime.endsWith("000000")) {
-                    unixTime = unixTime.substr(0,13);
-                }
-                document.getElementById("unixTimeIn1").value=unixTime;
-                // 0时区时间
-                commonTime = new Date(parseInt(unixTime) + new Date().getTimezoneOffset() * 60000 + localTimeZone * 3600000);
-                document.getElementById("utcTime1").value=commonTime.toLocaleDateString()+" "+commonTime.toTimeString().split(" ")[0];
-                // execCopy("utcTime1");
+            var hexValue2 = hexValue.split('').reverse().join('');
+            document.getElementById("hexValue2").value = hexValue2;
+
+            var hexValue3 = "";
+            for (i = hexValue.length / 2; i > 0; i--) {
+                hexValue3 = hexValue3 + hexValue.charAt(i * 2 - 2) + hexValue.charAt(i * 2 - 1)
             }
 
+            document.getElementById("hexValue3").value = hexValue3;
+        }
 
-            function transferUnicodeToChinese(){
-                unicodeString = document.getElementById("unicodeString").value
-                document.getElementById("chineseString").value=eval("'" + unicodeString + "'");
-                // execCopy("chineseString");
+        /**
+         * 处理页面元素blur事件
+         */
+        function elementBlur(id) {
+            blurElementId = id;
+            console.log(blurElementId);
+        }
+
+        /**
+         * 将数据使用指定字符填充到指定长度
+         */
+        function fill(num, length, fillChar) {
+            num = num.toString();
+            while (num.length < length) {
+                num = fillChar + num;
+            }
+            return num;
+        }
+
+        /**
+         * 将js日期转换为 yyyy:MM:DD hh:mm:ss格式
+         */
+        function convertJsDateToString2(jsDate) {
+            var localeDateString = jsDate.toLocaleDateString();
+            var timeString = jsDate.toTimeString().split(" ")[0];
+            return localeDateString + " " + timeString;
+        }
+
+        /**
+         * 将js日期转换为 yyyy:MM:DD hh:mm:ss格式
+         */
+        function convertJsDateToString(jsDate) {
+            var localeDateString = jsDate.toLocaleDateString();
+            var timeString = jsDate.toTimeString().split(" ")[0];
+
+            var dateArr = localeDateString.split("/");
+            var timeArr = timeString.split(":");
+
+            var year = fill(dateArr[0], 4, "0");
+            var month = fill(dateArr[1], 2, "0");
+            var day = fill(dateArr[2], 2, "0");
+            var hour = fill(timeArr[0], 2, "0");
+            var minute = fill(timeArr[1], 2, "0");
+            var second = fill(timeArr[2], 2, "0");
+
+            formatedDateTimeStr = year + "/" + month + "/" + day + " " + hour + ":" + minute + ":" + second;
+
+            return formatedDateTimeStr;
+        }
+
+
+
+
+
+
+
+
+
+        function jsExecCmd(value) {
+            var cmd = new ActiveXObject("WScript.Shell");
+            /*
+            命令参数说明
+            cmd.exe /c dir 是执行完dir命令后关闭命令窗口。
+            cmd.exe /k dir 是执行完dir命令后不关闭命令窗口。
+            cmd.exe /c start dir 会打开一个新窗口后执行dir指令，原窗口会关闭。
+            cmd.exe /k start dir 会打开一个新窗口后执行dir指令，原窗口不会关闭。
+            */
+            //执行完cmd命令后不关闭命令窗口。
+            cmd.run("cmd.exe /k " + value);
+
+            //执行完cmd命令后不关闭命令窗口。
+            cmd.run("cmd.exe /k " + value);
+            cmd = null;
+        }
+
+        function execCopy(str) {
+            document.getElementById(str).select();
+            document.execCommand("Copy");
+        }
+
+        function execTab(str, maxLen, next) {
+            if (str.length > --maxLen) {
+                document.getElementById(next).select();
+                document.getElementById(next).focus();
             }
 
-
-            function transferChineseToUnicode(){
-                chineseString = document.getElementById("chineseString2").value;
-                document.getElementById("unicodeString2").value=escape(chineseString).replace(/%/g,"\\").toLowerCase();
-                // execCopy("unicodeString2");
-            }
-
-
-            function toUnicode(str){
-                return str.replace(/([\u4E00-\u9FA5]|[\uFE30-\uFFA0])/g,function(){
-                    return "\\u" + RegExp["$1"].charCodeAt(0).toString(16);
-                });
-            }
-
-            function execCopy(str){
-                document.getElementById(str).select();
-                document.execCommand("Copy");
-            }
-
-            function execTab(str,maxLen,next){
-                if (str.length>--maxLen){
-                    document.getElementById(next).select();
-                    document.getElementById(next).focus();
-                }
-
-            }
-
-            function jsExecCmd(value) {
-                var  cmd = new ActiveXObject("WScript.Shell");
-                /*
-                命令参数说明
-                cmd.exe /c dir 是执行完dir命令后关闭命令窗口。
-                cmd.exe /k dir 是执行完dir命令后不关闭命令窗口。
-                cmd.exe /c start dir 会打开一个新窗口后执行dir指令，原窗口会关闭。
-                cmd.exe /k start dir 会打开一个新窗口后执行dir指令，原窗口不会关闭。
-                */
-                //执行完cmd命令后不关闭命令窗口。
-                cmd.run("cmd.exe /k "+value);
-
-                //执行完cmd命令后不关闭命令窗口。
-                cmd.run("cmd.exe /k "+value);
-                cmd = null;
-
-                }
-
-            function worldTimeConvert(inputTimeZone, outputTimeZone){
-                inputZoneTime = document.getElementById("inputZoneTime").value;
-                inputZoneTime=inputZoneTime.replace(/[\:\/ ]/g,"");
-
-                var year = inputZoneTime.substring(0,4);
-                var month = inputZoneTime.substring(4,6);
-                var day = inputZoneTime.substring(6,8);
-                var hour = inputZoneTime.substring(8,10);
-                var minute = inputZoneTime.substring(10,12);
-                var second = inputZoneTime.substring(12,14);
-
-                hour = (parseInt(hour) - parseInt(inputTimeZone) + parseInt(outputTimeZone)).toString();
-
-                hour = hour > 23 ? hour-24 : hour;
-                day     = hour > 23 ? (parseInt(hour)+1).toString() : day;
-
-                document.getElementById("outputZoneTime").value=year+"/"+month+"/"+day+" "+hour+":"+minute+":"+second;
-                // execCopy("outputZoneTime");
-            }
-
-
-            function transFromBinary() {
-                var inputValue = document.getElementById("binValue").value;
-                radixTrans(inputValue, 2);
-            }
-
-
-            function transFromOctal() {
-                var inputValue = document.getElementById("octValue").value;
-                radixTrans(inputValue, 8);
-            }
-
-            function transFromDecimal() {
-                var inputValue = document.getElementById("decValue").value;
-                radixTrans(inputValue, 10);
-            }
-
-
-            function transFromHexadecimal() {
-            
-                var endianValue = document.getElementById("endianValue").value;
-                var inputValue = document.getElementById("hexValue").value;
-                var bigEndianValue = "";
-                debugger;
-                if (endianValue == "0123") {
-                    bigEndianValue = inputValue;
-                } else if (endianValue == "3210") {
-                    bigEndianValue = inputValue.split('').reverse().join('');
-                } else {
-                    for(i=inputValue.length /2; i > 0 ; i--) {
-                        console.log(inputValue.charAt(i*2-2) + inputValue.charAt(i*2-1));
-                        bigEndianValue = bigEndianValue + inputValue.charAt(i*2-2) + inputValue.charAt(i*2-1);
-                    }
-                }
-      
-                radixTrans(bigEndianValue, 16);
-            }
-            
-            function radixTrans(inputValue, fromRadix) {
-                debugger;
-                document.getElementById("binValue").value=parseInt(inputValue, fromRadix).toString(2);
-                document.getElementById("octValue").value=parseInt(inputValue, fromRadix).toString(8);
-                document.getElementById("decValue").value=parseInt(inputValue, fromRadix).toString(10);
-               
-                var hexValue = parseInt(inputValue, fromRadix).toString(16).toUpperCase();
-                if (hexValue.length % 2 == 1) {
-                    hexValue = "0" + hexValue
-                }
-                if (fromRadix != 16) {
-                    document.getElementById("hexValue").value=hexValue;
-                }
-                
-                var hexValue1 = hexValue;
-                document.getElementById("hexValue1").value=hexValue;
-                
-                var hexValue2 = hexValue.split('').reverse().join('');
-                document.getElementById("hexValue2").value=hexValue2;
-                
-                var hexValue3 = "";
-                for(i=hexValue.length /2; i > 0 ; i--) {
-                    hexValue3 = hexValue3 + hexValue.charAt(i*2-2) + hexValue.charAt(i*2-1)
-                }
-                
-                document.getElementById("hexValue3").value=hexValue3;
-            }
-            
-            function elementBlur(id) {
-                blurElementId = id;
-                console.log(blurElementId);
-            }
+        }
 
 
 
+    </script>
+</head>
 
-        </script>
-    </head>
+<body>
+    <div>
+        <img src="http://www.huawei.com/Assets/CBG/img/logo.png" />
+    </div>
 
-    <body>
-        <div>
-            <img src="http://www.huawei.com/Assets/CBG/img/logo.png"/>
+    <div id="frame">
+        <div id="header">sTool v0.9 beta</div>
+
+
+        <p>
+            <label>各时区时间转换为Unix时间戳</label>
+        </p>
+
+        <div class="field">
+            <select name="inputTimeZone2" id="inputTimeZone2">
+                <option value="-11">-11中途岛</option>
+                <option value="-10">-10檀香山</option>
+                <option value="-09">-09阿拉斯加</option>
+                <option value="-08">-08洛杉矶</option>
+                <option value="-07">-07凤凰城</option>
+                <option value="-06">-06墨西哥城</option>
+                <option value="-05">-05纽约</option>
+                <option value="-04">-04圣地亚哥</option>
+                <option value="-03">-03巴西利亚</option>
+                <option value="-02">-02费尔南多</option>
+                <option value="-01">-01佛德尔群岛</option>
+                <option value="+00">+00伦敦</option>
+                <option value="+01">+01巴黎</option>
+                <option value="+02">+02雅典</option>
+                <option value="+03">+03莫斯科</option>
+                <option value="+04">+04阿布扎比</option>
+                <option value="+05">+05伊斯兰堡</option>
+                <option value="+06">+06仰光</option>
+                <option value="+07">+07新加坡</option>
+                <option value="+08" selected>+08北京</option>
+                <option value="+09">+09东京</option>
+                <option value="+10">+10墨尔本</option>
+                <option value="+11">+11所罗门群岛</option>
+                <option value="+12">+12惠灵顿</option>
+            </select>
+            时间
+            <input id="year" type="text" style="width:42px" size="12" onkeyup="execTab(year.value,4,'month')" />年
+            <input id="month" type="text" style="width:26px" size="12" onkeyup="execTab(month.value,2,'day')" />月
+            <input id="day" type="text" style="width:26px" size="12" onkeyup="execTab(day.value,2,'hour')" />日
+            <input id="hour" type="text" style="width:26px" size="12" onkeyup="execTab(hour.value,2,'minute')" />时
+            <input id="minute" type="text" style="width:26px" size="12" onkeyup="execTab(minute.value,2,'second')" />分
+            <input id="second" type="text" style="width:26px" size="12"
+                onkeyup="execTab(second.value,2,'transferUtcTimeToUnixTime')" />秒
+            <input id="transferUtcTimeToUnixTime" type="button" value="转换为Unix时间"
+                onclick="transferUtcTimeToUnixTime(inputTimeZone2.value)" />
+            <input id="unixTimeOut" type="text" style="width:125px" size="12" />
         </div>
 
-        <div id="frame">
-            <div id="header">sTool v0.9 beta</div>
 
 
-            <p>
-                <label>各时区时间转换为Unix时间戳</label>
-            </p>
+        <p>
+            <label>Unix时间转换为各时区时间</label>
+        </p>
+        <div class="field">
+            <input id="unixTimeIn1" type="text" style="width:160px" size="12" />
+            <input type="button" value="转换为指定时区时间" onclick="transferUnixTimestampToLocalTime(inputTimeZone1.value)" />
+            <select name="inputTimeZone1" id="inputTimeZone1">
+                <option value="-11">-11中途岛</option>
+                <option value="-10">-10檀香山</option>
+                <option value="-09">-09阿拉斯加</option>
+                <option value="-08">-08洛杉矶</option>
+                <option value="-07">-07凤凰城</option>
+                <option value="-06">-06墨西哥城</option>
+                <option value="-05">-05纽约</option>
+                <option value="-04">-04圣地亚哥</option>
+                <option value="-03">-03巴西利亚</option>
+                <option value="-02">-02费尔南多</option>
+                <option value="-01">-01佛德尔群岛</option>
+                <option value="+00">+00伦敦</option>
+                <option value="+01">+01巴黎</option>
+                <option value="+02">+02雅典</option>
+                <option value="+03">+03莫斯科</option>
+                <option value="+04">+04阿布扎比</option>
+                <option value="+05">+05伊斯兰堡</option>
+                <option value="+06">+06仰光</option>
+                <option value="+07">+07新加坡</option>
+                <option value="+08" selected>+08北京</option>
+                <option value="+09">+09东京</option>
+                <option value="+10">+10墨尔本</option>
+                <option value="+11">+11所罗门群岛</option>
+                <option value="+12">+12惠灵顿</option>
+            </select>
 
-            <div class="field">
-                <select name="inputTimeZone2" id="inputTimeZone2">
-                    <option value="-11">-11中途岛</option>
-                    <option value="-10">-10檀香山</option>
-                    <option value="-09">-09阿拉斯加</option>
-                    <option value="-08">-08洛杉矶</option>
-                    <option value="-07">-07凤凰城</option>
-                    <option value="-06">-06墨西哥城</option>
-                    <option value="-05">-05纽约</option>
-                    <option value="-04">-04圣地亚哥</option>
-                    <option value="-03">-03巴西利亚</option>
-                    <option value="-02">-02费尔南多</option>
-                    <option value="-01">-01佛德尔群岛</option>
-                    <option value="+00">00伦敦</option>
-                    <option value="+01">+01巴黎</option>
-                    <option value="+02">+02雅典</option>
-                    <option value="+03">+03莫斯科</option>
-                    <option value="+04">+04阿布扎比</option>
-                    <option value="+05">+05伊斯兰堡</option>
-                    <option value="+06">+06仰光</option>
-                    <option value="+07">+07新加坡</option>
-                    <option value="+08" selected>+08北京</option>
-                    <option value="+09">+09东京</option>
-                    <option value="+10">+10墨尔本</option>
-                    <option value="+11">+11所罗门群岛</option>
-                    <option value="+12">+12惠灵顿</option>
-                </select>
-                时间
-                <input id="year" type="text" style="width:42px" size="12" onkeyup="execTab(year.value,4,'month')"/>年
-                <input id="month" type="text" style="width:26px" size="12" onkeyup="execTab(month.value,2,'day')"/>月
-                <input id="day" type="text" style="width:26px" size="12" onkeyup="execTab(day.value,2,'hour')"/>日
-                <input id="hour" type="text" style="width:26px" size="12" onkeyup="execTab(hour.value,2,'minute')"/>时
-                <input id="minute" type="text" style="width:26px" size="12" onkeyup="execTab(minute.value,2,'second')"/>分
-                <input id="second" type="text" style="width:26px" size="12" onkeyup="execTab(second.value,2,'transferUtcTimeToUnixTime')"/>秒
-                <input id="transferUtcTimeToUnixTime" type="button" value="转换为Unix时间" onclick="transferUtcTimeToUnixTime(inputTimeZone2.value)" />
-                <input id="unixTimeOut" type="text" style="width:125px" size="12" />
-            </div>
-
-            <!--
-            <p>
-                <label>自定义格式北京时间(+08)转换为Unix时间</label>
-            </p>
-            <div class="field">
-                <input id="ctzTime" type="text" style="width:130px" size="12"/>
-                <select name="selectFormat" id="selectFormat">
-                    <option value="1">yyyy/MM/dd hh:mm:ss</option>
-                    <option value="1">yyyyMMddhhmmss</option>
-                    <option value="2">ddMMyyyyhhmmss</option>
-                </select>
-                <input type="button" value="转换为Unix时间" onclick="transferCtzTimeToUnixTime(selectFormat.value,ctzTime.value)" />
-                <input id="unixTimeCtzOut" type="text" style="width:125px" size="12" />
-            </div>
-            -->
-
-
-            <!--
-            <p>
-                <label>Unix时间转换为北京时间</label>
-            </p>
-            <div class="field">
-                <input id="unixTimeIn" type="text" style="width:160px" size="12" />
-                <input type="button" value="转换为北京时间" onclick="transferUnixTimeToBeijingTime()" />
-                <input id="utcTime" type="text" style="width:260px" size="12"/>
-            </div>
-            -->
-
-
-            <p>
-                <label>Unix时间转换为各时区时间</label>
-            </p>
-            <div class="field">
-                <input id="unixTimeIn1" type="text" style="width:160px" size="12" />
-                <input type="button" value="转换为指定时区时间" onclick="transferUnixTimeToLocalTime(inputTimeZone1.value)" />
-                <select name="inputTimeZone1" id="inputTimeZone1">
-                    <option value="-11">-11中途岛</option>
-                    <option value="-10">-10檀香山</option>
-                    <option value="-09">-09阿拉斯加</option>
-                    <option value="-08">-08洛杉矶</option>
-                    <option value="-07">-07凤凰城</option>
-                    <option value="-06">-06墨西哥城</option>
-                    <option value="-05">-05纽约</option>
-                    <option value="-04">-04圣地亚哥</option>
-                    <option value="-03">-03巴西利亚</option>
-                    <option value="-02">-02费尔南多</option>
-                    <option value="-01">-01佛德尔群岛</option>
-                    <option value="+00">00伦敦</option>
-                    <option value="+01">+01巴黎</option>
-                    <option value="+02">+02雅典</option>
-                    <option value="+03">+03莫斯科</option>
-                    <option value="+04">+04阿布扎比</option>
-                    <option value="+05">+05伊斯兰堡</option>
-                    <option value="+06">+06仰光</option>
-                    <option value="+07">+07新加坡</option>
-                    <option value="+08" selected>+08北京</option>
-                    <option value="+09">+09东京</option>
-                    <option value="+10">+10墨尔本</option>
-                    <option value="+11">+11所罗门群岛</option>
-                    <option value="+12">+12惠灵顿</option>
-                </select>
-
-                <input id="utcTime1" type="text" style="width:130px" size="12"/>
-            </div>
-
-
-            <p>
-                <label>世界标准时间转换</label>
-            </p>
-            <div class="field">
-                <select name="inputTimeZone" id="inputTimeZone">
-                    <option value="-11">-11中途岛</option>
-                    <option value="-10">-10檀香山</option>
-                    <option value="-09">-09阿拉斯加</option>
-                    <option value="-08">-08洛杉矶</option>
-                    <option value="-07">-07凤凰城</option>
-                    <option value="-06">-06墨西哥城</option>
-                    <option value="-05">-05纽约</option>
-                    <option value="-04">-04圣地亚哥</option>
-                    <option value="-03">-03巴西利亚</option>
-                    <option value="-02">-02费尔南多</option>
-                    <option value="-01">-01佛德尔群岛</option>
-                    <option value="+00">00伦敦</option>
-                    <option value="+01">+01巴黎</option>
-                    <option value="+02">+02雅典</option>
-                    <option value="+03">+03莫斯科</option>
-                    <option value="+04">+04阿布扎比</option>
-                    <option value="+05">+05伊斯兰堡</option>
-                    <option value="+06">+06仰光</option>
-                    <option value="+07">+07新加坡</option>
-                    <option value="+08" selected>+08北京</option>
-                    <option value="+09">+09东京</option>
-                    <option value="+10">+10墨尔本</option>
-                    <option value="+11">+11所罗门群岛</option>
-                    <option value="+12">+12惠灵顿</option>
-                </select>
-                <input id="inputZoneTime" type="text" style="width:130px" size="12"/>
-                <input type="button" value="转换为" onclick="worldTimeConvert(inputTimeZone.value,outputTime.value)" />
-                <select name="outputTime" id="outputTime">
-                    <option value="-11">-11中途岛</option>
-                    <option value="-10">-10檀香山</option>
-                    <option value="-09">-09阿拉斯加</option>
-                    <option value="-08">-08洛杉矶</option>
-                    <option value="-07">-07凤凰城</option>
-                    <option value="-06">-06墨西哥城</option>
-                    <option value="-05">-05纽约</option>
-                    <option value="-04">-04圣地亚哥</option>
-                    <option value="-03">-03巴西利亚</option>
-                    <option value="-02">-02费尔南多</option>
-                    <option value="-01">-01佛德尔群岛</option>
-                    <option value="+00" selected>00伦敦</option>
-                    <option value="+01">+01巴黎</option>
-                    <option value="+02">+02雅典</option>
-                    <option value="+03">+03莫斯科</option>
-                    <option value="+04">+04阿布扎比</option>
-                    <option value="+05">+05伊斯兰堡</option>
-                    <option value="+06">+06仰光</option>
-                    <option value="+07">+07新加坡</option>
-                    <option value="+08">+08北京</option>
-                    <option value="+09">+09东京</option>
-                    <option value="+10">+10墨尔本</option>
-                    <option value="+11">+11所罗门群岛</option>
-                    <option value="+12">+12惠灵顿</option>
-                </select>
-                <input id="outputZoneTime" type="text" style="width:130px" size="12" />
-            </div>
-
-
-
-            <br/><br/>
-
-            <p>
-                <label>Unicode转换为中文</label>
-            </p>
-            <div class="field">
-                <input id="unicodeString" type="text" style="width:275px" size="12" />
-                <input type="button" value="转换为中文" onclick="transferUnicodeToChinese()" />
-                <input id="chineseString" type="text" style="width:170px" size="12"/>
-            </div>
-
-            <p>
-                <label>中文转换为Unicode</label>
-            </p>
-            <div class="field">
-                <input id="chineseString2" type="text" style="width:160px" size="12" />
-                <input type="button" value="转换为Unicode" onclick="transferChineseToUnicode()" />
-                <input id="unicodeString2" type="text" style="width:265px" size="12"/>
-            </div>
-
-            <br/><br/>
-
-            <p>
-                <label>进制转换</label>
-            </p>
-            <div class="field">
-                02进制
-                <input id="binValue" type="text" style="width:264px;text-align:right" size="12" onblur="elementBlur('2')"/>
-                <input type="button" value="转换" onclick="transFromBinary()" />
-            </div>
-            <div class="field">
-                08进制
-                <input id="octValue" type="text" style="width:264px;text-align:right" size="12" onblur="elementBlur('8')"/>
-                <input type="button" value="转换" onclick="transFromOctal()" />
-            </div>
-            <div class="field">
-                10进制
-                <input id="decValue" type="text" style="width:264px;text-align:right" size="12" onblur="elementBlur('10')"/>
-                <input type="button" value="转换" onclick="transFromDecimal()" />
-            </div>
-            <div class="field">
-                16进制
-                <select name="endianValue" id="endianValue">
-                    <option value="0123" selected>大端序</option>
-                    <option value="3210">小端序</option>
-                    <option value="2301">小端序(16)</option>
-                </select>
-                <input id="hexValue" type="text" style="width:168px;text-align:right" size="12" onblur="elementBlur('16')"/>
-                <input type="button" value="转换" onclick="transFromHexadecimal()" />
-                &nbsp;&nbsp;大端序 <input id="hexValue1" type="text" style="width:168px;text-align:right" size="12" onblur="elementBlur('16')" readonly="true"/>
-                小端序 <input id="hexValue2" type="text" style="width:168px;text-align:right" size="12" onblur="elementBlur('16')" readonly="true"/>
-                16位寄存器小端 <input id="hexValue3" type="text" style="width:168px;text-align:right" size="12" onblur="elementBlur('16')" readonly="true"/>
-            </div>
-
-
-
+            <input id="utcTime1" type="text" style="width:130px" size="12" />
         </div>
 
-        <!--
+
+        <p>
+            <label>世界标准时间转换</label>
+        </p>
+        <div class="field">
+            <select name="inputTimeZone" id="inputTimeZone">
+                <option value="-11">-11中途岛</option>
+                <option value="-10">-10檀香山</option>
+                <option value="-09">-09阿拉斯加</option>
+                <option value="-08">-08洛杉矶</option>
+                <option value="-07">-07凤凰城</option>
+                <option value="-06">-06墨西哥城</option>
+                <option value="-05">-05纽约</option>
+                <option value="-04">-04圣地亚哥</option>
+                <option value="-03">-03巴西利亚</option>
+                <option value="-02">-02费尔南多</option>
+                <option value="-01">-01佛德尔群岛</option>
+                <option value="+00">+00伦敦</option>
+                <option value="+01">+01巴黎</option>
+                <option value="+02">+02雅典</option>
+                <option value="+03">+03莫斯科</option>
+                <option value="+04">+04阿布扎比</option>
+                <option value="+05">+05伊斯兰堡</option>
+                <option value="+06">+06仰光</option>
+                <option value="+07">+07新加坡</option>
+                <option value="+08" selected>+08北京</option>
+                <option value="+09">+09东京</option>
+                <option value="+10">+10墨尔本</option>
+                <option value="+11">+11所罗门群岛</option>
+                <option value="+12">+12惠灵顿</option>
+            </select>
+            <input id="inputZoneTime" type="text" style="width:130px" size="12" />
+            <input type="button" value="<<"
+                onclick="worldTimeConvert(outputTimeZone.value, inputTimeZone.value, outputZoneTime.value, 'inputZoneTime')" />
+            <input type="button" value=">>"
+                onclick="worldTimeConvert(inputTimeZone.value, outputTimeZone.value, inputZoneTime.value, 'outputZoneTime')" />
+            <select name="outputTimeZone" id="outputTimeZone">
+                <option value="-11">-11中途岛</option>
+                <option value="-10">-10檀香山</option>
+                <option value="-09">-09阿拉斯加</option>
+                <option value="-08">-08洛杉矶</option>
+                <option value="-07">-07凤凰城</option>
+                <option value="-06">-06墨西哥城</option>
+                <option value="-05">-05纽约</option>
+                <option value="-04">-04圣地亚哥</option>
+                <option value="-03">-03巴西利亚</option>
+                <option value="-02">-02费尔南多</option>
+                <option value="-01">-01佛德尔群岛</option>
+                <option value="+00" selected>+00伦敦</option>
+                <option value="+01">+01巴黎</option>
+                <option value="+02">+02雅典</option>
+                <option value="+03">+03莫斯科</option>
+                <option value="+04">+04阿布扎比</option>
+                <option value="+05">+05伊斯兰堡</option>
+                <option value="+06">+06仰光</option>
+                <option value="+07">+07新加坡</option>
+                <option value="+08">+08北京</option>
+                <option value="+09">+09东京</option>
+                <option value="+10">+10墨尔本</option>
+                <option value="+11">+11所罗门群岛</option>
+                <option value="+12">+12惠灵顿</option>
+            </select>
+            <input id="outputZoneTime" type="text" style="width:130px" size="12" />
+        </div>
+
+
+
+        <br /><br />
+
+        <p>
+            <label>Unicode转换为中文</label>
+        </p>
+        <div class="field">
+            <input id="unicodeString" type="text" style="width:275px" size="12" />
+            <input type="button" value="转换为中文" onclick="transferUnicodeToChinese()" />
+            <input id="chineseString" type="text" style="width:170px" size="12" />
+        </div>
+
+        <p>
+            <label>中文转换为Unicode</label>
+        </p>
+        <div class="field">
+            <input id="chineseString2" type="text" style="width:160px" size="12" />
+            <input type="button" value="转换为Unicode" onclick="transferChineseToUnicode()" />
+            <input id="unicodeString2" type="text" style="width:265px" size="12" />
+        </div>
+
+        <br /><br />
+
+        <p>
+            <label>进制转换</label>
+        </p>
+        <div class="field">
+            02进制
+            <input id="binValue" type="text" style="width:264px;text-align:right" size="12" onblur="elementBlur('2')" />
+            <input type="button" value="转换" onclick="transFromBinary()" />
+        </div>
+        <div class="field">
+            08进制
+            <input id="octValue" type="text" style="width:264px;text-align:right" size="12" onblur="elementBlur('8')" />
+            <input type="button" value="转换" onclick="transFromOctal()" />
+        </div>
+        <div class="field">
+            10进制
+            <input id="decValue" type="text" style="width:264px;text-align:right" size="12"
+                onblur="elementBlur('10')" />
+            <input type="button" value="转换" onclick="transFromDecimal()" />
+        </div>
+        <div class="field">
+            16进制
+            <select name="endianValue" id="endianValue">
+                <option value="0123" selected>大端序</option>
+                <option value="3210">小端序</option>
+                <option value="2301">小端序(16)</option>
+            </select>
+            <input id="hexValue" type="text" style="width:168px;text-align:right" size="12"
+                onblur="elementBlur('16')" />
+            <input type="button" value="转换" onclick="transFromHexadecimal()" />
+            &nbsp;&nbsp;大端序 <input id="hexValue1" type="text" style="width:168px;text-align:right" size="12"
+                onblur="elementBlur('16')" readonly="true" />
+            小端序 <input id="hexValue2" type="text" style="width:168px;text-align:right" size="12"
+                onblur="elementBlur('16')" readonly="true" />
+            16位寄存器小端 <input id="hexValue3" type="text" style="width:168px;text-align:right" size="12"
+                onblur="elementBlur('16')" readonly="true" />
+        </div>
+
+
+
+    </div>
+
+    <!--
         <input type="button" value="TestButton" onclick="jsExecCmd("dir")" />
         -->
 
-    </body>
+</body>
+
 </html
