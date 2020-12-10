@@ -309,7 +309,15 @@
 
 
 
-
+        /**
+         * 进制转换 
+         * 
+         * @param inputValue 原始值
+         * @param fromRadix  原始进制
+         */
+        function calculateExpression(expression) {
+            document.getElementById("expressionValue").value = eval(expression);
+        }
 
 
 
@@ -554,9 +562,20 @@
             </select>
             <input id="hexValue" type="text" style="width:168px;text-align:right" size="12" onblur="elementBlur('16')" />
             <input type="button" value="转换" onclick="transFromHexadecimal()" />
-            &nbsp;&nbsp;大端序 <input id="hexValue1" type="text" style="width:168px;text-align:right" size="12" onblur="elementBlur('16')" readonly="true" />
-            小端序 <input id="hexValue2" type="text" style="width:168px;text-align:right" size="12" onblur="elementBlur('16')" readonly="true" />
-            16位寄存器小端 <input id="hexValue3" type="text" style="width:168px;text-align:right" size="12" onblur="elementBlur('16')" readonly="true" />
+            &nbsp;&nbsp;大端序 <input id="hexValue1" type="text" style="width:168px;text-align:right" size="12" readonly="true" />
+            小端序 <input id="hexValue2" type="text" style="width:168px;text-align:right" size="12" readonly="true" />
+            16位寄存器小端 <input id="hexValue3" type="text" style="width:168px;text-align:right" size="12" readonly="true" />
+        </div>
+
+        <br /><br />
+
+        <p>
+            <label>表达式求值</label>
+        </p>
+        <div class="field">
+            <input id="expression" type="text" style="width:315px" size="12" onblur="elementBlur('16')" />
+            <input type="button" value="计算" onclick="calculateExpression(expression.value)" />
+            &nbsp;&nbsp;<input id="expressionValue" type="text" style="width:168px" size="12" readonly="true" />
         </div>
 
     </div>
