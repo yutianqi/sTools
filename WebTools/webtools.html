@@ -67,9 +67,9 @@
         /**
          * 初始化各时区时间转换为Unix时间戳
          */
-        function initTransferUtcTimeToUnixTime(now) {
-            var localeDateString = now.toLocaleDateString();
-            var timeString = now.toTimeString().split(" ")[0];
+        function initTransferUtcTimeToUnixTime(jsDateTime) {
+            var localeDateString = jsDateTime.toLocaleDateString();
+            var timeString = jsDateTime.toTimeString().split(" ")[0];
             var dateArr = localeDateString.split("/");
             var timeArr = timeString.split(":");
             var year = dateArr[0];
@@ -90,8 +90,8 @@
         /**
          * 初始化Unix时间转换为各时区时间
          */
-        function initTransferUnixTimestampToLocalTime(now) {
-            document.getElementById("unixTimeIn1").value = parseInt(now.valueOf() / 1000) * 1000;
+        function initTransferUnixTimestampToLocalTime(jsDateTime) {
+            document.getElementById("unixTimeIn1").value = parseInt(jsDateTime.valueOf() / 1000) * 1000;
         }
 
         /**
@@ -105,8 +105,6 @@
          * 将各时区时间转换为Unix时间戳
          */
         function transferUtcTimeToUnixTime(value) {
-            debugger;
-            console.log(value);
             var year = document.getElementById("year").value;
             var month = document.getElementById("month").value;
             var day = document.getElementById("day").value;
@@ -148,7 +146,6 @@
          * @param outputZoneTimeId 页面元素ID
          */
         function worldTimeConvert(inputTimeZone, outputTimeZone, inputZoneTime, outputZoneTimeId) {
-            debugger;
             // 格式化输入时间
             inputZoneTime = inputZoneTime.replace(/-/g, "/") + " GMT" + inputTimeZone + "00";
             // inputZoneTime=inputZoneTime.replace(/-/g, "/");
@@ -224,18 +221,15 @@
             var endianValue = document.getElementById("endianValue").value;
             var inputValue = document.getElementById("hexValue").value;
             var bigEndianValue = "";
-            debugger;
             if (endianValue == "0123") {
                 bigEndianValue = inputValue;
             } else if (endianValue == "3210") {
                 bigEndianValue = inputValue.split('').reverse().join('');
             } else {
                 for (i = inputValue.length / 2; i > 0; i--) {
-                    console.log(inputValue.charAt(i * 2 - 2) + inputValue.charAt(i * 2 - 1));
                     bigEndianValue = bigEndianValue + inputValue.charAt(i * 2 - 2) + inputValue.charAt(i * 2 - 1);
                 }
             }
-
             radixTrans(bigEndianValue, 16);
         }
 
@@ -246,7 +240,6 @@
          * @param fromRadix  原始进制
          */
         function radixTrans(inputValue, fromRadix) {
-            debugger;
             document.getElementById("binValue").value = parseInt(inputValue, fromRadix).toString(2);
             document.getElementById("octValue").value = parseInt(inputValue, fromRadix).toString(8);
             document.getElementById("decValue").value = parseInt(inputValue, fromRadix).toString(10);
@@ -278,7 +271,6 @@
          */
         function elementBlur(id) {
             blurElementId = id;
-            console.log(blurElementId);
         }
 
         /**
@@ -295,18 +287,9 @@
         /**
          * 将js日期转换为 yyyy:MM:DD hh:mm:ss格式
          */
-        function convertJsDateToString2(jsDate) {
-            var localeDateString = jsDate.toLocaleDateString();
-            var timeString = jsDate.toTimeString().split(" ")[0];
-            return localeDateString + " " + timeString;
-        }
-
-        /**
-         * 将js日期转换为 yyyy:MM:DD hh:mm:ss格式
-         */
-        function convertJsDateToString(jsDate) {
-            var localeDateString = jsDate.toLocaleDateString();
-            var timeString = jsDate.toTimeString().split(" ")[0];
+        function convertJsDateToString(jsDateTime) {
+            var localeDateString = jsDateTime.toLocaleDateString();
+            var timeString = jsDateTime.toTimeString().split(" ")[0];
 
             var dateArr = localeDateString.split("/");
             var timeArr = timeString.split(":");
@@ -412,10 +395,8 @@
             <input id="day" type="text" style="width:26px" size="12" onkeyup="execTab(day.value,2,'hour')" />日
             <input id="hour" type="text" style="width:26px" size="12" onkeyup="execTab(hour.value,2,'minute')" />时
             <input id="minute" type="text" style="width:26px" size="12" onkeyup="execTab(minute.value,2,'second')" />分
-            <input id="second" type="text" style="width:26px" size="12"
-                onkeyup="execTab(second.value,2,'transferUtcTimeToUnixTime')" />秒
-            <input id="transferUtcTimeToUnixTime" type="button" value="转换为Unix时间"
-                onclick="transferUtcTimeToUnixTime(inputTimeZone2.value)" />
+            <input id="second" type="text" style="width:26px" size="12" onkeyup="execTab(second.value,2,'transferUtcTimeToUnixTime')" />秒
+            <input id="transferUtcTimeToUnixTime" type="button" value="转换为Unix时间" onclick="transferUtcTimeToUnixTime(inputTimeZone2.value)" />
             <input id="unixTimeOut" type="text" style="width:125px" size="12" />
         </div>
 
@@ -561,8 +542,7 @@
         </div>
         <div class="field">
             10进制
-            <input id="decValue" type="text" style="width:264px;text-align:right" size="12"
-                onblur="elementBlur('10')" />
+            <input id="decValue" type="text" style="width:264px;text-align:right" size="12" onblur="elementBlur('10')" />
             <input type="button" value="转换" onclick="transFromDecimal()" />
         </div>
         <div class="field">
@@ -572,24 +552,14 @@
                 <option value="3210">小端序</option>
                 <option value="2301">小端序(16)</option>
             </select>
-            <input id="hexValue" type="text" style="width:168px;text-align:right" size="12"
-                onblur="elementBlur('16')" />
+            <input id="hexValue" type="text" style="width:168px;text-align:right" size="12" onblur="elementBlur('16')" />
             <input type="button" value="转换" onclick="transFromHexadecimal()" />
-            &nbsp;&nbsp;大端序 <input id="hexValue1" type="text" style="width:168px;text-align:right" size="12"
-                onblur="elementBlur('16')" readonly="true" />
-            小端序 <input id="hexValue2" type="text" style="width:168px;text-align:right" size="12"
-                onblur="elementBlur('16')" readonly="true" />
-            16位寄存器小端 <input id="hexValue3" type="text" style="width:168px;text-align:right" size="12"
-                onblur="elementBlur('16')" readonly="true" />
+            &nbsp;&nbsp;大端序 <input id="hexValue1" type="text" style="width:168px;text-align:right" size="12" onblur="elementBlur('16')" readonly="true" />
+            小端序 <input id="hexValue2" type="text" style="width:168px;text-align:right" size="12" onblur="elementBlur('16')" readonly="true" />
+            16位寄存器小端 <input id="hexValue3" type="text" style="width:168px;text-align:right" size="12" onblur="elementBlur('16')" readonly="true" />
         </div>
 
-
-
     </div>
-
-    <!--
-        <input type="button" value="TestButton" onclick="jsExecCmd("dir")" />
-        -->
 
 </body>
 
