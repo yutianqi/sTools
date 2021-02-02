@@ -43,8 +43,8 @@
         }
 
         input[readonly] {
-            background-color: #eeeeee;
-            border: 1px solid #000000;
+            background-color: none;
+            border: none;
         }
     </style>
 
@@ -121,21 +121,37 @@
         /**
          * 将Unix时间戳转换为各时区时间
          */
-        function transferUnixTimestampToLocalTime(localTimeZone) {
-            unixTime = document.getElementById("unixTimeIn1").value;
+        function transferUnixTimestampToLocalTimeJs(localTimeZone) {
+            var unixTime = fillUnixTime(document.getElementById("unixTimeIn1").value);
+            document.getElementById("unixTimeIn1").value = unixTime;
+            document.getElementById("utcTime1").value = transferUnixTimestampToLocalTimeStr(unixTime, localTimeZone);
+
+        }
+
+        function fillUnixTime(unixTime) {
             if (unixTime.length == 9 || unixTime.length == 10) {
                 unixTime += "000";
             }
             if (unixTime.length == 19 && unixTime.endsWith("000000")) {
                 unixTime = unixTime.substr(0, 13);
             }
-            document.getElementById("unixTimeIn1").value = unixTime;
-            // 0时区时间
-            commonTime = new Date(parseInt(unixTime) + new Date().getTimezoneOffset() * 60000 + localTimeZone * 3600000);
-            document.getElementById("utcTime1").value = commonTime.toLocaleDateString() + " " + commonTime.toTimeString().split(" ")[0];
-            // execCopy("utcTime1");
+            return unixTime;
         }
 
+
+
+        function transferUnixTimestampToLocalTime(unixTime, localTimeZone) {
+            debugger
+            // 0时区时间
+            return new Date(parseInt(unixTime) + new Date().getTimezoneOffset() * 60000 + localTimeZone * 3600000);            
+        }
+
+
+        function transferUnixTimestampToLocalTimeStr(unixTime, localTimeZone) {
+            unixTime = fillUnixTime(unixTime);
+            var commonTime = transferUnixTimestampToLocalTime(unixTime, localTimeZone);
+            return commonTime.toLocaleDateString() + " " + commonTime.toTimeString().split(" ")[0];
+        }
 
         /**
          * 将源时区的指定时间，转换为目标时区的时间
@@ -308,8 +324,6 @@
         }
 
 
-
-
         /**
          * 进制转换 
          * 
@@ -319,8 +333,6 @@
         function calculateExpression(expression) {
             document.getElementById("expressionValue").value = eval(expression);
         }
-
-
 
 
         function jsExecCmd(value) {
@@ -340,10 +352,12 @@
             cmd = null;
         }
 
+
         function execCopy(str) {
             document.getElementById(str).select();
             document.execCommand("Copy");
         }
+
 
         function execTab(str, maxLen, next) {
             if (str.length > --maxLen) {
@@ -352,9 +366,131 @@
             }
 
         }
+        
+
+        function parseMessage() {
+            var messageType = document.getElementById("messageType").value;
+            var inputValue = document.getElementById("414bMessage").value.replaceAll(" ", "");
+            if (messageType == '414b') {
+                if (inputValue.length != 34) {
+                    alert("414b报文长度非法")
+                    return;
+                }
+                parse414b(inputValue)
+            } else {
+                parse4147(inputValue)
+            }
+        }
+
+
+        /**
+         * 将02进制数转为其他进制 
+         */
+        function parse414b(inputValue) {
+            // 数据长度
+            var dataLength = inputValue.substr(0,4)
+            document.getElementById("resultList0_0").value = dataLength
+            // 文件类型
+            var fileType = inputValue.substr(4,2)
+            document.getElementById("resultList1_0").value = fileType
+            // 会话ID
+            var sessionId = inputValue.substr(6,2)
+            document.getElementById("resultList2_0").value = sessionId
+            // Tag
+            var custTag = inputValue.substr(8,2)
+            document.getElementById("resultList3_0").value = custTag
+            // Size
+            var custDataLength = inputValue.substr(10,2)
+            document.getElementById("resultList4_0").value = custDataLength
+            // 设备ID
+            var custDeivceId = inputValue.substr(12,4)
+            document.getElementById("resultList5_0").value = custDeivceId
+            // 开始时间
+            var custStartTime = inputValue.substr(16,8)
+            document.getElementById("resultList6_0").value = custStartTime
+            // 结束时间
+            var custEndTime = inputValue.substr(24,8)
+            document.getElementById("resultList7_0").value = custEndTime
+            // 时间类型
+            var custTimeType = inputValue.substr(32,2)
+            document.getElementById("resultList8_0").value = custTimeType
+
+            document.getElementById("resultList0_1").value = "：数据长度 " + parseInt(dataLength, 16).toString(10);
+            document.getElementById("resultList1_1").value = "：文件类型 " + fileType
+            document.getElementById("resultList2_1").value = "：会话ID " + sessionId
+            document.getElementById("resultList3_1").value = "：Tag 0x" + custTag
+            document.getElementById("resultList4_1").value = "：自定义数据长度 " + parseInt(custDataLength, 16).toString(10)
+            document.getElementById("resultList5_1").value = "：设备ID " + custDeivceId
+            document.getElementById("resultList6_1").value = "：开始时间 " + transferUnixTimestampToLocalTimeStr(parseInt(custStartTime, 16).toString(10), "+00");
+            document.getElementById("resultList7_1").value = "：结束时间 " + transferUnixTimestampToLocalTimeStr(parseInt(custEndTime, 16).toString(10), "+00");
+            custTimeTypeStr = custTimeType == 00 ? "GMT" : "本地时间";
+            document.getElementById("resultList8_1").value = "：时间类型 " + custTimeType + " " + custTimeTypeStr;
+        }
+
+
+        function parse4147(inputValue) {
+            // subcode
+            var subCode = inputValue.substr(0,2)
+            document.getElementById("resultList0_0").value = subCode
+            // 数据长度
+            var dataLength = inputValue.substr(2,4)
+            document.getElementById("resultList1_0").value = dataLength
+            // 文件类型
+            var fileType = inputValue.substr(6,2)
+            document.getElementById("resultList2_0").value = fileType
+            // sessionId
+            var sessionId = inputValue.substr(8,2)
+            document.getElementById("resultList3_0").value = sessionId
+            // transFlag
+            var transFlag = inputValue.substr(10,2)
+            document.getElementById("resultList4_0").value = transFlag
+            // 414bCustDataLength
+            var custDataLength = inputValue.substr(12,2)
+            document.getElementById("resultList5_0").value = custDataLength
+            var custDataLengthVal = parseInt(custDataLength) * 2
+            // 414bCustData
+            var custData = inputValue.substr(14,custDataLengthVal)
+            document.getElementById("resultList6_0").value = custData
+            // frameId
+            var frameId = inputValue.substr(14+custDataLengthVal,4)
+            document.getElementById("resultList7_0").value = frameId
+            // data
+            var data = inputValue.substr(18+custDataLengthVal,4)
+            document.getElementById("resultList8_0").value = data
+
+            document.getElementById("resultList0_1").value = "：子功能码 " + subCode;
+            document.getElementById("resultList1_1").value = "：数据长度 " + parseInt(dataLength, 16).toString(10);
+            document.getElementById("resultList2_1").value = "：文件类型 " + fileType
+            document.getElementById("resultList3_1").value = "：会话ID" + sessionId
 
 
 
+            var transFlagStr;
+            debugger
+            switch (transFlag) {
+                case "00":
+                    transFlagStr = "00 主动上报，无后续帧"
+                    break
+                case "01":
+                    transFlagStr = "01 响应请求上报，无后续帧"
+                    break
+                case "02":
+                    transFlagStr = "10 主动上报，有后续帧"
+                    break
+                case "03":
+                    transFlagStr = "11 响应请求上报，有后续帧"
+                    break
+                default:
+            }
+
+
+
+            document.getElementById("resultList4_1").value = "：传输标志位 " + transFlagStr
+            document.getElementById("resultList5_1").value = "：自定义数据长度 " + custDataLength
+            document.getElementById("resultList6_1").value = "：自定义数据 " + custData
+            document.getElementById("resultList7_1").value = "：帧序号 " + frameId
+            document.getElementById("resultList8_1").value = "：文件数据 " + data
+        }
     </script>
 </head>
 
@@ -416,7 +552,7 @@
         </p>
         <div class="field">
             <input id="unixTimeIn1" type="text" style="width:160px" size="12" />
-            <input type="button" value="转换为指定时区时间" onclick="transferUnixTimestampToLocalTime(inputTimeZone1.value)" />
+            <input type="button" value="转换为指定时区时间" onclick="transferUnixTimestampToLocalTimeJs(inputTimeZone1.value)" />
             <select name="inputTimeZone1" id="inputTimeZone1">
                 <option value="-11">-11中途岛</option>
                 <option value="-10">-10檀香山</option>
@@ -563,13 +699,16 @@
             </select>
             <input id="hexValue" type="text" style="width:168px;text-align:right" size="12" onblur="elementBlur('16')" />
             <input type="button" value="转换" onclick="transFromHexadecimal()" />
+            <!--
             &nbsp;&nbsp;大端序 <input id="hexValue1" type="text" style="width:168px;text-align:right" size="12" readonly="true" />
             小端序 <input id="hexValue2" type="text" style="width:168px;text-align:right" size="12" readonly="true" />
             16位寄存器小端 <input id="hexValue3" type="text" style="width:168px;text-align:right" size="12" readonly="true" />
+            -->
         </div>
 
         <br /><br />
 
+        <!--
         <p>
             <label>表达式求值</label>
         </p>
@@ -578,6 +717,54 @@
             <input type="button" value="计算" onclick="calculateExpression(expression.value)" />
             &nbsp;&nbsp;<input id="expressionValue" type="text" style="width:168px" size="12" readonly="true" />
         </div>
+        
+        -->
+        
+
+        <p>
+            <label>414b/4147报文解析</label>
+        </p>
+        <div class="field">
+
+            <select name="messageType" id="messageType">
+                <option value="414b" selected>414b</option>
+                <option value="4147">4147</option>
+            </select>
+            <input id="414bMessage" type="text" style="width:300px;text-align:right" size="12" onblur="elementBlur('2')" />
+            <input type="button" value="解析" onclick="parseMessage()" />
+        </div>
+
+
+        <div class="field">
+            <input id="resultList0_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList0_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+        </div>
+        <div class="field">
+            <input id="resultList1_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList1_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+        </div>
+        <div class="field">
+            <input id="resultList2_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList2_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+        </div>
+        <div class="field">
+            <input id="resultList3_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList3_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+        </div>
+        <div class="field">
+            <input id="resultList4_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList4_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+        </div>
+        <div class="field">
+            <input id="resultList5_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList5_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+        </div>
+        <div class="field">
+            <input id="resultList6_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList6_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+        </div>
+        <div class="field">
+            <input id="resultList7_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList7_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+        </div>
+        <div class="field">
+            <input id="resultList8_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList8_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+        </div>
+        
+        
+        
 
     </div>
 
