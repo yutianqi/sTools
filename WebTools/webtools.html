@@ -192,7 +192,21 @@
          */
         function transferChineseToUnicode() {
             chineseString = document.getElementById("chineseString2").value;
-            document.getElementById("unicodeString2").value = escape(chineseString).replace(/%/g, "\\").toLowerCase();
+            // document.getElementById("unicodeString2").value = escape(chineseString).replace(/%/g, "\\").toLowerCase();
+            
+            var ret = '';
+            const ignoreCharArray = ['(',')'];
+            for (i=0;i<chineseString.length;i++) {
+                // console.log(chineseString[i]);
+                var c = chineseString[i]
+                debugger;
+                if (ignoreCharArray.indexOf(c) == -1) {
+                    ret += escape(c)
+                } else {
+                    ret += c
+                }   
+            }
+            document.getElementById("unicodeString2").value = ret.replace(/%/g, "\\");
             // execCopy("unicodeString2");
         }
 
