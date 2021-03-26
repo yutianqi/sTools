@@ -20,7 +20,7 @@
             width: 1500px;
         }
 
-        #header {
+        #header1 {
             font: 19px Consolas;
             font-weight: bold;
             margin-bottom: 15px;
@@ -143,7 +143,7 @@
         function transferUnixTimestampToLocalTime(unixTime, localTimeZone) {
             debugger
             // 0时区时间
-            return new Date(parseInt(unixTime) + new Date().getTimezoneOffset() * 60000 + localTimeZone * 3600000);            
+            return new Date(parseInt(unixTime) + new Date().getTimezoneOffset() * 60000 + localTimeZone * 3600000);
         }
 
 
@@ -193,10 +193,10 @@
         function transferChineseToUnicode() {
             chineseString = document.getElementById("chineseString2").value;
             // document.getElementById("unicodeString2").value = escape(chineseString).replace(/%/g, "\\").toLowerCase();
-            
+
             var ret = '';
-            const ignoreCharArray = ['(',')'];
-            for (i=0;i<chineseString.length;i++) {
+            const ignoreCharArray = ['(', ')'];
+            for (i = 0; i < chineseString.length; i++) {
                 // console.log(chineseString[i]);
                 var c = chineseString[i]
                 debugger;
@@ -204,7 +204,7 @@
                     ret += escape(c)
                 } else {
                     ret += c
-                }   
+                }
             }
             document.getElementById("unicodeString2").value = ret.replace(/%/g, "\\");
             // execCopy("unicodeString2");
@@ -380,7 +380,7 @@
             }
 
         }
-        
+
 
         function parseMessage() {
             var messageType = document.getElementById("messageType").value;
@@ -398,35 +398,78 @@
 
 
         /**
+         * 解析实时数据订阅块日志
+         */
+        function parseSubscribeBlock() {
+            var inputValue = document.getElementById("subscribeBlock").value;
+            if (inputValue.length == 0) {
+                // document.getElementById("regAddrList").value = '请输入订阅块日志';
+                alert('请输入订阅块日志');
+                return;
+            }
+            var regList = [];
+            var pattern = /(\d{5})->(\d{1,3})/;
+            var beginIndex = 1;
+
+            var filedList = inputValue.split(" ");
+            for (i = 0; i < filedList.length; i++) {
+                var field = filedList[i];
+
+                if (field.length == 0) {
+                    continue;
+                }
+
+                if (!pattern.test(field)) {
+                    // document.getElementById("regAddrList").value = '订阅块日志格式错误';
+                    alert('订阅块日志格式错误');
+                    return;
+                }
+
+                var matches = pattern.exec(field);
+
+                var beginRegAddr = parseInt(matches[1]);
+                var amount = matches[2];
+
+                for (j = 0; j < amount; j++) {
+                    var regAddr = beginRegAddr + j;
+                    regList.push(regAddr + " (" + beginIndex + "~" + parseInt(beginIndex + 1) + ")");
+                    beginIndex += 2;
+                }
+            }
+            document.getElementById("regAddrList").value = regList;
+        }
+
+
+        /**
          * 将02进制数转为其他进制 
          */
         function parse414b(inputValue) {
             // 数据长度
-            var dataLength = inputValue.substr(0,4)
+            var dataLength = inputValue.substr(0, 4)
             document.getElementById("resultList0_0").value = dataLength
             // 文件类型
-            var fileType = inputValue.substr(4,2)
+            var fileType = inputValue.substr(4, 2)
             document.getElementById("resultList1_0").value = fileType
             // 会话ID
-            var sessionId = inputValue.substr(6,2)
+            var sessionId = inputValue.substr(6, 2)
             document.getElementById("resultList2_0").value = sessionId
             // Tag
-            var custTag = inputValue.substr(8,2)
+            var custTag = inputValue.substr(8, 2)
             document.getElementById("resultList3_0").value = custTag
             // Size
-            var custDataLength = inputValue.substr(10,2)
+            var custDataLength = inputValue.substr(10, 2)
             document.getElementById("resultList4_0").value = custDataLength
             // 设备ID
-            var custDeivceId = inputValue.substr(12,4)
+            var custDeivceId = inputValue.substr(12, 4)
             document.getElementById("resultList5_0").value = custDeivceId
             // 开始时间
-            var custStartTime = inputValue.substr(16,8)
+            var custStartTime = inputValue.substr(16, 8)
             document.getElementById("resultList6_0").value = custStartTime
             // 结束时间
-            var custEndTime = inputValue.substr(24,8)
+            var custEndTime = inputValue.substr(24, 8)
             document.getElementById("resultList7_0").value = custEndTime
             // 时间类型
-            var custTimeType = inputValue.substr(32,2)
+            var custTimeType = inputValue.substr(32, 2)
             document.getElementById("resultList8_0").value = custTimeType
 
             document.getElementById("resultList0_1").value = "：数据长度 " + parseInt(dataLength, 16).toString(10);
@@ -444,32 +487,32 @@
 
         function parse4147(inputValue) {
             // subcode
-            var subCode = inputValue.substr(0,2)
+            var subCode = inputValue.substr(0, 2)
             document.getElementById("resultList0_0").value = subCode
             // 数据长度
-            var dataLength = inputValue.substr(2,4)
+            var dataLength = inputValue.substr(2, 4)
             document.getElementById("resultList1_0").value = dataLength
             // 文件类型
-            var fileType = inputValue.substr(6,2)
+            var fileType = inputValue.substr(6, 2)
             document.getElementById("resultList2_0").value = fileType
             // sessionId
-            var sessionId = inputValue.substr(8,2)
+            var sessionId = inputValue.substr(8, 2)
             document.getElementById("resultList3_0").value = sessionId
             // transFlag
-            var transFlag = inputValue.substr(10,2)
+            var transFlag = inputValue.substr(10, 2)
             document.getElementById("resultList4_0").value = transFlag
             // 414bCustDataLength
-            var custDataLength = inputValue.substr(12,2)
+            var custDataLength = inputValue.substr(12, 2)
             document.getElementById("resultList5_0").value = custDataLength
             var custDataLengthVal = parseInt(custDataLength) * 2
             // 414bCustData
-            var custData = inputValue.substr(14,custDataLengthVal)
+            var custData = inputValue.substr(14, custDataLengthVal)
             document.getElementById("resultList6_0").value = custData
             // frameId
-            var frameId = inputValue.substr(14+custDataLengthVal,4)
+            var frameId = inputValue.substr(14 + custDataLengthVal, 4)
             document.getElementById("resultList7_0").value = frameId
             // data
-            var data = inputValue.substr(18+custDataLengthVal,4)
+            var data = inputValue.substr(18 + custDataLengthVal, 4)
             document.getElementById("resultList8_0").value = data
 
             document.getElementById("resultList0_1").value = "：子功能码 " + subCode;
@@ -514,11 +557,11 @@
     </div>
 
     <div id="frame">
-        <div id="header">sTool v0.9 beta</div>
+        <div id="header1">sTool v0.9 beta</div>
 
 
         <p>
-            <label>各时区时间转换为Unix时间戳</label>
+            <label style="font-weight: bold;">各时区时间转换为Unix时间戳</label>
         </p>
 
         <div class="field">
@@ -554,15 +597,17 @@
             <input id="day" type="text" style="width:26px" size="12" onkeyup="execTab(day.value,2,'hour')" />日
             <input id="hour" type="text" style="width:26px" size="12" onkeyup="execTab(hour.value,2,'minute')" />时
             <input id="minute" type="text" style="width:26px" size="12" onkeyup="execTab(minute.value,2,'second')" />分
-            <input id="second" type="text" style="width:26px" size="12" onkeyup="execTab(second.value,2,'transferUtcTimeToUnixTime')" />秒
-            <input id="transferUtcTimeToUnixTime" type="button" value="转换为Unix时间" onclick="transferUtcTimeToUnixTime(inputTimeZone2.value)" />
+            <input id="second" type="text" style="width:26px" size="12"
+                onkeyup="execTab(second.value,2,'transferUtcTimeToUnixTime')" />秒
+            <input id="transferUtcTimeToUnixTime" type="button" value="转换为Unix时间"
+                onclick="transferUtcTimeToUnixTime(inputTimeZone2.value)" />
             <input id="unixTimeOut" type="text" style="width:125px" size="12" />
         </div>
 
 
 
         <p>
-            <label>Unix时间转换为各时区时间</label>
+            <label style="font-weight: bold;">Unix时间转换为各时区时间</label>
         </p>
         <div class="field">
             <input id="unixTimeIn1" type="text" style="width:160px" size="12" />
@@ -599,7 +644,7 @@
 
 
         <p>
-            <label>世界标准时间转换</label>
+            <label style="font-weight: bold;">世界标准时间转换</label>
         </p>
         <div class="field">
             <select name="inputTimeZone" id="inputTimeZone">
@@ -667,7 +712,7 @@
         <br /><br />
 
         <p>
-            <label>Unicode转换为中文</label>
+            <label style="font-weight: bold;">Unicode转换为中文</label>
         </p>
         <div class="field">
             <input id="unicodeString" type="text" style="width:275px" size="12" />
@@ -676,7 +721,7 @@
         </div>
 
         <p>
-            <label>中文转换为Unicode</label>
+            <label style="font-weight: bold;">中文转换为Unicode</label>
         </p>
         <div class="field">
             <input id="chineseString2" type="text" style="width:160px" size="12" />
@@ -687,7 +732,7 @@
         <br /><br />
 
         <p>
-            <label>进制转换</label>
+            <label style="font-weight: bold;">进制转换</label>
         </p>
         <div class="field">
             02进制
@@ -701,7 +746,8 @@
         </div>
         <div class="field">
             10进制
-            <input id="decValue" type="text" style="width:264px;text-align:right" size="12" onblur="elementBlur('10')" />
+            <input id="decValue" type="text" style="width:264px;text-align:right" size="12"
+                onblur="elementBlur('10')" />
             <input type="button" value="转换" onclick="transFromDecimal()" />
         </div>
         <div class="field">
@@ -711,7 +757,8 @@
                 <option value="3210">小端序</option>
                 <option value="2301">小端序(16)</option>
             </select>
-            <input id="hexValue" type="text" style="width:168px;text-align:right" size="12" onblur="elementBlur('16')" />
+            <input id="hexValue" type="text" style="width:168px;text-align:right" size="12"
+                onblur="elementBlur('16')" />
             <input type="button" value="转换" onclick="transFromHexadecimal()" />
             <!--
             &nbsp;&nbsp;大端序 <input id="hexValue1" type="text" style="width:168px;text-align:right" size="12" readonly="true" />
@@ -724,7 +771,7 @@
 
         <!--
         <p>
-            <label>表达式求值</label>
+            <label style="font-weight: bold;">表达式求值</label>
         </p>
         <div class="field">
             <input id="expression" type="text" style="width:315px" size="12" onblur="elementBlur('16')" />
@@ -733,10 +780,24 @@
         </div>
         
         -->
-        
+
 
         <p>
-            <label>414b/4147报文解析</label>
+            <label style="font-weight: bold;">订阅块日志解析</label>
+        </p>
+        <div class="field">
+            <input id="subscribeBlock" type="text" style="width:300px;text-align:right" size="12" />
+            <input type="button" value="解析" onclick="parseSubscribeBlock()" />
+        </div>
+        <div class="field">
+            <input id="regAddrList" type="text" style="width:1500px;text-align:left" size="12" readonly="true" />
+        </div>
+
+
+        <br /><br />
+
+        <p>
+            <label style="font-weight: bold;">414b/4147报文解析</label>
         </p>
         <div class="field">
 
@@ -744,41 +805,60 @@
                 <option value="414b" selected>414b</option>
                 <option value="4147">4147</option>
             </select>
-            <input id="414bMessage" type="text" style="width:300px;text-align:right" size="12" onblur="elementBlur('2')" />
+            <input id="414bMessage" type="text" style="width:300px;text-align:right" size="12"
+                onblur="elementBlur('2')" />
             <input type="button" value="解析" onclick="parseMessage()" />
         </div>
 
 
         <div class="field">
-            <input id="resultList0_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList0_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+            <input id="resultList0_0" type="text" style="width:150px;text-align:right" size="12"
+                readonly="true" /><input id="resultList0_1" type="text" style="width:300px;text-align:left" size="12"
+                readonly="true" />
         </div>
         <div class="field">
-            <input id="resultList1_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList1_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+            <input id="resultList1_0" type="text" style="width:150px;text-align:right" size="12"
+                readonly="true" /><input id="resultList1_1" type="text" style="width:300px;text-align:left" size="12"
+                readonly="true" />
         </div>
         <div class="field">
-            <input id="resultList2_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList2_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+            <input id="resultList2_0" type="text" style="width:150px;text-align:right" size="12"
+                readonly="true" /><input id="resultList2_1" type="text" style="width:300px;text-align:left" size="12"
+                readonly="true" />
         </div>
         <div class="field">
-            <input id="resultList3_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList3_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+            <input id="resultList3_0" type="text" style="width:150px;text-align:right" size="12"
+                readonly="true" /><input id="resultList3_1" type="text" style="width:300px;text-align:left" size="12"
+                readonly="true" />
         </div>
         <div class="field">
-            <input id="resultList4_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList4_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+            <input id="resultList4_0" type="text" style="width:150px;text-align:right" size="12"
+                readonly="true" /><input id="resultList4_1" type="text" style="width:300px;text-align:left" size="12"
+                readonly="true" />
         </div>
         <div class="field">
-            <input id="resultList5_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList5_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+            <input id="resultList5_0" type="text" style="width:150px;text-align:right" size="12"
+                readonly="true" /><input id="resultList5_1" type="text" style="width:300px;text-align:left" size="12"
+                readonly="true" />
         </div>
         <div class="field">
-            <input id="resultList6_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList6_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+            <input id="resultList6_0" type="text" style="width:150px;text-align:right" size="12"
+                readonly="true" /><input id="resultList6_1" type="text" style="width:300px;text-align:left" size="12"
+                readonly="true" />
         </div>
         <div class="field">
-            <input id="resultList7_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList7_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+            <input id="resultList7_0" type="text" style="width:150px;text-align:right" size="12"
+                readonly="true" /><input id="resultList7_1" type="text" style="width:300px;text-align:left" size="12"
+                readonly="true" />
         </div>
         <div class="field">
-            <input id="resultList8_0" type="text" style="width:150px;text-align:right" size="12" readonly="true" /><input id="resultList8_1" type="text" style="width:300px;text-align:left" size="12" readonly="true" />
+            <input id="resultList8_0" type="text" style="width:150px;text-align:right" size="12"
+                readonly="true" /><input id="resultList8_1" type="text" style="width:300px;text-align:left" size="12"
+                readonly="true" />
         </div>
-        
-        
-        
+
+
+
 
     </div>
 
