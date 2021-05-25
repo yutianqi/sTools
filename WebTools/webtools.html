@@ -195,18 +195,23 @@
             // document.getElementById("unicodeString2").value = escape(chineseString).replace(/%/g, "\\").toLowerCase();
 
             var ret = '';
-            const ignoreCharArray = ['(', ')'];
+            const ignoreCharArray = ['(', ')', ' ', '!', ',', '.', '!'];
             for (i = 0; i < chineseString.length; i++) {
                 // console.log(chineseString[i]);
                 var c = chineseString[i]
                 debugger;
                 if (ignoreCharArray.indexOf(c) == -1) {
-                    ret += escape(c)
+                    encodeStr = escape(c)
+                    if (encodeStr !== c) {
+                        encodeStr = '\\u' + encodeStr.replace(/%u/g, "").replace(/%/g, "").padStart(4, "0")
+                    }
+                    ret += encodeStr
+
                 } else {
                     ret += c
                 }
             }
-            document.getElementById("unicodeString2").value = ret.replace(/%/g, "\\");
+            document.getElementById("unicodeString2").value = ret;
             // execCopy("unicodeString2");
         }
 
@@ -429,6 +434,7 @@
                     alert('订阅块日志格式错误');
                     return;
                 }
+                // console.log(field)
 
                 var matches = pattern.exec(field);
 
