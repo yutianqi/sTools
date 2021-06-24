@@ -125,10 +125,15 @@
             var unixTime = fillUnixTime(document.getElementById("unixTimeIn1").value);
             document.getElementById("unixTimeIn1").value = unixTime;
             document.getElementById("utcTime1").value = transferUnixTimestampToLocalTimeStr(unixTime, localTimeZone);
-
         }
 
         function fillUnixTime(unixTime) {
+
+            unixTime = unixTime.replaceAll(" ", "")
+
+            if (unixTime.length == 8) {
+                unixTime = parseInt(unixTime, 16).toString(10);
+            }
             if (unixTime.length == 9 || unixTime.length == 10) {
                 unixTime += "000";
             }
@@ -172,10 +177,6 @@
 
             document.getElementById(outputZoneTimeId).value = convertJsDateToString(new Date(timestamp));
         }
-
-
-
-
 
 
         /**
