@@ -128,9 +128,10 @@
         }
 
         function fillUnixTime(unixTime) {
-
-            unixTime = unixTime.replaceAll(" ", "")
-
+            unixTime = unixTime.replaceAll(" ", "").toUpperCase()
+            if (unixTime.startsWith("0X")) {
+                unixTime = unixTime.substring(2,unixTime.length)
+            }
             if (unixTime.length == 8) {
                 unixTime = parseInt(unixTime, 16).toString(10);
             }
