@@ -389,21 +389,6 @@
         }
 
 
-        function parseMessage() {
-            var messageType = document.getElementById("messageType").value;
-            var inputValue = document.getElementById("414bMessage").value.replaceAll(" ", "");
-            if (messageType == '414b') {
-                if (inputValue.length != 34) {
-                    alert("414b报文长度非法")
-                    return;
-                }
-                parse414b(inputValue)
-            } else {
-                parse4147(inputValue)
-            }
-        }
-
-
         /**
          * 解析实时数据订阅块日志
          */
@@ -471,6 +456,22 @@
                 retList.push(item[0] + ":" + longFrameResp.substring(item[1], item[2] + 1));
             }
             document.getElementById("regAddrList").value = retList;
+        }
+
+
+        function parseMessage() {
+            var messageType = document.getElementById("messageType").value;
+            var inputValue = document.getElementById("414bMessage").value.replaceAll(" ", "");
+            inputValue = "000F1102100B0001616621806166CA4001";
+            if (messageType == '414b') {
+                if (inputValue.length != 34) {
+                    alert("414b报文长度非法")
+                    return;
+                }
+                parse414b(inputValue)
+            } else {
+                parse4147(inputValue)
+            }
         }
 
 
@@ -554,8 +555,6 @@
             document.getElementById("resultList2_1").value = "：文件类型 " + fileType
             document.getElementById("resultList3_1").value = "：会话ID" + sessionId
 
-
-
             var transFlagStr;
             debugger
             switch (transFlag) {
@@ -574,15 +573,87 @@
                 default:
             }
 
-
-
             document.getElementById("resultList4_1").value = "：传输标志位 " + transFlagStr
             document.getElementById("resultList5_1").value = "：自定义数据长度 " + custDataLength
             document.getElementById("resultList6_1").value = "：自定义数据 " + custData
             document.getElementById("resultList7_1").value = "：帧序号 " + frameId
             document.getElementById("resultList8_1").value = "：文件数据 " + data
         }
-    </script>
+
+
+        function decodeUrl() {
+            document.getElementById("decodedUrl").value = "";
+            var encodedUrl = document.getElementById("encodedUrl").value;
+            encodedUrl = "https://10.44.208.82:31943/rest/neteco/web/organization/v2/tree?parentDn=%2F&self=true&incremental=true&pageId=1&cond=%7B%22BUSINESS_DEVICE%22%3A1%2C%22DOMAIN%22%3A0%2C%22DEVICE_TYPE%22%3A%2223023%2C23021%2C23020%2C23022%2C23010%2C23024%2C23050%2C23045%2C23039%2C23019%2C23040%2C23043%2C23051%2C23053%22%2C%22CONNECT_STATUS%22%3A%221%22%7D&_=1634124610047"
+            if (encodedUrl.length == 0) {
+                return;
+            }            
+            console.log(encodedUrl)
+
+            var fiedls = encodedUrl.split("?");
+            if (fiedls.length == 1) {
+                document.getElementById("decodedUrl").value = fiedls[0];
+                return;
+            }
+            var decodedUrl = fiedls[0] + '\n';
+            var params = fiedls[1].split("&");
+            var lineNum = 0;
+            params.forEach(param => {
+                var key = param.split("=")[0];
+                var val = decodeURIComponent(param.split("=")[1]);
+                decodedUrl += key;
+                decodedUrl += "=";
+                decodedUrl += val;
+                decodedUrl += "\n";
+                lineNum += 1;
+            });
+            console.log(decodedUrl);
+            console.log(lineNum);
+            document.getElementById("decodedUrl").value = decodedUrl.substr(0, decodedUrl.length -1);
+            extendTextArea("decodedUrl", lineNum + 1, -1);
+        }
+
+
+        function encodeUrl() {
+            document.getElementById("encodedUrl").value = "";
+            var decodedUrl = document.getElementById("decodedUrl").value;
+            if (decodedUrl.length == 0) {
+                return;
+            }
+
+            console.log(decodedUrl)
+            var lines = decodedUrl.split("\n");
+            var encodedUrl = '';
+            var isBasicUrl = true;
+            lines.forEach(param => {
+                if (isBasicUrl) {
+                    encodedUrl += param + "?";
+                    isBasicUrl = false;
+                    return;
+                }
+                var key = param.split("=")[0];
+                var val = encodeURIComponent(param.split("=")[1]);
+                console.log("->" + val);
+                encodedUrl += key;
+                encodedUrl += "=";
+                encodedUrl += val;
+                encodedUrl += "&";
+            });
+            console.log(encodedUrl);
+            document.getElementById("encodedUrl").value = encodedUrl.substr(0, encodedUrl.length -1);
+        }
+
+        
+        function extendTextArea(elementById, height, width) {
+            if (height !== -1) {
+                document.getElementById(elementById).style.height = height * 16 + 'px'
+            }
+            if (width !== -1) {
+                document.getElementById(elementById).style.width = width * 16 + 'px'
+            }
+        }
+
+</script>
 </head>
 
 <body>
@@ -592,8 +663,6 @@
 
     <div id="frame">
         <div id="header1">sTool v0.9 beta</div>
-
-
         <p>
             <label style="font-weight: bold;">各时区时间转换为Unix时间戳</label>
         </p>
@@ -637,8 +706,6 @@
                 onclick="transferUtcTimeToUnixTime(inputTimeZone2.value)" />
             <input id="unixTimeOut" type="text" style="width:125px" size="12" />
         </div>
-
-
 
         <p>
             <label style="font-weight: bold;">Unix时间转换为各时区时间</label>
@@ -741,10 +808,7 @@
             <input id="outputZoneTime" type="text" style="width:130px" size="12" />
         </div>
 
-
-
-        <br /><br />
-
+        <br/>
         <p>
             <label style="font-weight: bold;">Unicode转普通字符</label>
         </p>
@@ -763,8 +827,9 @@
             <input id="unicodeString2" type="text" style="width:265px" size="12" />
         </div>
 
-        <br /><br />
-
+        <!-- 进制转换 -->
+        <!--
+        <br/>
         <p>
             <label style="font-weight: bold;">进制转换</label>
         </p>
@@ -794,15 +859,16 @@
             <input id="hexValue" type="text" style="width:168px;text-align:right" size="12"
                 onblur="elementBlur('16')" />
             <input type="button" value="转换" onclick="transFromHexadecimal()" />
-            <!--
+            
             &nbsp;&nbsp;大端序 <input id="hexValue1" type="text" style="width:168px;text-align:right" size="12" readonly="true" />
             小端序 <input id="hexValue2" type="text" style="width:168px;text-align:right" size="12" readonly="true" />
             16位寄存器小端 <input id="hexValue3" type="text" style="width:168px;text-align:right" size="12" readonly="true" />
-            -->
+            
         </div>
+        <br/>
+        -->
 
-        <br /><br />
-
+        <!-- 表达式求值 -->
         <!--
         <p>
             <label style="font-weight: bold;">表达式求值</label>
@@ -815,7 +881,8 @@
         
         -->
 
-
+        <!-- 订阅块日志解析 -->
+        <br/>
         <p>
             <label style="font-weight: bold;">订阅块日志解析</label>
         </p>
@@ -830,14 +897,12 @@
             <input id="regAddrList" type="text" style="width:1500px;text-align:right" size="12" readonly="true" />
         </div>
 
-
-        <br /><br />
-
+        <!-- 414b/4147报文解析 -->
+        <br/>
         <p>
-            <label style="font-weight: bold;">414b/4147报文解析</label>
+            <label style="font-weight: bold;">报文解析</label>
         </p>
         <div class="field">
-
             <select name="messageType" id="messageType">
                 <option value="414b" selected>414b</option>
                 <option value="4147">4147</option>
@@ -846,7 +911,6 @@
                 onblur="elementBlur('2')" />
             <input type="button" value="解析" onclick="parseMessage()" />
         </div>
-
 
         <div class="field">
             <input id="resultList0_0" type="text" style="width:150px;text-align:right" size="12"
@@ -894,8 +958,18 @@
                 readonly="true" />
         </div>
 
-
-
+        <br/>
+        <p>
+            <label style="font-weight: bold;">URL编解码</label>
+        </p>
+        <div class="field">
+            <input id="encodedUrl" type="text" style="width:1140px;text-align:left" size="12" />
+        </div>
+        <div class="field">
+            <input type="button" value="URL解码↓" onclick="decodeUrl()" />
+            <input type="button" value="URL编码↑" onclick="encodeUrl()" />
+        </div>
+        <textarea rows="1" cols="160" id="decodedUrl"></textarea>
 
     </div>
 
