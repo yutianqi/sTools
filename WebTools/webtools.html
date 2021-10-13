@@ -1,7 +1,7 @@
 <!--
     Auther     : \u4e8e\u5929\u5947
     Date      : 1481737888000
-    Version    : 0.9 beta
+    Version    : 0.9.2 beta
 -->
 
 
@@ -45,6 +45,10 @@
         input[readonly] {
             background-color: none;
             border: none;
+        }
+
+        textarea {
+            font: 14px Consolas;
         }
     </style>
 
@@ -462,7 +466,8 @@
         function parseMessage() {
             var messageType = document.getElementById("messageType").value;
             var inputValue = document.getElementById("414bMessage").value.replaceAll(" ", "");
-            inputValue = "000F1102100B0001616621806166CA4001";
+            // inputValue = "000F1102100B0001616621806166CA4001";
+            // inputValue = "47057E1102030000000101000101001E1961669200000000000000000000000000000000000000000000000A00000000000000000000000000000000000000000000000000000000000000000000"
             if (messageType == '414b') {
                 if (inputValue.length != 34) {
                     alert("414b报文长度非法")
@@ -479,82 +484,69 @@
          * 将02进制数转为其他进制 
          */
         function parse414b(inputValue) {
+            var result = "";
             // 数据长度
             var dataLength = inputValue.substr(0, 4)
-            document.getElementById("resultList0_0").value = dataLength
+            result += dataLength + "：数据长度 " + parseInt(dataLength, 16).toString(10) + "\n";
             // 文件类型
             var fileType = inputValue.substr(4, 2)
-            document.getElementById("resultList1_0").value = fileType
+            result += fileType + "：文件类型 " + fileType + "\n";
             // 会话ID
             var sessionId = inputValue.substr(6, 2)
-            document.getElementById("resultList2_0").value = sessionId
+            result += sessionId
+            result += "：会话ID " + sessionId + "\n";
             // Tag
             var custTag = inputValue.substr(8, 2)
-            document.getElementById("resultList3_0").value = custTag
+            result += value = custTag
+            result += value = "：Tag 0x" + custTag + "\n";
             // Size
             var custDataLength = inputValue.substr(10, 2)
-            document.getElementById("resultList4_0").value = custDataLength
+            result += value = custDataLength
+            result += "：自定义数据长度 " + parseInt(custDataLength, 16).toString(10) + "\n";
             // 设备ID
             var custDeivceId = inputValue.substr(12, 4)
-            document.getElementById("resultList5_0").value = custDeivceId
+            result += custDeivceId
+            result += "：设备ID " + custDeivceId + "\n";
             // 开始时间
-            var custStartTime = inputValue.substr(16, 8)
-            document.getElementById("resultList6_0").value = custStartTime
+            var custStartTime = inputValue.substr(16, 8);
+            result += custStartTime
+            result += "：开始时间 " + transferUnixTimestampToLocalTimeStr(parseInt(custStartTime, 16).toString(10), "+00") + "\n";
             // 结束时间
             var custEndTime = inputValue.substr(24, 8)
-            document.getElementById("resultList7_0").value = custEndTime
+            result += custEndTime
+            result += "：结束时间 " + transferUnixTimestampToLocalTimeStr(parseInt(custEndTime, 16).toString(10), "+00") + "\n";
             // 时间类型
             var custTimeType = inputValue.substr(32, 2)
-            document.getElementById("resultList8_0").value = custTimeType
-
-            document.getElementById("resultList0_1").value = "：数据长度 " + parseInt(dataLength, 16).toString(10);
-            document.getElementById("resultList1_1").value = "：文件类型 " + fileType
-            document.getElementById("resultList2_1").value = "：会话ID " + sessionId
-            document.getElementById("resultList3_1").value = "：Tag 0x" + custTag
-            document.getElementById("resultList4_1").value = "：自定义数据长度 " + parseInt(custDataLength, 16).toString(10)
-            document.getElementById("resultList5_1").value = "：设备ID " + custDeivceId
-            document.getElementById("resultList6_1").value = "：开始时间 " + transferUnixTimestampToLocalTimeStr(parseInt(custStartTime, 16).toString(10), "+00");
-            document.getElementById("resultList7_1").value = "：结束时间 " + transferUnixTimestampToLocalTimeStr(parseInt(custEndTime, 16).toString(10), "+00");
+            result += custTimeType
             custTimeTypeStr = custTimeType == 00 ? "GMT" : "本地时间";
-            document.getElementById("resultList8_1").value = "：时间类型 " + custTimeType + " " + custTimeTypeStr;
+            result += "：时间类型 " + custTimeType + " " + custTimeTypeStr + "\n";
+            document.getElementById("resultListTextArea").value = result.substring(0, result.length-1);
+
+            extendTextArea("resultListTextArea", 9, -1)
         }
 
 
         function parse4147(inputValue) {
+            var result = "";
             // subcode
             var subCode = inputValue.substr(0, 2)
-            document.getElementById("resultList0_0").value = subCode
+            result += subCode
+            result += "：子功能码 " + subCode + "\n";
             // 数据长度
             var dataLength = inputValue.substr(2, 4)
-            document.getElementById("resultList1_0").value = dataLength
+            result += dataLength
+            result += "：数据长度 " + parseInt(dataLength, 16).toString(10) + "\n";
             // 文件类型
             var fileType = inputValue.substr(6, 2)
-            document.getElementById("resultList2_0").value = fileType
+            result += fileType
+            result += "：文件类型 " + fileType + "\n";
             // sessionId
             var sessionId = inputValue.substr(8, 2)
-            document.getElementById("resultList3_0").value = sessionId
+            result += sessionId
+            result += "：会话ID" + sessionId + "\n";
             // transFlag
             var transFlag = inputValue.substr(10, 2)
-            document.getElementById("resultList4_0").value = transFlag
-            // 414bCustDataLength
-            var custDataLength = inputValue.substr(12, 2)
-            document.getElementById("resultList5_0").value = custDataLength
-            var custDataLengthVal = parseInt(custDataLength) * 2
-            // 414bCustData
-            var custData = inputValue.substr(14, custDataLengthVal)
-            document.getElementById("resultList6_0").value = custData
-            // frameId
-            var frameId = inputValue.substr(14 + custDataLengthVal, 4)
-            document.getElementById("resultList7_0").value = frameId
-            // data
-            var data = inputValue.substr(18 + custDataLengthVal, 4)
-            document.getElementById("resultList8_0").value = data
-
-            document.getElementById("resultList0_1").value = "：子功能码 " + subCode;
-            document.getElementById("resultList1_1").value = "：数据长度 " + parseInt(dataLength, 16).toString(10);
-            document.getElementById("resultList2_1").value = "：文件类型 " + fileType
-            document.getElementById("resultList3_1").value = "：会话ID" + sessionId
-
+            result += transFlag
             var transFlagStr;
             debugger
             switch (transFlag) {
@@ -572,19 +564,35 @@
                     break
                 default:
             }
+            result += "：传输标志位 " + transFlagStr + "\n";
+            // 414bCustDataLength
+            var custDataLength = inputValue.substr(12, 2)
+            result += custDataLength
+            var custDataLengthVal = parseInt(custDataLength) * 2
+            result += "：自定义数据长度 " + custDataLength + "\n";
+            // 414bCustData
+            var custData = inputValue.substr(14, custDataLengthVal)
+            result += custData
+            result += "：自定义数据 " + custData + "\n";
+            // frameId
+            var frameId = inputValue.substr(14 + custDataLengthVal, 4)
+            result += frameId
+            result += "：帧序号 " + frameId + "\n";
+            // data
+            var data = inputValue.substr(18 + custDataLengthVal, 4)
+            result += data
+            result += "：文件数据 " + data + "\n";
 
-            document.getElementById("resultList4_1").value = "：传输标志位 " + transFlagStr
-            document.getElementById("resultList5_1").value = "：自定义数据长度 " + custDataLength
-            document.getElementById("resultList6_1").value = "：自定义数据 " + custData
-            document.getElementById("resultList7_1").value = "：帧序号 " + frameId
-            document.getElementById("resultList8_1").value = "：文件数据 " + data
+            document.getElementById("resultListTextArea").value = result.substring(0, result.length-1);
+
+            extendTextArea("resultListTextArea", 9, -1)
         }
 
 
         function decodeUrl() {
             document.getElementById("decodedUrl").value = "";
             var encodedUrl = document.getElementById("encodedUrl").value;
-            encodedUrl = "https://10.44.208.82:31943/rest/neteco/web/organization/v2/tree?parentDn=%2F&self=true&incremental=true&pageId=1&cond=%7B%22BUSINESS_DEVICE%22%3A1%2C%22DOMAIN%22%3A0%2C%22DEVICE_TYPE%22%3A%2223023%2C23021%2C23020%2C23022%2C23010%2C23024%2C23050%2C23045%2C23039%2C23019%2C23040%2C23043%2C23051%2C23053%22%2C%22CONNECT_STATUS%22%3A%221%22%7D&_=1634124610047"
+            // encodedUrl = "https://10.44.208.82:31943/rest/neteco/web/organization/v2/tree?parentDn=%2F&self=true&incremental=true&pageId=1&cond=%7B%22BUSINESS_DEVICE%22%3A1%2C%22DOMAIN%22%3A0%2C%22DEVICE_TYPE%22%3A%2223023%2C23021%2C23020%2C23022%2C23010%2C23024%2C23050%2C23045%2C23039%2C23019%2C23040%2C23043%2C23051%2C23053%22%2C%22CONNECT_STATUS%22%3A%221%22%7D&_=1634124610047"
             if (encodedUrl.length == 0) {
                 return;
             }            
@@ -597,7 +605,7 @@
             }
             var decodedUrl = fiedls[0] + '\n';
             var params = fiedls[1].split("&");
-            var lineNum = 0;
+            var lineNum = 1;
             params.forEach(param => {
                 var key = param.split("=")[0];
                 var val = decodeURIComponent(param.split("=")[1]);
@@ -610,7 +618,7 @@
             console.log(decodedUrl);
             console.log(lineNum);
             document.getElementById("decodedUrl").value = decodedUrl.substr(0, decodedUrl.length -1);
-            extendTextArea("decodedUrl", lineNum + 1, -1);
+            extendTextArea("decodedUrl", lineNum, -1);
         }
 
 
@@ -646,10 +654,10 @@
         
         function extendTextArea(elementById, height, width) {
             if (height !== -1) {
-                document.getElementById(elementById).style.height = height * 16 + 'px'
+                document.getElementById(elementById).style.height = height * 20 + 'px'
             }
             if (width !== -1) {
-                document.getElementById(elementById).style.width = width * 16 + 'px'
+                document.getElementById(elementById).style.width = width * 18 + 'px'
             }
         }
 
@@ -662,7 +670,7 @@
     </div>
 
     <div id="frame">
-        <div id="header1">sTool v0.9 beta</div>
+        <div id="header1">sTool v0.9.2 beta</div>
         <p>
             <label style="font-weight: bold;">各时区时间转换为Unix时间戳</label>
         </p>
@@ -911,59 +919,14 @@
                 onblur="elementBlur('2')" />
             <input type="button" value="解析" onclick="parseMessage()" />
         </div>
-
-        <div class="field">
-            <input id="resultList0_0" type="text" style="width:150px;text-align:right" size="12"
-                readonly="true" /><input id="resultList0_1" type="text" style="width:300px;text-align:left" size="12"
-                readonly="true" />
-        </div>
-        <div class="field">
-            <input id="resultList1_0" type="text" style="width:150px;text-align:right" size="12"
-                readonly="true" /><input id="resultList1_1" type="text" style="width:300px;text-align:left" size="12"
-                readonly="true" />
-        </div>
-        <div class="field">
-            <input id="resultList2_0" type="text" style="width:150px;text-align:right" size="12"
-                readonly="true" /><input id="resultList2_1" type="text" style="width:300px;text-align:left" size="12"
-                readonly="true" />
-        </div>
-        <div class="field">
-            <input id="resultList3_0" type="text" style="width:150px;text-align:right" size="12"
-                readonly="true" /><input id="resultList3_1" type="text" style="width:300px;text-align:left" size="12"
-                readonly="true" />
-        </div>
-        <div class="field">
-            <input id="resultList4_0" type="text" style="width:150px;text-align:right" size="12"
-                readonly="true" /><input id="resultList4_1" type="text" style="width:300px;text-align:left" size="12"
-                readonly="true" />
-        </div>
-        <div class="field">
-            <input id="resultList5_0" type="text" style="width:150px;text-align:right" size="12"
-                readonly="true" /><input id="resultList5_1" type="text" style="width:300px;text-align:left" size="12"
-                readonly="true" />
-        </div>
-        <div class="field">
-            <input id="resultList6_0" type="text" style="width:150px;text-align:right" size="12"
-                readonly="true" /><input id="resultList6_1" type="text" style="width:300px;text-align:left" size="12"
-                readonly="true" />
-        </div>
-        <div class="field">
-            <input id="resultList7_0" type="text" style="width:150px;text-align:right" size="12"
-                readonly="true" /><input id="resultList7_1" type="text" style="width:300px;text-align:left" size="12"
-                readonly="true" />
-        </div>
-        <div class="field">
-            <input id="resultList8_0" type="text" style="width:150px;text-align:right" size="12"
-                readonly="true" /><input id="resultList8_1" type="text" style="width:300px;text-align:left" size="12"
-                readonly="true" />
-        </div>
-
+        <textarea rows="1" cols="160" id="resultListTextArea"></textarea>
+        
         <br/>
         <p>
             <label style="font-weight: bold;">URL编解码</label>
         </p>
         <div class="field">
-            <input id="encodedUrl" type="text" style="width:1140px;text-align:left" size="12" />
+            <input id="encodedUrl" type="text" style="width:1300px;text-align:left" size="12" />
         </div>
         <div class="field">
             <input type="button" value="URL解码↓" onclick="decodeUrl()" />
