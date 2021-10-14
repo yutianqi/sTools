@@ -134,7 +134,7 @@
         function fillUnixTime(unixTime) {
             unixTime = unixTime.replaceAll(" ", "").toUpperCase()
             if (unixTime.startsWith("0X")) {
-                unixTime = unixTime.substring(2,unixTime.length)
+                unixTime = unixTime.substring(2, unixTime.length)
             }
             if (unixTime.length == 8) {
                 unixTime = parseInt(unixTime, 16).toString(10);
@@ -149,9 +149,7 @@
         }
 
 
-
         function transferUnixTimestampToLocalTime(unixTime, localTimeZone) {
-            debugger
             // 0时区时间
             return new Date(parseInt(unixTime) + new Date().getTimezoneOffset() * 60000 + localTimeZone * 3600000);
         }
@@ -205,7 +203,6 @@
             for (i = 0; i < chineseString.length; i++) {
                 // console.log(chineseString[i]);
                 var c = chineseString[i]
-                debugger;
                 if (ignoreCharArray.indexOf(c) == -1) {
                     encodeStr = escape(c)
                     if (encodeStr !== c) {
@@ -259,7 +256,6 @@
          * 将16进制数转为其他进制 
          */
         function transFromHexadecimal() {
-            debugger;
             var endianValue = document.getElementById("endianValue").value;
             var inputValue = document.getElementById("hexValue").value;
             var bigEndianValue = "";
@@ -316,17 +312,6 @@
         }
 
         /**
-         * 将数据使用指定字符填充到指定长度
-         */
-        function fill(num, length, fillChar) {
-            num = num.toString();
-            while (num.length < length) {
-                num = fillChar + num;
-            }
-            return num;
-        }
-
-        /**
          * 将js日期转换为 yyyy:MM:DD hh:mm:ss格式
          */
         function convertJsDateToString(jsDateTime) {
@@ -336,18 +321,17 @@
             var dateArr = localeDateString.split("/");
             var timeArr = timeString.split(":");
 
-            var year = fill(dateArr[0], 4, "0");
-            var month = fill(dateArr[1], 2, "0");
-            var day = fill(dateArr[2], 2, "0");
-            var hour = fill(timeArr[0], 2, "0");
-            var minute = fill(timeArr[1], 2, "0");
-            var second = fill(timeArr[2], 2, "0");
+            var year   = dateArr[0].padStart(4, "0");
+            var month  = dateArr[1].padStart(2, "0");
+            var day    = dateArr[2].padStart(2, "0");
+            var hour   = timeArr[0].padStart(2, "0");
+            var minute = timeArr[1].padStart(2, "0");
+            var second = timeArr[2].padStart(2, "0");
 
             formatedDateTimeStr = year + "/" + month + "/" + day + " " + hour + ":" + minute + ":" + second;
 
             return formatedDateTimeStr;
         }
-
 
         /**
          * 进制转换 
@@ -358,7 +342,6 @@
         function calculateExpression(expression) {
             document.getElementById("expressionValue").value = eval(expression);
         }
-
 
         function jsExecCmd(value) {
             var cmd = new ActiveXObject("WScript.Shell");
@@ -377,178 +360,172 @@
             cmd = null;
         }
 
-
         function execCopy(str) {
             document.getElementById(str).select();
             document.execCommand("Copy");
         }
-
 
         function execTab(str, maxLen, next) {
             if (str.length > --maxLen) {
                 document.getElementById(next).select();
                 document.getElementById(next).focus();
             }
-
         }
-
 
         /**
          * 解析实时数据订阅块日志
          */
         function parseSubscribeBlock() {
             var inputValue = document.getElementById("subscribeBlock").value;
-            // inputValue = '30105->2        32003->2        32016->32       32064->25       32090->1        32104->6        32114->6        37001->2        37004->1        37015->4        37021->2        37738->1        37743->2        37746->4        37751->2        37757->4        37762->5        37784->4        47000->1        47002->1 47089->1';
+            // inputValue = '20019->2 30036->1';
+            // inputValue = '20019->20';
             if (inputValue.length == 0) {
                 // document.getElementById("regAddrList").value = '请输入订阅块日志';
                 alert('请输入订阅块日志');
                 return;
             }
 
-
-            var longFrameResp = document.getElementById("longFrameResp").value.trim();
-
+            var reversedInputValue = inputValue.split('').reverse().join('')
+                        
             var regList = [];
-            var pattern = /(\d{5})->(\d{1,3})/;
-            var beginIndex = 0;
-
-            var filedList = inputValue.split(" ");
+            var pattern = /(\d{1,3})>-(\d{5})/g;
+            
+            var filedList = reversedInputValue.split(" ");
             for (i = 0; i < filedList.length; i++) {
                 var field = filedList[i];
 
                 if (field.length == 0) {
                     continue;
                 }
-
+                /*
                 if (!pattern.test(field)) {
                     // document.getElementById("regAddrList").value = '订阅块日志格式错误';
                     alert('订阅块日志格式错误');
                     return;
                 }
-                // console.log(field)
-
-                var matches = pattern.exec(field);
-
-                var beginRegAddr = parseInt(matches[1]);
-                var amount = matches[2];
-
-                for (j = 0; j < amount; j++) {
-                    var regAddr = beginRegAddr + j;
-                    // regList.push(regAddr + " (" + beginIndex + "~" + parseInt(beginIndex + 1) + ")");
-                    regList.push([regAddr, beginIndex * 4, (beginIndex + 1) * 4 - 1]);
-                    beginIndex += 1;
+                */
+                var matches;
+                while(matches = pattern.exec(field)) {
+                    console.log("解析段: " + matches[0])
+                    var amount = parseInt(matches[1].split('').reverse().join(''));
+                    var beginRegAddr = parseInt(matches[2].split('').reverse().join(''));
+                    
+                    for (j = amount - 1; j >= 0 ; j--) {
+                        var regAddr = beginRegAddr + j;
+                        regList.push([regAddr]);
+                    }
                 }
             }
 
-            retList = [];
+            var beginIndex = 0;
+            regDetailList = []
+            regList.reverse().forEach(reg => {
+                regDetailList.push([reg, beginIndex * 4, (beginIndex + 1) * 4 - 1])
+                beginIndex += 1;
+            });
+
+            var longFrameResp = document.getElementById("longFrameResp").value.trim();
+            // longFrameResp = "123456789012"
+            var retStr = [];
             if (longFrameResp.length == 0) {
-                for (i = 0; i < regList.length; i++) {
-                    var item = regList[i];
-                    retList.push("(" + item[0] + " " + item[1] + " " + item[2] + ")");
-                }
-                document.getElementById("regAddrList").value = retList;
+                regDetailList.forEach(item => {
+                    retStr.push(item[0] + ", " + item[1] + "~" + item[2]);
+                });
+                document.getElementById("regAddrList").value = retStr.join("\n");
+                extendTextArea("regAddrList", 3, -1);
                 return;
             }
 
-            if (regList.length != longFrameResp.length / 4) {
-                alert("订阅日志和性能报文不匹配\r\n日志寄存器数量：" + regList.length + "\r\n报文寄存器数量：" + longFrameResp.length / 4)
+            if (regDetailList.length != longFrameResp.length / 4) {
+                alert("订阅日志和性能报文不匹配\r\n日志寄存器数量：" + regDetailList.length + "\r\n报文寄存器数量：" + longFrameResp.length / 4)
                 return;
             }
 
-            for (i = 0; i < regList.length; i++) {
-                var item = regList[i];
-                retList.push(item[0] + ":" + longFrameResp.substring(item[1], item[2] + 1));
-            }
-            document.getElementById("regAddrList").value = retList;
+            regDetailList.forEach(item => {
+                retStr.push(item[0] + ":" + longFrameResp.substring(item[1], item[2] + 1));
+            });
+            document.getElementById("regAddrList").value = retStr.join("\n");
+            extendTextArea("regAddrList", 3, -1);
         }
-
 
         function parseMessage() {
             var messageType = document.getElementById("messageType").value;
             var inputValue = document.getElementById("414bMessage").value.replaceAll(" ", "");
+            // 414b报文样例
             // inputValue = "000F1102100B0001616621806166CA4001";
-            // inputValue = "47057E1102030000000101000101001E1961669200000000000000000000000000000000000000000000000A00000000000000000000000000000000000000000000000000000000000000000000"
+            // 4147报文样例
+            // inputValue = "47057E1102030000000101"
             if (messageType == '414b') {
                 if (inputValue.length != 34) {
-                    alert("414b报文长度非法")
+                    alert("414b报文长度非法，期望长度：34，实际长度：" + inputValue.length)
                     return;
                 }
                 parse414b(inputValue)
             } else {
+                if (inputValue.length < 22) {
+                    alert("4147报文长度非法，期望长度 > 22，实际长度：" + inputValue.length)
+                    return;
+                }
                 parse4147(inputValue)
             }
         }
-
 
         /**
          * 将02进制数转为其他进制 
          */
         function parse414b(inputValue) {
-            var result = "";
+            var result = [];
             // 数据长度
             var dataLength = inputValue.substr(0, 4)
-            result += dataLength + "：数据长度 " + parseInt(dataLength, 16).toString(10) + "\n";
+            result.push(dataLength.padStart(8, " ") + "：数据长度 " + parseInt(dataLength, 16).toString(10));
             // 文件类型
             var fileType = inputValue.substr(4, 2)
-            result += fileType + "：文件类型 " + fileType + "\n";
+            result.push(fileType.padStart(8, " ") + "：文件类型 " + fileType);
             // 会话ID
             var sessionId = inputValue.substr(6, 2)
-            result += sessionId
-            result += "：会话ID " + sessionId + "\n";
+            result.push(sessionId.padStart(8, " ") + "：会话ID " + sessionId);
             // Tag
             var custTag = inputValue.substr(8, 2)
-            result += value = custTag
-            result += value = "：Tag 0x" + custTag + "\n";
+            result.push(custTag.padStart(8, " ") + "：Tag 0x" + custTag);
             // Size
             var custDataLength = inputValue.substr(10, 2)
-            result += value = custDataLength
-            result += "：自定义数据长度 " + parseInt(custDataLength, 16).toString(10) + "\n";
+            result.push(custDataLength.padStart(8, " ") + "：自定义数据长度 " + parseInt(custDataLength, 16).toString(10));
             // 设备ID
             var custDeivceId = inputValue.substr(12, 4)
-            result += custDeivceId
-            result += "：设备ID " + custDeivceId + "\n";
+            result.push(custDeivceId.padStart(8, " ") + "：设备ID " + custDeivceId);
             // 开始时间
             var custStartTime = inputValue.substr(16, 8);
-            result += custStartTime
-            result += "：开始时间 " + transferUnixTimestampToLocalTimeStr(parseInt(custStartTime, 16).toString(10), "+00") + "\n";
+            result.push(custStartTime.padStart(8, " ") + "：开始时间 " + transferUnixTimestampToLocalTimeStr(parseInt(custStartTime, 16).toString(10), "+00"));
             // 结束时间
             var custEndTime = inputValue.substr(24, 8)
-            result += custEndTime
-            result += "：结束时间 " + transferUnixTimestampToLocalTimeStr(parseInt(custEndTime, 16).toString(10), "+00") + "\n";
+            result.push(custEndTime.padStart(8, " ") + "：结束时间 " + transferUnixTimestampToLocalTimeStr(parseInt(custEndTime, 16).toString(10), "+00"));
             // 时间类型
             var custTimeType = inputValue.substr(32, 2)
-            result += custTimeType
             custTimeTypeStr = custTimeType == 00 ? "GMT" : "本地时间";
-            result += "：时间类型 " + custTimeType + " " + custTimeTypeStr + "\n";
-            document.getElementById("resultListTextArea").value = result.substring(0, result.length-1);
+            result.push(custTimeType.padStart(8, " ") + "：时间类型 " + custTimeType + " " + custTimeTypeStr);
 
+            document.getElementById("resultListTextArea").value = result.join("\n");
             extendTextArea("resultListTextArea", 9, -1)
         }
 
 
         function parse4147(inputValue) {
-            var result = "";
+            var result = [];
             // subcode
             var subCode = inputValue.substr(0, 2)
-            result += subCode
-            result += "：子功能码 " + subCode + "\n";
+            result.push(subCode.padStart(8, " ") + "：子功能码 " + subCode);
             // 数据长度
             var dataLength = inputValue.substr(2, 4)
-            result += dataLength
-            result += "：数据长度 " + parseInt(dataLength, 16).toString(10) + "\n";
+            result.push(dataLength.padStart(8, " ") + "：数据长度 " + parseInt(dataLength, 16).toString(10));
             // 文件类型
             var fileType = inputValue.substr(6, 2)
-            result += fileType
-            result += "：文件类型 " + fileType + "\n";
+            result.push(fileType.padStart(8, " ") + "：文件类型 " + fileType);
             // sessionId
             var sessionId = inputValue.substr(8, 2)
-            result += sessionId
-            result += "：会话ID" + sessionId + "\n";
+            result.push(sessionId.padStart(8, " ") + "：会话ID" + sessionId);
             // transFlag
             var transFlag = inputValue.substr(10, 2)
-            result += transFlag
             var transFlagStr;
-            debugger
             switch (transFlag) {
                 case "00":
                     transFlagStr = "00 主动上报，无后续帧"
@@ -564,27 +541,22 @@
                     break
                 default:
             }
-            result += "：传输标志位 " + transFlagStr + "\n";
+            result.push(transFlag.padStart(8, " ") + "：传输标志位 " + transFlagStr);
             // 414bCustDataLength
             var custDataLength = inputValue.substr(12, 2)
-            result += custDataLength
             var custDataLengthVal = parseInt(custDataLength) * 2
-            result += "：自定义数据长度 " + custDataLength + "\n";
+            result.push(custDataLength.padStart(8, " ") + "：自定义数据长度 " + custDataLength);
             // 414bCustData
             var custData = inputValue.substr(14, custDataLengthVal)
-            result += custData
-            result += "：自定义数据 " + custData + "\n";
+            result.push(custData.padStart(8, " ") + "：自定义数据 " + custData);
             // frameId
             var frameId = inputValue.substr(14 + custDataLengthVal, 4)
-            result += frameId
-            result += "：帧序号 " + frameId + "\n";
+            result.push(frameId.padStart(8, " ") + "：帧序号 " + frameId);
             // data
             var data = inputValue.substr(18 + custDataLengthVal, 4)
-            result += data
-            result += "：文件数据 " + data + "\n";
+            result.push(data.padStart(8, " ") + "：文件数据 " + data);
 
-            document.getElementById("resultListTextArea").value = result.substring(0, result.length-1);
-
+            document.getElementById("resultListTextArea").value = result.join("\n");
             extendTextArea("resultListTextArea", 9, -1)
         }
 
@@ -595,7 +567,7 @@
             // encodedUrl = "https://10.44.208.82:31943/rest/neteco/web/organization/v2/tree?parentDn=%2F&self=true&incremental=true&pageId=1&cond=%7B%22BUSINESS_DEVICE%22%3A1%2C%22DOMAIN%22%3A0%2C%22DEVICE_TYPE%22%3A%2223023%2C23021%2C23020%2C23022%2C23010%2C23024%2C23050%2C23045%2C23039%2C23019%2C23040%2C23043%2C23051%2C23053%22%2C%22CONNECT_STATUS%22%3A%221%22%7D&_=1634124610047"
             if (encodedUrl.length == 0) {
                 return;
-            }            
+            }
             console.log(encodedUrl)
 
             var fiedls = encodedUrl.split("?");
@@ -603,24 +575,22 @@
                 document.getElementById("decodedUrl").value = fiedls[0];
                 return;
             }
-            var decodedUrl = fiedls[0] + '\n';
+            var decodedUrl = []
+
+            decodedUrl.push(fiedls[0]);
             var params = fiedls[1].split("&");
             var lineNum = 1;
             params.forEach(param => {
                 var key = param.split("=")[0];
                 var val = decodeURIComponent(param.split("=")[1]);
-                decodedUrl += key;
-                decodedUrl += "=";
-                decodedUrl += val;
-                decodedUrl += "\n";
+                decodedUrl.push(key += "=" + val);
                 lineNum += 1;
             });
             console.log(decodedUrl);
-            console.log(lineNum);
-            document.getElementById("decodedUrl").value = decodedUrl.substr(0, decodedUrl.length -1);
-            extendTextArea("decodedUrl", lineNum, -1);
+            console.log(decodedUrl.length);
+            document.getElementById("decodedUrl").value = decodedUrl.join("\n");
+            extendTextArea("decodedUrl", decodedUrl.length, -1);
         }
-
 
         function encodeUrl() {
             document.getElementById("encodedUrl").value = "";
@@ -628,8 +598,7 @@
             if (decodedUrl.length == 0) {
                 return;
             }
-
-            console.log(decodedUrl)
+            // console.log(decodedUrl)
             var lines = decodedUrl.split("\n");
             var encodedUrl = '';
             var isBasicUrl = true;
@@ -641,17 +610,12 @@
                 }
                 var key = param.split("=")[0];
                 var val = encodeURIComponent(param.split("=")[1]);
-                console.log("->" + val);
-                encodedUrl += key;
-                encodedUrl += "=";
-                encodedUrl += val;
-                encodedUrl += "&";
+                encodedUrl += key + "=" + val + "&";
             });
             console.log(encodedUrl);
-            document.getElementById("encodedUrl").value = encodedUrl.substr(0, encodedUrl.length -1);
+            document.getElementById("encodedUrl").value = encodedUrl.substr(0, encodedUrl.length - 1);
         }
 
-        
         function extendTextArea(elementById, height, width) {
             if (height !== -1) {
                 document.getElementById(elementById).style.height = height * 20 + 'px'
@@ -661,7 +625,7 @@
             }
         }
 
-</script>
+    </script>
 </head>
 
 <body>
@@ -671,6 +635,8 @@
 
     <div id="frame">
         <div id="header1">sTool v0.9.2 beta</div>
+
+        <!-- 时间转换 -->
         <p>
             <label style="font-weight: bold;">各时区时间转换为Unix时间戳</label>
         </p>
@@ -748,7 +714,7 @@
                 <option value="+12">+12惠灵顿</option>
             </select>
 
-            <input id="utcTime1" type="text" style="width:130px" size="12" />
+            <input id="utcTime1" type="text" style="width:270px" size="12" />
         </div>
 
 
@@ -782,7 +748,7 @@
                 <option value="+11">+11所罗门群岛</option>
                 <option value="+12">+12惠灵顿</option>
             </select>
-            <input id="inputZoneTime" type="text" style="width:130px" size="12" />
+            <input id="inputZoneTime" type="text" style="width:185px" size="12" />
             <input type="button" value="<<"
                 onclick="worldTimeConvert(outputTimeZone.value, inputTimeZone.value, outputZoneTime.value, 'inputZoneTime')" />
             <input type="button" value=">>"
@@ -813,26 +779,27 @@
                 <option value="+11">+11所罗门群岛</option>
                 <option value="+12">+12惠灵顿</option>
             </select>
-            <input id="outputZoneTime" type="text" style="width:130px" size="12" />
+            <input id="outputZoneTime" type="text" style="width:190px" size="12" />
         </div>
 
-        <br/>
-        <p>
-            <label style="font-weight: bold;">Unicode转普通字符</label>
-        </p>
-        <div class="field">
-            <input id="unicodeString" type="text" style="width:275px" size="12" />
-            <input type="button" value="转普通字符" onclick="transferUnicodeToChinese()" />
-            <input id="chineseString" type="text" style="width:170px" size="12" />
-        </div>
-
+        <!-- Unicode转换 -->
+        <br />
         <p>
             <label style="font-weight: bold;">普通字符转Unicode</label>
         </p>
         <div class="field">
-            <input id="chineseString2" type="text" style="width:160px" size="12" />
-            <input type="button" value="转Unicode" onclick="transferChineseToUnicode()" />
-            <input id="unicodeString2" type="text" style="width:265px" size="12" />
+            <input id="chineseString2" type="text" style="width:300px" size="12" />
+            <input type="button" style="width:83px" value="转Unicode" onclick="transferChineseToUnicode()" />
+            <input id="unicodeString2" type="text" style="width:305px" size="12" />
+        </div>
+
+        <p>
+            <label style="font-weight: bold;">Unicode转普通字符</label>
+        </p>
+        <div class="field">
+            <input id="unicodeString" type="text" style="width:300px" size="12" />
+            <input type="button" value="转普通字符" onclick="transferUnicodeToChinese()" />
+            <input id="chineseString" type="text" style="width:305px" size="12" />
         </div>
 
         <!-- 进制转换 -->
@@ -890,23 +857,28 @@
         -->
 
         <!-- 订阅块日志解析 -->
-        <br/>
+        <br />
         <p>
             <label style="font-weight: bold;">订阅块日志解析</label>
         </p>
         <div class="field">
             订阅日志 <input id="subscribeBlock" type="text" style="width:300px;text-align:left" size="12" />
         </div>
-        <div>
-            性能报文 <input id="longFrameResp" type="text" style="width:300px;text-align:left" size="12" />
+        <div class="field">
+            性能报文 
+            <input id="longFrameResp" type="text" style="width:300px;text-align:left" size="12" />
             <input type="button" value="解析" onclick="parseSubscribeBlock()" />
         </div>
         <div class="field">
-            <input id="regAddrList" type="text" style="width:1500px;text-align:right" size="12" readonly="true" />
+            <!--解析结果-->
+            <!--
+            <textarea rows="1" style="width:300px;text-align:left" id="regAddrList" readonly="true"></textarea>
+            -->
+            <textarea rows="1" style="width:365px;text-align:left" id="regAddrList" readonly="true"></textarea>
         </div>
 
         <!-- 414b/4147报文解析 -->
-        <br/>
+        <br />
         <p>
             <label style="font-weight: bold;">报文解析</label>
         </p>
@@ -915,13 +887,16 @@
                 <option value="414b" selected>414b</option>
                 <option value="4147">4147</option>
             </select>
-            <input id="414bMessage" type="text" style="width:300px;text-align:right" size="12"
+            <input id="414bMessage" type="text" style="width:305px;text-align:left" size="12"
                 onblur="elementBlur('2')" />
             <input type="button" value="解析" onclick="parseMessage()" />
         </div>
-        <textarea rows="1" cols="160" id="resultListTextArea"></textarea>
-        
-        <br/>
+        <div class="field">
+            <textarea rows="1" cols="160" id="resultListTextArea"></textarea>
+        </div>
+
+        <!-- URL编解码 -->
+        <br />
         <p>
             <label style="font-weight: bold;">URL编解码</label>
         </p>
@@ -932,7 +907,9 @@
             <input type="button" value="URL解码↓" onclick="decodeUrl()" />
             <input type="button" value="URL编码↑" onclick="encodeUrl()" />
         </div>
-        <textarea rows="1" cols="160" id="decodedUrl"></textarea>
+        <div class="field">
+            <textarea rows="1" cols="160" id="decodedUrl"></textarea>
+        </div>
 
     </div>
 
