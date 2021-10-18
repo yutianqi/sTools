@@ -132,9 +132,9 @@
         }
 
         function fillUnixTime(unixTime) {
-            unixTime = unixTime.replaceAll(" ", "").toUpperCase()
+            unixTime = unixTime.replaceAll(" ", "").toUpperCase();
             if (unixTime.startsWith("0X")) {
-                unixTime = unixTime.substring(2, unixTime.length)
+                unixTime = unixTime.substring(2, unixTime.length);
             }
             if (unixTime.length == 8) {
                 unixTime = parseInt(unixTime, 16).toString(10);
@@ -186,7 +186,7 @@
          * 将unicode转为中文
          */
         function transferUnicodeToChinese() {
-            unicodeString = document.getElementById("unicodeString").value
+            unicodeString = document.getElementById("unicodeString").value;
             document.getElementById("chineseString").value = eval("'" + unicodeString + "'");
             // execCopy("chineseString");
         }
@@ -202,16 +202,16 @@
             const ignoreCharArray = ['(', ')', ' ', '!', ',', '.', '!'];
             for (i = 0; i < chineseString.length; i++) {
                 // console.log(chineseString[i]);
-                var c = chineseString[i]
+                var c = chineseString[i];
                 if (ignoreCharArray.indexOf(c) == -1) {
-                    encodeStr = escape(c)
+                    encodeStr = escape(c);
                     if (encodeStr !== c) {
-                        encodeStr = '\\u' + encodeStr.replace(/%u/g, "").replace(/%/g, "").padStart(4, "0")
+                        encodeStr = '\\u' + encodeStr.replace(/%u/g, "").replace(/%/g, "").padStart(4, "0");
                     }
-                    ret += encodeStr
+                    ret += encodeStr;
 
                 } else {
-                    ret += c
+                    ret += c;
                 }
             }
             document.getElementById("unicodeString2").value = ret;
@@ -223,10 +223,6 @@
                 return "\\u" + RegExp["$1"].charCodeAt(0).toString(16);
             });
         }
-
-
-
-
 
         /**
          * 将02进制数转为其他进制 
@@ -284,7 +280,7 @@
 
             var hexValue = parseInt(inputValue, fromRadix).toString(16).toUpperCase();
             if (hexValue.length % 2 == 1) {
-                hexValue = "0" + hexValue
+                hexValue = "0" + hexValue;
             }
             if (fromRadix != 16) {
                 document.getElementById("hexValue").value = hexValue;
@@ -298,7 +294,7 @@
 
             var hexValue3 = "";
             for (i = hexValue.length / 2; i > 0; i--) {
-                hexValue3 = hexValue3 + hexValue.charAt(i * 2 - 2) + hexValue.charAt(i * 2 - 1)
+                hexValue3 = hexValue3 + hexValue.charAt(i * 2 - 2) + hexValue.charAt(i * 2 - 1);
             }
 
             document.getElementById("hexValue3").value = hexValue3;
@@ -321,10 +317,10 @@
             var dateArr = localeDateString.split("/");
             var timeArr = timeString.split(":");
 
-            var year   = dateArr[0].padStart(4, "0");
-            var month  = dateArr[1].padStart(2, "0");
-            var day    = dateArr[2].padStart(2, "0");
-            var hour   = timeArr[0].padStart(2, "0");
+            var year = dateArr[0].padStart(4, "0");
+            var month = dateArr[1].padStart(2, "0");
+            var day = dateArr[2].padStart(2, "0");
+            var hour = timeArr[0].padStart(2, "0");
             var minute = timeArr[1].padStart(2, "0");
             var second = timeArr[2].padStart(2, "0");
 
@@ -385,11 +381,11 @@
                 return;
             }
 
-            var reversedInputValue = inputValue.split('').reverse().join('')
-                        
+            var reversedInputValue = inputValue.split('').reverse().join('');
+
             var regList = [];
             var pattern = /(\d{1,3})>-(\d{5})/g;
-            
+
             var filedList = reversedInputValue.split(" ");
             for (i = 0; i < filedList.length; i++) {
                 var field = filedList[i];
@@ -405,12 +401,11 @@
                 }
                 */
                 var matches;
-                while(matches = pattern.exec(field)) {
-                    console.log("解析段: " + matches[0])
+                while (matches = pattern.exec(field)) {
                     var amount = parseInt(matches[1].split('').reverse().join(''));
                     var beginRegAddr = parseInt(matches[2].split('').reverse().join(''));
-                    
-                    for (j = amount - 1; j >= 0 ; j--) {
+
+                    for (j = amount - 1; j >= 0; j--) {
                         var regAddr = beginRegAddr + j;
                         regList.push([regAddr]);
                     }
@@ -418,14 +413,14 @@
             }
 
             var beginIndex = 0;
-            regDetailList = []
+            regDetailList = [];
             regList.reverse().forEach(reg => {
-                regDetailList.push([reg, beginIndex * 4, (beginIndex + 1) * 4 - 1])
+                regDetailList.push([reg, beginIndex * 4, (beginIndex + 1) * 4 - 1]);
                 beginIndex += 1;
             });
 
             var longFrameResp = document.getElementById("longFrameResp").value.trim();
-            // longFrameResp = "123456789012"
+            // longFrameResp = "123456789012";
             var retStr = [];
             if (longFrameResp.length == 0) {
                 regDetailList.forEach(item => {
@@ -437,7 +432,7 @@
             }
 
             if (regDetailList.length != longFrameResp.length / 4) {
-                alert("订阅日志和性能报文不匹配\r\n日志寄存器数量：" + regDetailList.length + "\r\n报文寄存器数量：" + longFrameResp.length / 4)
+                alert("订阅日志和性能报文不匹配\r\n日志寄存器数量：" + regDetailList.length + "\r\n报文寄存器数量：" + longFrameResp.length / 4);
                 return;
             }
 
@@ -451,22 +446,47 @@
         function parseMessage() {
             var messageType = document.getElementById("messageType").value;
             var inputValue = document.getElementById("414bMessage").value.replaceAll(" ", "");
-            // 414b报文样例
+            // 414b请求报文样例
             // inputValue = "000F1102100B0001616621806166CA4001";
-            // 4147报文样例
-            // inputValue = "47057E1102030000000101"
-            if (messageType == '414b') {
-                if (inputValue.length != 34) {
-                    alert("414b报文长度非法，期望长度：34，实际长度：" + inputValue.length)
-                    return;
-                }
-                parse414b(inputValue)
-            } else {
-                if (inputValue.length < 22) {
-                    alert("4147报文长度非法，期望长度 > 22，实际长度：" + inputValue.length)
-                    return;
-                }
-                parse4147(inputValue)
+            // 414b响应报文样例
+            // inputValue = "";
+            // 4147响应报文样例
+            // inputValue = "47057E1102030000000101";
+            // 410e请求报文样例
+            // inputValue = "4C10026100500A01616C4880616C49AB00513A0A2CD052084A07667470757365720C4368616E67656D655F3132331E6674702F706D73796E632F32303231313031382F307831302F3130303333";
+            // 410e响应报文样例
+            // inputValue = 0E04 1002 6101
+            // 410f请求报文样例
+            // inputValue = 0202 61
+            // 410f响应报文样例
+            // inputValue = 0F04 0261 0064
+
+            // messageType = "410e";
+
+            switch (messageType) {
+                case '414b':
+                    if (inputValue.length != 34) {
+                        alert("414b报文长度非法，期望长度：34，实际长度：" + inputValue.length);
+                        return;
+                    }
+                    parse414b(inputValue);
+                    break;
+                case '4147':
+                    if (inputValue.length < 22) {
+                        alert("4147报文长度非法，期望长度 > 22，实际长度：" + inputValue.length);
+                        return;
+                    }
+                    parse4147(inputValue);
+                    break;
+                case '410e':
+                    if (inputValue.length != 154) {
+                        alert("410e报文长度非法，期望长度: 154，实际长度：" + inputValue.length);
+                        return;
+                    }
+                    parse410e(inputValue);
+                    break;
+                default:
+                    alert("Unsupported message type: " + messageType);
             }
         }
 
@@ -476,90 +496,183 @@
         function parse414b(inputValue) {
             var result = [];
             // 数据长度
-            var dataLength = inputValue.substr(0, 4)
-            result.push(dataLength.padStart(8, " ") + "：数据长度 " + parseInt(dataLength, 16).toString(10));
+            var dataLength = inputValue.substr(0, 4);
+            result.push([dataLength, "数据长度", parseInt(dataLength, 16).toString(10)]);
             // 文件类型
-            var fileType = inputValue.substr(4, 2)
-            result.push(fileType.padStart(8, " ") + "：文件类型 " + fileType);
+            var fileType = inputValue.substr(4, 2);
+            result.push([fileType, "文件类型", fileType]);
             // 会话ID
-            var sessionId = inputValue.substr(6, 2)
-            result.push(sessionId.padStart(8, " ") + "：会话ID " + sessionId);
+            var sessionId = inputValue.substr(6, 2);
+            result.push([sessionId, "会话ID", sessionId]);
             // Tag
-            var custTag = inputValue.substr(8, 2)
-            result.push(custTag.padStart(8, " ") + "：Tag 0x" + custTag);
+            var custTag = inputValue.substr(8, 2);
+            result.push([custTag, "Tag 0x" + custTag]);
             // Size
-            var custDataLength = inputValue.substr(10, 2)
-            result.push(custDataLength.padStart(8, " ") + "：自定义数据长度 " + parseInt(custDataLength, 16).toString(10));
+            var custDataLength = inputValue.substr(10, 2);
+            result.push([custDataLength, "自定义数据长度", parseInt(custDataLength, 16).toString(10)]);
             // 设备ID
-            var custDeivceId = inputValue.substr(12, 4)
-            result.push(custDeivceId.padStart(8, " ") + "：设备ID " + custDeivceId);
+            var custDeivceId = inputValue.substr(12, 4);
+            result.push([custDeivceId, "设备ID", custDeivceId]);
             // 开始时间
             var custStartTime = inputValue.substr(16, 8);
-            result.push(custStartTime.padStart(8, " ") + "：开始时间 " + transferUnixTimestampToLocalTimeStr(parseInt(custStartTime, 16).toString(10), "+00"));
+            result.push([custStartTime, "开始时间", transferUnixTimestampToLocalTimeStr(parseInt(custStartTime, 16).toString(10), "+00")]);
             // 结束时间
-            var custEndTime = inputValue.substr(24, 8)
-            result.push(custEndTime.padStart(8, " ") + "：结束时间 " + transferUnixTimestampToLocalTimeStr(parseInt(custEndTime, 16).toString(10), "+00"));
+            var custEndTime = inputValue.substr(24, 8);
+            result.push([custEndTime, "结束时间", transferUnixTimestampToLocalTimeStr(parseInt(custEndTime, 16).toString(10), "+00")]);
             // 时间类型
-            var custTimeType = inputValue.substr(32, 2)
+            var custTimeType = inputValue.substr(32, 2);
             custTimeTypeStr = custTimeType == 00 ? "GMT" : "本地时间";
-            result.push(custTimeType.padStart(8, " ") + "：时间类型 " + custTimeType + " " + custTimeTypeStr);
+            result.push([custTimeType, "时间类型", custTimeType + " " + custTimeTypeStr]);
 
-            document.getElementById("resultListTextArea").value = result.join("\n");
-            extendTextArea("resultListTextArea", 9, -1)
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
         }
-
 
         function parse4147(inputValue) {
             var result = [];
             // subcode
-            var subCode = inputValue.substr(0, 2)
-            result.push(subCode.padStart(8, " ") + "：子功能码 " + subCode);
+            var subCode = inputValue.substr(0, 2);
+            result.push([subCode, "子功能码", subCode]);
             // 数据长度
-            var dataLength = inputValue.substr(2, 4)
-            result.push(dataLength.padStart(8, " ") + "：数据长度 " + parseInt(dataLength, 16).toString(10));
+            var dataLength = inputValue.substr(2, 4);
+            result.push([dataLength, "数据长度", parseInt(dataLength, 16).toString(10)]);
             // 文件类型
-            var fileType = inputValue.substr(6, 2)
-            result.push(fileType.padStart(8, " ") + "：文件类型 " + fileType);
+            var fileType = inputValue.substr(6, 2);
+            result.push([fileType, "文件类型", fileType]);
             // sessionId
-            var sessionId = inputValue.substr(8, 2)
-            result.push(sessionId.padStart(8, " ") + "：会话ID" + sessionId);
+            var sessionId = inputValue.substr(8, 2);
+            result.push([sessionId, "会话ID" + sessionId]);
             // transFlag
-            var transFlag = inputValue.substr(10, 2)
+            var transFlag = inputValue.substr(10, 2);
             var transFlagStr;
             switch (transFlag) {
                 case "00":
-                    transFlagStr = "00 主动上报，无后续帧"
-                    break
+                    transFlagStr = "00 主动上报，无后续帧";
+                    break;
                 case "01":
-                    transFlagStr = "01 响应请求上报，无后续帧"
-                    break
+                    transFlagStr = "01 响应请求上报，无后续帧";
+                    break;
                 case "02":
-                    transFlagStr = "10 主动上报，有后续帧"
-                    break
+                    transFlagStr = "10 主动上报，有后续帧";
+                    break;
                 case "03":
-                    transFlagStr = "11 响应请求上报，有后续帧"
-                    break
+                    transFlagStr = "11 响应请求上报，有后续帧";
+                    break;
                 default:
+                    transFlagStr = transFlag;
             }
-            result.push(transFlag.padStart(8, " ") + "：传输标志位 " + transFlagStr);
+            result.push([transFlag, "传输标志位", transFlagStr]);
             // 414bCustDataLength
-            var custDataLength = inputValue.substr(12, 2)
-            var custDataLengthVal = parseInt(custDataLength) * 2
-            result.push(custDataLength.padStart(8, " ") + "：自定义数据长度 " + custDataLength);
+            var custDataLength = inputValue.substr(12, 2);
+            var custDataLengthVal = parseInt(custDataLength) * 2;
+            result.push([custDataLength, "自定义数据长度", custDataLength]);
             // 414bCustData
-            var custData = inputValue.substr(14, custDataLengthVal)
-            result.push(custData.padStart(8, " ") + "：自定义数据 " + custData);
+            var custData = inputValue.substr(14, custDataLengthVal);
+            result.push([custData, "自定义数据", custData]);
             // frameId
-            var frameId = inputValue.substr(14 + custDataLengthVal, 4)
-            result.push(frameId.padStart(8, " ") + "：帧序号 " + frameId);
+            var frameId = inputValue.substr(14 + custDataLengthVal, 4);
+            result.push([frameId, "帧序号", frameId]);
             // data
-            var data = inputValue.substr(18 + custDataLengthVal, 4)
-            result.push(data.padStart(8, " ") + "：文件数据 " + data);
+            var data = inputValue.substr(18 + custDataLengthVal);
+            result.push([data, "文件数据", data]);
 
-            document.getElementById("resultListTextArea").value = result.join("\n");
-            extendTextArea("resultListTextArea", 9, -1)
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
         }
 
+        function parse410e(inputValue) {
+            var dataArray = inputValue.split("");
+            var result = [];
+            var dataLength = getDataSegment(dataArray, 2);
+            result.push([dataLength, "数据长度", parseInt(dataLength, 16).toString(10)]);
+            var fileType = getDataSegment(dataArray, 2);
+            result.push([fileType, "文件类型", fileType]);
+            var sessionId = getDataSegment(dataArray, 4);
+            result.push([sessionId, "SessionID", sessionId]);
+            var transFlag = getDataSegment(dataArray, 2);
+            result.push([transFlag, "传输类型", transFlag]);
+
+            var tag50 = getDataSegment(dataArray, 2);
+            result.push([tag50, "tag50", tag50]);
+            var tag50DataLength = getDataSegment(dataArray, 2);
+            result.push([tag50DataLength, "Tag50数据长度", parseInt(tag50DataLength, 16).toString(10)]);
+            var tag50DevId = getDataSegment(dataArray, 2);
+            result.push([tag50DevId, "设备编号", tag50DevId]);
+            var tag50StartTime = getDataSegment(dataArray, 8);
+            result.push([tag50StartTime, "开始时间", transferUnixTimestampToLocalTimeStr((parseInt(tag50StartTime, 16) + 8 * 3600).toString(10), "+00")]);
+            var tag50EndTime = getDataSegment(dataArray, 8);
+            result.push([tag50EndTime, "结束时间", transferUnixTimestampToLocalTimeStr((parseInt(tag50EndTime, 16) + 8 * 3600).toString(10), "+00")]);
+            var tag50ReversedSegment = getDataSegment(dataArray, 2);
+            result.push([tag50ReversedSegment, "保留位", tag50ReversedSegment]);
+
+            var tag51 = getDataSegment(dataArray, 2);
+            result.push([tag51, "tag51", tag51]);
+            var tag51DataLength = getDataSegment(dataArray, 2);
+            result.push([tag51DataLength, "Tag51数据长度", parseInt(tag51DataLength, 16).toString(10)]);
+            var ip = getDataSegment(dataArray, 8);
+            result.push([ip, "IP", parseIp(ip)]);
+            var port = getDataSegment(dataArray, 4);
+            result.push([port, "Port", parseInt(port, 16).toString(10)]);
+            var userNameLen = getDataSegment(dataArray, 2);
+            result.push([userNameLen, "用户名长度", parseInt(userNameLen, 16).toString(10)]);
+            var userName = getDataSegment(dataArray, parseInt(userNameLen, 16) * 2);
+            result.push([userName, "用户名", parseStr(userName)]);
+            var passWordLen = getDataSegment(dataArray, 2);
+            result.push([passWordLen, "密码长度", parseInt(passWordLen, 16).toString(10)]);
+            var passWord = getDataSegment(dataArray, parseInt(passWordLen, 16) * 2);
+            result.push([passWord, "密码", parseStr(passWord)]);
+            var pathLen = getDataSegment(dataArray, 2);
+            result.push([pathLen, "路径长度", parseInt(pathLen, 16).toString(10)]);
+            var path = getDataSegment(dataArray, parseInt(pathLen, 16) * 2);
+            result.push([path, "路径", parseStr(path)]);
+
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
+
+        function getDataSegment(dataArray, len) {
+            var ret = "";
+            while (len > 0) {
+                ret += dataArray.shift();
+                len--;
+            }
+            return ret;
+        }
+
+        function getDisplayResult(result, len) {
+            displayResult = [];
+            result.forEach(item => {
+                var oriData = item[0].padStart(len, " ");
+                if (oriData.length > len && len > 3) {
+                    oriData = oriData.substr(0, len - 3) + "...";
+                }
+
+                var filedName = item[1];
+                var filedValue = item[2];
+                displayResult.push(oriData + " ：" + filedName + " " + filedValue);
+            });
+            return displayResult.join("\n");
+        }
+
+        function parseStr(originStr) {
+            var ret = "";
+            while (originStr.length > 0) {
+                var tmp = originStr.substr(0, 2);
+                ret += String.fromCharCode(parseInt(tmp, 16));
+                originStr = originStr.substr(2);
+            }
+            return ret;
+        }
+
+        function parseIp(originStr) {
+            var ret = [];
+            while (originStr.length > 0) {
+                var tmp = originStr.substr(0, 2);
+                ret.push(parseInt(tmp, 16).toString(10));
+                originStr = originStr.substr(2);
+            }
+            return ret.join(".");
+        }
 
         function decodeUrl() {
             document.getElementById("decodedUrl").value = "";
@@ -568,14 +681,14 @@
             if (encodedUrl.length == 0) {
                 return;
             }
-            console.log(encodedUrl)
+            console.log(encodedUrl);
 
             var fiedls = encodedUrl.split("?");
             if (fiedls.length == 1) {
                 document.getElementById("decodedUrl").value = fiedls[0];
                 return;
             }
-            var decodedUrl = []
+            var decodedUrl = [];
 
             decodedUrl.push(fiedls[0]);
             var params = fiedls[1].split("&");
@@ -598,7 +711,7 @@
             if (decodedUrl.length == 0) {
                 return;
             }
-            // console.log(decodedUrl)
+            // console.log(decodedUrl);
             var lines = decodedUrl.split("\n");
             var encodedUrl = '';
             var isBasicUrl = true;
@@ -618,10 +731,10 @@
 
         function extendTextArea(elementById, height, width) {
             if (height !== -1) {
-                document.getElementById(elementById).style.height = height * 20 + 'px'
+                document.getElementById(elementById).style.height = height * 20 + 'px';
             }
             if (width !== -1) {
-                document.getElementById(elementById).style.width = width * 18 + 'px'
+                document.getElementById(elementById).style.width = width * 18 + 'px';
             }
         }
 
@@ -865,7 +978,7 @@
             订阅日志 <input id="subscribeBlock" type="text" style="width:300px;text-align:left" size="12" />
         </div>
         <div class="field">
-            性能报文 
+            性能报文
             <input id="longFrameResp" type="text" style="width:300px;text-align:left" size="12" />
             <input type="button" value="解析" onclick="parseSubscribeBlock()" />
         </div>
@@ -886,6 +999,7 @@
             <select name="messageType" id="messageType">
                 <option value="414b" selected>414b</option>
                 <option value="4147">4147</option>
+                <option value="410e">410e</option>
             </select>
             <input id="414bMessage" type="text" style="width:305px;text-align:left" size="12"
                 onblur="elementBlur('2')" />
