@@ -684,14 +684,21 @@
             console.log(encodedUrl);
 
             var fiedls = encodedUrl.split("?");
-            if (fiedls.length == 1) {
+            if (fiedls.length == 1 && encodedUrl.startsWith("http")) {
                 document.getElementById("decodedUrl").value = fiedls[0];
                 return;
             }
-            var decodedUrl = [];
 
-            decodedUrl.push(fiedls[0]);
-            var params = fiedls[1].split("&");
+            var decodedUrl = [];
+            var paramsFields = ""
+            if (encodedUrl.startsWith("http")) {
+                decodedUrl.push(fiedls[0]);
+                paramsFields = fiedls[1];
+            } else {
+                paramsFields = fiedls[0]
+            }
+            
+            var params = paramsFields.split("&");
             var lineNum = 1;
             params.forEach(param => {
                 var key = param.split("=")[0];
@@ -714,15 +721,16 @@
             // console.log(decodedUrl);
             var lines = decodedUrl.split("\n");
             var encodedUrl = '';
-            var isBasicUrl = true;
+            var isBasicUrl = decodedUrl.startsWith("http");
             lines.forEach(param => {
                 if (isBasicUrl) {
                     encodedUrl += param + "?";
                     isBasicUrl = false;
                     return;
                 }
-                var key = param.split("=")[0];
-                var val = encodeURIComponent(param.split("=")[1]);
+                var index = param.indexOf("=")
+                var key = param.substring(0, index);
+                var val = encodeURIComponent(param.substring(index + 1));
                 encodedUrl += key + "=" + val + "&";
             });
             console.log(encodedUrl);
