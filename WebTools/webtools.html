@@ -132,9 +132,13 @@
         }
 
         function fillUnixTime(unixTime) {
+            debugger
             unixTime = unixTime.replaceAll(" ", "").toUpperCase();
             if (unixTime.startsWith("0X")) {
                 unixTime = unixTime.substring(2, unixTime.length);
+            }
+            if (unixTime.endsWith("L")) {
+                unixTime = unixTime.substring(0, unixTime.length-1);
             }
             if (unixTime.length == 8) {
                 unixTime = parseInt(unixTime, 16).toString(10);
@@ -446,6 +450,7 @@
         function parseMessage() {
             var messageType = document.getElementById("messageType").value;
             var inputValue = document.getElementById("414bMessage").value.replaceAll(" ", "");
+            debugger
             // 414b请求报文样例
             // inputValue = "000F1102100B0001616621806166CA4001";
             // 414b响应报文样例
