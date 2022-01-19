@@ -1,7 +1,7 @@
 <!--
     Auther     : \u4e8e\u5929\u5947
     Date      : 1481737888000
-    Version    : 0.9.2 beta
+    Version    : 0.9.3 beta
 -->
 
 
@@ -35,7 +35,7 @@
             margin-bottom: 5px;
             text-align: left;
         }
-        
+
         div.footer {
             margin-top: 64px;
             text-align: left;
@@ -144,7 +144,7 @@
                 unixTime = unixTime.substring(2, unixTime.length);
             }
             if (unixTime.endsWith("L")) {
-                unixTime = unixTime.substring(0, unixTime.length-1);
+                unixTime = unixTime.substring(0, unixTime.length - 1);
             }
             if (unixTime.length == 8) {
                 unixTime = parseInt(unixTime, 16).toString(10);
@@ -456,55 +456,124 @@
         function parseMessage() {
             var messageType = document.getElementById("messageType").value;
             var inputValue = document.getElementById("414bMessage").value.replaceAll(" ", "");
-            debugger
-            // 414b请求报文样例
-            // inputValue = "000F1102100B0001616621806166CA4001";
-            // 414b响应报文样例
-            // inputValue = "";
-            // 4147响应报文样例
-            // inputValue = "47057E1102030000000101";
-            // 410e请求报文样例
-            // inputValue = "4C10026100500A01616C4880616C49AB00513A0A2CD052084A07667470757365720C4368616E67656D655F3132331E6674702F706D73796E632F32303231313031382F307831302F3130303333";
-            // 410e响应报文样例
-            // inputValue = 0E04 1002 6101
-            // 410f请求报文样例
-            // inputValue = 0202 61
-            // 410f响应报文样例
-            // inputValue = 0F04 0261 0064
-
-            // messageType = "410e";
-
+            // messageType = "4133_RESP";
             switch (messageType) {
-                case '414b':
-                    if (inputValue.length != 34) {
-                        alert("414b报文长度非法，期望长度：34，实际长度：" + inputValue.length);
-                        return;
-                    }
-                    parse414b(inputValue);
+                case '4133_REQ':
+                    validAndParseMessage("4133请求", inputValue, -1, parse4133Req)
                     break;
-                case '4147':
-                    if (inputValue.length < 22) {
-                        alert("4147报文长度非法，期望长度 > 22，实际长度：" + inputValue.length);
-                        return;
-                    }
-                    parse4147(inputValue);
+                case '4133_RESP':
+                    validAndParseMessage("4133响应", inputValue, -1, parse4133Resp)
                     break;
-                case '410e':
-                    if (inputValue.length != 154) {
-                        alert("410e报文长度非法，期望长度: 154，实际长度：" + inputValue.length);
-                        return;
-                    }
-                    parse410e(inputValue);
+                case '414b_REQ':
+                    validAndParseMessage("414b请求", inputValue, 34, parse414b)
+                    break;
+                case '4147_REQ':
+                    validAndParseMessage("4147请求", inputValue, 22, parse4147)
+                    break;
+                case '410e_REQ':
+                    validAndParseMessage("410e请求", inputValue, 154, parse410e)
                     break;
                 default:
                     alert("Unsupported message type: " + messageType);
             }
         }
 
-        /**
-         * 将02进制数转为其他进制 
-         */
+        function validAndParseMessage(messageType, inputValue, expectLength, funcName) {
+            if (expectLength != -1 && inputValue.length != expectLength) {
+                alert(messageType + "报文长度非法，期望长度：" + expectLength + "，实际长度：" + inputValue.length);
+                return;
+            }
+            funcName(inputValue);
+        }
+
+        function parse4133Req(inputValue) {
+            let index = 0
+            // 4133请求报文样例
+            // inputValue = "08 00 02 A9 1109  A988 0E".replaceAll(" ", "");
+
+            var result = [];
+            // 数据长度
+            var dataLength = inputValue.substr(index, 2);
+            index += 2
+            result.push([dataLength, "数据长度", parseInt(dataLength, 16).toString(10)]);
+            // 发送帧号
+            var frameId = inputValue.substr(index, 2);
+            index += 2
+            result.push([frameId, "发送帧号", frameId]);
+            // 寄存器分段数
+            var blockNum = inputValue.substr(index, 2);
+            index += 2
+            result.push([blockNum, "寄存器分段数", parseInt(blockNum, 16).toString(10)]);
+
+            for (let i = 0; i < parseInt(blockNum, 16); i++) {
+                var regAddr = inputValue.substr(index, 4);
+                index += 4
+                result.push([regAddr, "分段[" + (i) + "]寄存器地址", parseInt(regAddr, 16).toString(10)]);
+                var regNum = inputValue.substr(index, 2);
+                index += 2
+                result.push([regNum, "分段[" + (i) + "]寄存器数", parseInt(regNum, 16).toString(10)]);
+            }
+
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
+
+        function parse4133Resp(inputValue) {
+            let index = 0
+            // 4133请求报文样例
+            // inputValue = "3336 0002 A7F8 0E00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 00000000 0100 01A9 1109 0000 0000 0000 0000 0000 0000 0000 0000 0000".replaceAll(" ", "");
+
+            var result = [];
+            // subCode
+            var subCode = inputValue.substr(index, 2);
+            index += 2
+            // result.push([subCode, "subCode", subCode]);
+
+            // 数据长度
+            var dataLength = inputValue.substr(index, 2);
+            index += 2
+            result.push([dataLength, "数据长度", parseInt(dataLength, 16).toString(10)]);
+
+            // 发送帧号
+            var frameId = inputValue.substr(index, 2);
+            index += 2
+            result.push([frameId, "发送帧号", frameId]);
+
+            // 寄存器分段数
+            var blockNum = inputValue.substr(index, 2);
+            index += 2
+            result.push([blockNum, "寄存器分段数", parseInt(blockNum, 16).toString(10)]);
+
+            for (let i = 0; i < parseInt(blockNum, 16); i++) {
+                let regAddr = inputValue.substr(index, 4);
+                let regAddrVal = parseInt(regAddr, 16)
+                index += 4
+                result.push([regAddr, "分段[" + (i) + "]寄存器地址", regAddrVal.toString(10)]);
+
+                let regNum = inputValue.substr(index, 2);
+                index += 2
+                let regNumVal = parseInt(regNum, 16).toString(10)
+                result.push([regNum, "分段[" + (i) + "]寄存器数", regNumVal]);
+
+                for(let j = 0; j < regNumVal; j++) {
+                    let regDataLen = 2 * 2 * 1
+                    let regData = inputValue.substr(index, regDataLen);
+                    index += regDataLen
+                    result.push(["", "[" + (regAddrVal + j) + "] ", regData]);
+                }
+                result.push(["", "", ""]);
+            }
+
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
+        
+
         function parse414b(inputValue) {
+            // 414b请求报文样例
+            // inputValue = "000F1102100B0001616621806166CA4001".replaceAll(" ", "");
+            // 414b响应报文样例
+            // inputValue = "".replaceAll(" ", "");
             var result = [];
             // 数据长度
             var dataLength = inputValue.substr(0, 4);
@@ -540,6 +609,9 @@
         }
 
         function parse4147(inputValue) {
+            // 4147响应报文样例
+            // inputValue = "47057E1102030000000101".replaceAll(" ", "");
+
             var result = [];
             // subcode
             var subCode = inputValue.substr(0, 2);
@@ -592,6 +664,10 @@
         }
 
         function parse410e(inputValue) {
+            // 410e请求报文样例
+            // inputValue = "4C10026100500A01616C4880616C49AB00513A0A2CD052084A07667470757365720C4368616E67656D655F3132331E6674702F706D73796E632F32303231313031382F307831302F3130303333".replaceAll(" ", "");
+            // 410e响应报文样例
+            // inputValue = "0E04 1002 6101".replaceAll(" ", "");
             var dataArray = inputValue.split("");
             var result = [];
             var dataLength = getDataSegment(dataArray, 2);
@@ -641,6 +717,13 @@
             extendTextArea("resultListTextArea", result.length, -1);
         }
 
+        function parse410e(inputValue) {
+            // 410f请求报文样例
+            // inputValue = "0202 61".replaceAll(" ", "");
+            // 410f响应报文样例
+            // inputValue = "0F04 0261 0064".replaceAll(" ", "");
+        }
+
         function getDataSegment(dataArray, len) {
             var ret = "";
             while (len > 0) {
@@ -653,14 +736,24 @@
         function getDisplayResult(result, len) {
             displayResult = [];
             result.forEach(item => {
+                debugger
                 var oriData = item[0].padStart(len, " ");
                 if (oriData.length > len && len > 3) {
                     oriData = oriData.substr(0, len - 3) + "...";
                 }
-
+                let line = oriData
                 var filedName = item[1];
                 var filedValue = item[2];
-                displayResult.push(oriData + " ：" + filedName + " " + filedValue);
+
+                if (item[0] !== "") {
+                    line += " : " 
+                } else {
+                    line += "   " 
+                }
+                if (filedName !== "" || filedValue !== "") {
+                    line += filedName + " " + filedValue
+                }
+                displayResult.push(line);
             });
             return displayResult.join("\n");
         }
@@ -708,7 +801,7 @@
             } else {
                 paramsFields = fiedls[0]
             }
-            
+
             var params = paramsFields.split("&");
             var lineNum = 1;
             params.forEach(param => {
@@ -1016,9 +1109,11 @@
         </p>
         <div class="field">
             <select name="messageType" id="messageType">
-                <option value="414b" selected>414b</option>
-                <option value="4147">4147</option>
-                <option value="410e">410e</option>
+                <option value="4133_REQ">4133 请求</option>
+                <option value="4133_RESP">4133 响应</option>
+                <option value="4147_REQ">4147 请求</option>
+                <option value="414b_REQ" selected>414b 请求</option>
+                <option value="410e_REQ">410e 请求</option>
             </select>
             <input id="414bMessage" type="text" style="width:305px;text-align:left" size="12"
                 onblur="elementBlur('2')" />
@@ -1043,14 +1138,14 @@
         <div class="field">
             <textarea rows="1" cols="160" id="decodedUrl"></textarea>
         </div>
-        
+
         <div class="field">
         </div>
         <div class="footer">
-            ----  Powered by y00290641  ----
+            ---- Powered by y00290641 ----
         </div>
 
- 
+
 
 
     </div>
