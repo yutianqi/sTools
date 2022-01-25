@@ -1,7 +1,6 @@
 <!--
     Auther     : \u4e8e\u5929\u5947
     Date      : 1481737888000
-    Version    : 0.9.3 beta
 -->
 
 
@@ -467,8 +466,8 @@
                 case '414b_REQ':
                     validAndParseMessage("414b请求", inputValue, 34, parse414b)
                     break;
-                case '4147_REQ':
-                    validAndParseMessage("4147请求", inputValue, 22, parse4147)
+                case '4147_RESP':
+                    validAndParseMessage("4147请求", inputValue, -1, parse4147)
                     break;
                 case '410e_REQ':
                     validAndParseMessage("410e请求", inputValue, 154, parse410e)
@@ -618,7 +617,8 @@
             result.push([subCode, "子功能码", subCode]);
             // 数据长度
             var dataLength = inputValue.substr(2, 4);
-            result.push([dataLength, "数据长度", parseInt(dataLength, 16).toString(10)]);
+            var dataLengthVal = parseInt(dataLength, 16).toString(10);
+            result.push([dataLength, "数据长度", dataLengthVal]);
             // 文件类型
             var fileType = inputValue.substr(6, 2);
             result.push([fileType, "文件类型", fileType]);
@@ -647,8 +647,8 @@
             result.push([transFlag, "传输标志位", transFlagStr]);
             // 414bCustDataLength
             var custDataLength = inputValue.substr(12, 2);
-            var custDataLengthVal = parseInt(custDataLength) * 2;
-            result.push([custDataLength, "自定义数据长度", custDataLength]);
+            var custDataLengthVal = parseInt(custDataLength, 16) * 2;
+            result.push([custDataLength, "自定义数据长度", custDataLengthVal / 2]);
             // 414bCustData
             var custData = inputValue.substr(14, custDataLengthVal);
             result.push([custData, "自定义数据", custData]);
@@ -657,7 +657,8 @@
             result.push([frameId, "帧序号", frameId]);
             // data
             var data = inputValue.substr(18 + custDataLengthVal);
-            result.push([data, "文件数据", data]);
+            var messageLength = (dataLengthVal - 4 - custDataLengthVal/2 - 2)
+            result.push([data, "文件数据(" + messageLength + "bytes," + messageLength * 2 + "字符)", data]);
 
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
@@ -859,7 +860,7 @@
     </div>
 
     <div id="frame">
-        <div id="header1">sTool v0.9.3 beta</div>
+        <div id="header1">sTool v0.9.4 beta</div>
 
         <!-- 时间转换 -->
         <p>
@@ -1111,7 +1112,7 @@
             <select name="messageType" id="messageType">
                 <option value="4133_REQ">4133 请求</option>
                 <option value="4133_RESP">4133 响应</option>
-                <option value="4147_REQ">4147 请求</option>
+                <option value="4147_RESP">4147 响应</option>
                 <option value="414b_REQ" selected>414b 请求</option>
                 <option value="410e_REQ">410e 请求</option>
             </select>
