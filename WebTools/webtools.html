@@ -233,34 +233,35 @@
             });
         }
 
-        /**
-         * 将02进制数转为其他进制 
-         */
-        function transFromBinary() {
-            var inputValue = document.getElementById("binValue").value;
-            radixTrans(inputValue, 2);
-        }
 
         /**
-         * 将08进制数转为其他进制 
+         * 进制转换 
          */
-        function transFromOctal() {
-            var inputValue = document.getElementById("octValue").value;
-            radixTrans(inputValue, 8);
+        function transValue(elementId, radix) {
+
+            let map = {
+                "ULIMITED": [-1,],
+                "SIN_SHORT": [2],
+                "UNSIN_SHORT": [2],
+                "SIN_INT": [4, -2147483648, 2147483647, 0x100000000],
+                "UNSIN_INT": [4, 0, 4294967295, 0x100000000],
+                "SIN_LONG": [8],
+                "UNSIN_LONG": [8]
+            }
+
+            var inputValue = document.getElementById(elementId).value;
+            inputValue = inputValue.replaceAll(" ", "").replaceAll(",", "")
+            if (inputValue.length === 0) {
+                return
+            }
+            radixTrans(inputValue, radix);
         }
 
-        /**
-         * 将10进制数转为其他进制 
-         */
-        function transFromDecimal() {
-            var inputValue = document.getElementById("decValue").value;
-            radixTrans(inputValue, 10);
-        }
 
         /**
          * 将16进制数转为其他进制 
          */
-        function transFromHexadecimal() {
+        function transFromHexadecimalSupportEndian() {
             var endianValue = document.getElementById("endianValue").value;
             var inputValue = document.getElementById("hexValue").value;
             var bigEndianValue = "";
@@ -283,6 +284,32 @@
          * @param fromRadix  原始进制
          */
         function radixTrans(inputValue, fromRadix) {
+            /**
+             * Number(BigInt(9001) << BigInt(32))
+             * 
+             * 十进制因为涉及到有符号和无符号，需要根据数据长度做特殊处理
+             * FF对应无符号数就是255，有符号数就是-1
+             */
+            var value = parseInt(inputValue, fromRadix);
+            value = (value >= 0 ? value : 0x100000000 + value);
+            document.getElementById("binValue").value = value.toString(2);
+            document.getElementById("octValue").value = value.toString(8);
+            document.getElementById("decValue").value = value.toString(10);
+
+            var hexValue = value.toString(16).toUpperCase();
+            if (hexValue.length % 2 == 1) {
+                hexValue = "0" + hexValue;
+            }
+            document.getElementById("hexValue").value = hexValue;
+        }
+
+        /**
+         * 进制转换 
+         * 
+         * @param inputValue 原始值
+         * @param fromRadix  原始进制
+         */
+        function radixTransSupportEndin(inputValue, fromRadix) {
             document.getElementById("binValue").value = parseInt(inputValue, fromRadix).toString(2);
             document.getElementById("octValue").value = parseInt(inputValue, fromRadix).toString(8);
             document.getElementById("decValue").value = parseInt(inputValue, fromRadix).toString(10);
@@ -346,6 +373,11 @@
          */
         function calculateExpression(expression) {
             document.getElementById("expressionValue").value = eval(expression);
+        }
+
+        function evalExpr(expr) {
+            let func = new Function(`return ${expr}`);
+            return func();
         }
 
         function jsExecCmd(value) {
@@ -471,6 +503,15 @@
                     break;
                 case '410e_REQ':
                     validAndParseMessage("410e请求", inputValue, 154, parse410e)
+                    break;
+                case '03_REQ':
+                    validAndParseMessage("03请求", inputValue, -1, parse03req)
+                    break;
+                case '06_REQ':
+                    validAndParseMessage("03请求", inputValue, 8, parse06req)
+                    break;
+                case '10_REQ':
+                    validAndParseMessage("10请求", inputValue, 154, parse10req)
                     break;
                 default:
                     alert("Unsupported message type: " + messageType);
@@ -693,6 +734,36 @@
             var data = inputValue.substr(18 + custDataLengthVal);
             var messageLength = (dataLengthVal - 4 - custDataLengthVal / 2 - 2)
             result.push([data, "文件数据(" + messageLength + "bytes," + messageLength * 2 + "字符)", data]);
+
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
+
+        function parse03req(inputValue) {
+            // 03请求报文样例
+            // inputValue = "A541 0080".replaceAll(" ", "");
+            var result = [];
+            var regAddr = inputValue.substr(0, 4);
+            var regAddrVal = parseInt(regAddr, 16).toString(10);
+            result.push([regAddr, "寄存器地址", regAddr + "(" + regAddrVal + ")"]);
+            var hexValue = inputValue.substr(4, 8);
+            var value = parseInt(hexValue, 16).toString(10);
+            result.push([hexValue, "写入值", hexValue + "(" + value + ")"]);
+
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
+
+        function parse06req(inputValue) {
+            // 06请求报文样例
+            // inputValue = "A541 0080".replaceAll(" ", "");
+            var result = [];
+            var regAddr = inputValue.substr(0, 4);
+            var regAddrVal = parseInt(regAddr, 16).toString(10);
+            result.push([regAddr, "寄存器地址", regAddr + "(" + regAddrVal + ")"]);
+            var hexValue = inputValue.substr(4, 8);
+            var value = parseInt(hexValue, 16).toString(10);
+            result.push([hexValue, "写入值", hexValue + "(" + value + ")"]);
 
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
@@ -1063,45 +1134,57 @@
         </div>
 
         <!-- 进制转换 -->
-        <!--
-        <br/>
+        <br />
         <p>
             <label style="font-weight: bold;">进制转换</label>
+            <!--
+            <select name="dataLen" id="dataLen">
+                <option value="ULIMITED" selected>无限</option>
+                <option value="SIN_SHORT">SIN_SHORT|2字节</option>
+                <option value="UNSIN_SHORT">UNSIN_SHORT|2字节</option>
+                <option value="SIN_INT">SIN_INT|4字节</option>
+                <option value="UNSIN_INT">UNSIN_INT|4字节</option>
+                <option value="SIN_LONG">SIN_LONG|8字节</option>
+                <option value="UNSIN_LONG">UNSIN_LONG|8字节</option>
+            </select>
+            -->
         </p>
         <div class="field">
             02进制
-            <input id="binValue" type="text" style="width:264px;text-align:right" size="12" onblur="elementBlur('2')" />
-            <input type="button" value="转换" onclick="transFromBinary()" />
+            <input id="binValue" type="text" style="width:312px;text-align:right" size="12" onblur="elementBlur('2')" />
+            <input type="button" value="转换" onclick="transValue('binValue', 2)" />
         </div>
         <div class="field">
             08进制
-            <input id="octValue" type="text" style="width:264px;text-align:right" size="12" onblur="elementBlur('8')" />
-            <input type="button" value="转换" onclick="transFromOctal()" />
+            <input id="octValue" type="text" style="width:312px;text-align:right" size="12" onblur="elementBlur('8')" />
+            <input type="button" value="转换" onclick="transValue('octValue', 8)" />
         </div>
         <div class="field">
             10进制
-            <input id="decValue" type="text" style="width:264px;text-align:right" size="12"
+            <input id="decValue" type="text" style="width:312px;text-align:right" size="12"
                 onblur="elementBlur('10')" />
-            <input type="button" value="转换" onclick="transFromDecimal()" />
+            <input type="button" value="转换" onclick="transValue('decValue', 10)" />
         </div>
         <div class="field">
             16进制
+            <!--
             <select name="endianValue" id="endianValue">
                 <option value="0123" selected>大端序</option>
                 <option value="3210">小端序</option>
                 <option value="2301">小端序(16)</option>
             </select>
-            <input id="hexValue" type="text" style="width:168px;text-align:right" size="12"
+            -->
+            <input id="hexValue" type="text" style="width:312px;text-align:right" size="12"
                 onblur="elementBlur('16')" />
-            <input type="button" value="转换" onclick="transFromHexadecimal()" />
-            
+            <input type="button" value="转换" onclick="transValue('hexValue', 16)" />
+
+            <!--
             &nbsp;&nbsp;大端序 <input id="hexValue1" type="text" style="width:168px;text-align:right" size="12" readonly="true" />
             小端序 <input id="hexValue2" type="text" style="width:168px;text-align:right" size="12" readonly="true" />
             16位寄存器小端 <input id="hexValue3" type="text" style="width:168px;text-align:right" size="12" readonly="true" />
-            
+            -->
         </div>
-        <br/>
-        -->
+        <br />
 
         <!-- 表达式求值 -->
         <!--
@@ -1113,7 +1196,6 @@
             <input type="button" value="计算" onclick="calculateExpression(expression.value)" />
             &nbsp;&nbsp;<input id="expressionValue" type="text" style="width:168px" size="12" readonly="true" />
         </div>
-        
         -->
 
         <!-- 订阅块日志解析 -->
@@ -1144,11 +1226,15 @@
         </p>
         <div class="field">
             <select name="messageType" id="messageType">
-                <option value="4133_REQ">4133 请求</option>
-                <option value="4133_RESP">4133 响应</option>
-                <option value="4147_RESP">4147 响应</option>
-                <option value="414b_REQ" selected>414b 请求</option>
-                <option value="410e_REQ">410e 请求</option>
+                <option value="03_REQ" selected>0x03 请求(读寄存器)</option>
+                <option value="06_REQ">0x06 请求(写单个寄存器)</option>
+                <option value="10_REQ">0x10 请求(写多个寄存器)</option>
+
+                <option value="410e_REQ">0x410e 请求</option>
+                <option value="4133_REQ">0x4133 请求(多段数据查询)</option>
+                <option value="4133_RESP">0x4133 响应(多段数据查询)</option>
+                <option value="414b_REQ">0x414b 请求</option>
+                <option value="4147_RESP">0x4147 响应</option>
             </select>
             <input id="414bMessage" type="text" style="width:305px;text-align:left" size="12"
                 onblur="elementBlur('2')" />
