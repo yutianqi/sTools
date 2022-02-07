@@ -660,10 +660,10 @@
             // subcode
             var subCode = inputValue.substr(0, 2);
             result.push([subCode, "子功能码", subCode]);
-            // 数据长度
+            // 报文长度
             var dataLength = inputValue.substr(2, 4);
             var dataLengthVal = parseInt(dataLength, 16).toString(10);
-            result.push([dataLength, "数据长度", dataLengthVal]);
+            result.push([dataLength, "报文长度", dataLengthVal]);
             // 文件类型
             var fileType = inputValue.substr(6, 2);
             result.push([fileType, "文件类型", fileType]);
