@@ -629,8 +629,8 @@
             var sessionId = inputValue.substr(6, 2);
             result.push([sessionId, "会话ID", sessionId]);
             // Tag
-            var custTag = inputValue.substr(8, 2);
-            result.push([custTag, "Tag 0x" + custTag]);
+            var custTag = "0x" + inputValue.substr(8, 2);
+            result.push([custTag, "Tag", custTag]);
             // Size
             var custDataLength = inputValue.substr(10, 2);
             result.push([custDataLength, "自定义数据长度", parseInt(custDataLength, 16).toString(10)]);
