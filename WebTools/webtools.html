@@ -238,7 +238,6 @@
          * 进制转换 
          */
         function transValue(elementId, radix) {
-
             let map = {
                 "ULIMITED": [-1,],
                 "SIN_SHORT": [2],
@@ -277,6 +276,7 @@
             radixTrans(bigEndianValue, 16);
         }
 
+        
         /**
          * 进制转换 
          * 
@@ -292,16 +292,51 @@
              */
             var value = parseInt(inputValue, fromRadix);
             value = (value >= 0 ? value : 0x100000000 + value);
-            document.getElementById("binValue").value = value.toString(2);
+            document.getElementById("binValue").value = formatValue(value.toString(2), 4, "0", 4, " ")
             document.getElementById("octValue").value = value.toString(8);
             document.getElementById("decValue").value = value.toString(10);
 
-            var hexValue = value.toString(16).toUpperCase();
-            if (hexValue.length % 2 == 1) {
-                hexValue = "0" + hexValue;
-            }
-            document.getElementById("hexValue").value = hexValue;
+            document.getElementById("hexValue").value = formatValue(value.toString(16).toUpperCase(), 2, "0", 0, "");
         }
+
+
+        /**
+         * 字符串格式化 
+         * 
+         * @param inputValue 原始值
+         * @param fillLen 填充间隔长度
+         * @param filler 填充字符
+         * @param splitLen 分隔长度
+         * @param splitter 分隔字符
+         */
+        function formatValue(inputValue, fillLen, filler, splitLen, splitter) {
+            let fillers = "";
+            if (fillLen != 0) {
+                let modValue = inputValue.length % fillLen
+                if (modValue != 0) {
+                    for (i = 0; i < fillLen - modValue; i++) {
+                        fillers += filler;
+                    }
+                }
+                inputValue = fillers + inputValue;
+            }
+
+            let formatedValue = "";
+            if (splitLen != 0) {
+                let counter = 0;
+                for (i = inputValue.length - 1; i >= 0; i--) {
+                    if (counter % splitLen == 0 && counter != 0) {
+                        formatedValue = splitter + formatedValue;
+                    }
+                    formatedValue = inputValue[i] + formatedValue;
+                    counter += 1;
+                }
+            } else {
+                return inputValue;
+            }
+            return formatedValue;
+        }
+
 
         /**
          * 进制转换 
