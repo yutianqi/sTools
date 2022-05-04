@@ -537,7 +537,7 @@
                     validAndParseMessage("4147请求", inputValue, -1, parse4147)
                     break;
                 case '410e_REQ':
-                    validAndParseMessage("410e请求", inputValue, 154, parse410e)
+                    validAndParseMessage("410e请求", inputValue, -1, parse410e)
                     break;
                 case '03_REQ':
                     validAndParseMessage("03请求", inputValue, -1, parse03req)
@@ -807,6 +807,7 @@
         function parse410e(inputValue) {
             // 410e请求报文样例
             // inputValue = "4C10026100500A01616C4880616C49AB00513A0A2CD052084A07667470757365720C4368616E67656D655F3132331E6674702F706D73796E632F32303231313031382F307831302F3130303333".replaceAll(" ", "");
+            //               4D10002200500A076271D8446271F46300513B7703CA0B084A07667470757365720C4368616E67656D655F3132331F6674702F706D73796E632F32303232303530342F307831302F333838373433
             // 410e响应报文样例
             // inputValue = "0E04 1002 6101".replaceAll(" ", "");
             var dataArray = inputValue.split("");
