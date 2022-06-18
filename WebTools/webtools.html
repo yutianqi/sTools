@@ -137,7 +137,6 @@
         }
 
         function fillUnixTime(unixTime) {
-            debugger
             unixTime = unixTime.replaceAll(" ", "").toUpperCase();
             if (unixTime.startsWith("0X")) {
                 unixTime = unixTime.substring(2, unixTime.length);
@@ -546,7 +545,7 @@
                     validAndParseMessage("03请求", inputValue, 8, parse06req)
                     break;
                 case '10_REQ':
-                    validAndParseMessage("10请求", inputValue, 154, parse10req)
+                    validAndParseMessage("10请求", inputValue, -1, parse10req)
                     break;
                 default:
                     alert("Unsupported message type: " + messageType);
@@ -804,6 +803,35 @@
             extendTextArea("resultListTextArea", result.length, -1);
         }
 
+        function parse10req(inputValue) {
+            // 10请求报文样例
+            // inputValue = "9DD5 0002 0400 0012 34".replaceAll(" ", "");
+            var result = [];
+            var index = 0;
+            var startRegAddrVal = parseInt(inputValue.substr(index, 4), 16);
+            index += 4;
+            var num = parseInt(inputValue.substr(index, 4), 16);
+            index += 4;
+            var byteNum = parseInt(inputValue.substr(index, 2), 16);
+            index += 2;
+            if (index + byteNum * 2 !== inputValue.length) {
+                alert("0x10报文非法，预期长度：" + (index + byteNum * 2) + "  实际长度：" + inputValue.length);
+                return;
+            }
+            
+            for (i = 0; i < num; i++) {
+                var regAddr = startRegAddrVal + i;
+                var regVal = inputValue.substr(index, 4);
+                index += 4;
+                // console.log(regAddr);
+                // console.log(regVal);
+                result.push([regAddr.toString(10), "", regVal + "(" + parseInt(regVal, 16).toString(10) + ")"]);
+            }
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }        
+        
+
         function parse410e(inputValue) {
             // 410e请求报文样例
             // inputValue = "4C10026100500A01616C4880616C49AB00513A0A2CD052084A07667470757365720C4368616E67656D655F3132331E6674702F706D73796E632F32303231313031382F307831302F3130303333".replaceAll(" ", "");
@@ -871,7 +899,6 @@
         function getDisplayResult(result, len) {
             displayResult = [];
             result.forEach(item => {
-                debugger
                 var oriData = item[0].padStart(len, " ");
                 if (oriData.length > len && len > 3) {
                     oriData = oriData.substr(0, len - 3) + "...";
@@ -1255,9 +1282,9 @@
         </p>
         <div class="field">
             <select name="messageType" id="messageType">
-                <option value="03_REQ" selected>0x03 请求(读寄存器)</option>
+                <option value="03_REQ">0x03 请求(读寄存器)</option>
                 <option value="06_REQ">0x06 请求(写单个寄存器)</option>
-                <option value="10_REQ">0x10 请求(写多个寄存器)</option>
+                <option value="10_REQ" selected>0x10 请求(写多个寄存器)</option>
 
                 <option value="410e_REQ">0x410e 请求</option>
                 <option value="4133_REQ">0x4133 请求(多段数据查询)</option>
