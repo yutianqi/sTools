@@ -547,6 +547,18 @@
                 case '10_REQ':
                     validAndParseMessage("10请求", inputValue, -1, parse10req)
                     break;
+                case '4105_REQ':
+                    validAndParseMessage("4105请求", inputValue, -1, parse4105req)
+                    break;
+                case '4105_RESP':
+                    validAndParseMessage("4105响应", inputValue, -1, parse4105resp)
+                    break;
+                case '4106_REQ':
+                    validAndParseMessage("4106请求", inputValue, -1, parse4106req)
+                    break;
+                case '4106_RESP':
+                    validAndParseMessage("4106响应", inputValue, -1, parse4106resp)
+                    break;
                 default:
                     alert("Unsupported message type: " + messageType);
             }
@@ -831,7 +843,6 @@
             extendTextArea("resultListTextArea", result.length, -1);
         }        
         
-
         function parse410e(inputValue) {
             // 410e请求报文样例
             // inputValue = "4C10026100500A01616C4880616C49AB00513A0A2CD052084A07667470757365720C4368616E67656D655F3132331E6674702F706D73796E632F32303231313031382F307831302F3130303333".replaceAll(" ", "");
@@ -886,6 +897,111 @@
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
         }
+
+        function parse4105req(inputValue) {
+            // 4105请求报文样例
+            // inputValue = "0145".replaceAll(" ", "");
+            var result = [];
+            var index = 0;
+            var dataLengthMsg = inputValue.substr(index, 2)
+            var dataLength= parseInt(dataLengthMsg, 16);
+            index += 2;
+            result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
+
+            var fileTypeMsg = inputValue.substr(index, 2)
+            index += 2;
+            result.push([fileTypeMsg, "文件类型", "0x" + fileTypeMsg]);
+            if (inputValue.length-index>0) {
+                var custDataMsg = inputValue.substr(index, inputValue.length-index)
+                result.push([custDataMsg, "自定义数据", custDataMsg]);
+            }
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        } 
+
+        function parse4105resp(inputValue) {
+            // 4105响应报文样例
+            // inputValue = "0506 4500 0054 6EE0".replaceAll(" ", "");
+            var result = [];
+            var index = 2;
+            var dataLengthMsg = inputValue.substr(index, 2)
+            var dataLength= parseInt(dataLengthMsg, 16);
+            index += 2;
+            result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
+
+            var fileTypeMsg = inputValue.substr(index, 2)
+            index += 2;
+            result.push([fileTypeMsg, "文件类型", "0x" + fileTypeMsg]);
+
+            var fileLengthMsg = inputValue.substr(index, 8)
+            var fileLength= parseInt(fileLengthMsg, 16);
+            index += 8;
+            result.push([fileLengthMsg, "文件长度", fileLength.toString(10)]);
+
+
+            var frameLengthMsg = inputValue.substr(index, 8)
+            var frameLength= parseInt(frameLengthMsg, 16);
+            index += 8;
+            result.push([frameLengthMsg, "数据帧长", frameLength.toString(10)]);
+
+            if (inputValue.length-index>0) {
+                var custDataMsg = inputValue.substr(index, inputValue.length-index)
+                result.push([custDataMsg, "自定义数据", custDataMsg]);
+            }
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        } 
+
+
+        function parse4106req(inputValue) {
+            // 4106请求报文样例
+            // inputValue = "0345 0000".replaceAll(" ", "");
+            var result = [];
+            var index = 0;
+            var dataLengthMsg = inputValue.substr(index, 2)
+            var dataLength= parseInt(dataLengthMsg, 16);
+            index += 2;
+            result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
+
+            var fileTypeMsg = inputValue.substr(index, 2)
+            index += 2;
+            result.push([fileTypeMsg, "文件类型", "0x" + fileTypeMsg]);
+
+            var frameNumMsg = inputValue.substr(index, 4)
+            var frameNum= parseInt(frameNumMsg, 16);
+            index += 4;
+            result.push([frameNumMsg, "帧序号", frameNum]);
+
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
+
+        function parse4106resp(inputValue) {
+            // 4106响应报文样例
+            // inputValue = "06E3 4500 0056 3130 3200 C854 6600 0000 0000 C800 9500 0100 0100 9532 3130 3233 3133 5454 4542 3930 3030 3030 3134 3956 3130 3052 3030 3243 3130 5350 4330 3031 0000 0000 0000 0000 0000 0000 0074 6573 742D 6E61 6D65 0000 0000 0000 0000 0000 006F 7074 696D 697A 6572 2D76 3100 0000 0000 0000 0000 0000 0000 0000 0000 0000 AE00 0100 0100 AE32 3130 3233 3133 5454 4542 3930 3030 3030 3137 3456 3130 3052 3030 3243 3130 5350 4330 3031 0000 0000 0000 0000 0000 0000 0074 6573 742D 6E61 6D65 0000 0000 0000 0000 0000 006F 7074 696D 697A 6572 2D76 3100 0000 0000 0000 0000 0000 00".replaceAll(" ", "");
+            var result = [];
+            var index = 2;
+            var dataLengthMsg = inputValue.substr(index, 2)
+            var dataLength= parseInt(dataLengthMsg, 16);
+            index += 2;
+            result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
+
+            var fileTypeMsg = inputValue.substr(index, 2)
+            index += 2;
+            result.push([fileTypeMsg, "文件类型", "0x" + fileTypeMsg]);
+
+            var frameNumMsg = inputValue.substr(index, 4)
+            var frameNum= parseInt(frameNumMsg, 16);
+            index += 4;
+            result.push([frameNumMsg, "帧序号", frameNum.toString(10)]);
+
+            var frameDataMsg = inputValue.substr(index, inputValue.length-index)
+            result.push([frameDataMsg, "帧数据", frameDataMsg]);
+
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        } 
+
 
         function getDataSegment(dataArray, len) {
             var ret = "";
@@ -1284,7 +1400,13 @@
             <select name="messageType" id="messageType">
                 <option value="03_REQ">0x03 请求(读寄存器)</option>
                 <option value="06_REQ">0x06 请求(写单个寄存器)</option>
-                <option value="10_REQ" selected>0x10 请求(写多个寄存器)</option>
+                <option value="10_REQ">0x10 请求(写多个寄存器)</option>
+
+
+                <option value="4105_REQ">0x4105 请求</option>
+                <option value="4105_RESP">0x4105 响应</option>
+                <option value="4106_REQ">0x4106 请求</option>
+                <option value="4106_RESP" selected>0x4106 响应</option>
 
                 <option value="410e_REQ">0x410e 请求</option>
                 <option value="4133_REQ">0x4133 请求(多段数据查询)</option>
