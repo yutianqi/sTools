@@ -275,7 +275,7 @@
             radixTrans(bigEndianValue, 16);
         }
 
-        
+
         /**
          * 进制转换 
          * 
@@ -519,9 +519,27 @@
         }
 
         function parseMessage() {
-            var messageType = document.getElementById("messageType").value;
-            var inputValue = document.getElementById("414bMessage").value.replaceAll(" ", "");
-            // messageType = "4147_RESP";
+            var inputValue = document.getElementById("toParseMessage").value.replaceAll(" ", "");
+            // console.log(inputValue)
+
+            var protocolType = document.getElementById("protocolType").value;
+            // console.log(protocolType)
+
+            var messageType = document.getElementById(protocolType + "MessageType").value;
+            // console.log(messageType)
+
+            if (protocolType === "imodbus") {
+                parseImodbusMessage(messageType, inputValue)
+                return
+            }
+
+            if (protocolType === "bin35") {
+                parseBin35Message(messageType, inputValue)
+                return
+            }
+        }
+
+        function parseImodbusMessage(messageType, inputValue) {
             switch (messageType) {
                 case '4133_REQ':
                     validAndParseMessage("4133请求", inputValue, -1, parse4133Req)
@@ -558,6 +576,16 @@
                     break;
                 case '4106_RESP':
                     validAndParseMessage("4106响应", inputValue, -1, parse4106resp)
+                    break;
+                default:
+                    alert("Unsupported message type: " + messageType);
+            }
+        }
+
+        function parseBin35Message(messageType, inputValue) {
+            switch (messageType) {
+                case '0017_REQ':
+                    validAndParseMessage("0x0017请求", inputValue, -1, parseB350017Req)
                     break;
                 default:
                     alert("Unsupported message type: " + messageType);
@@ -830,7 +858,7 @@
                 alert("0x10报文非法，预期长度：" + (index + byteNum * 2) + "  实际长度：" + inputValue.length);
                 return;
             }
-            
+
             for (i = 0; i < num; i++) {
                 var regAddr = startRegAddrVal + i;
                 var regVal = inputValue.substr(index, 4);
@@ -841,12 +869,12 @@
             }
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
-        }        
-        
+        }
+
         function parse410e(inputValue) {
             // 410e请求报文样例
             // inputValue = "4C10026100500A01616C4880616C49AB00513A0A2CD052084A07667470757365720C4368616E67656D655F3132331E6674702F706D73796E632F32303231313031382F307831302F3130303333".replaceAll(" ", "");
-            //               4D10002200500A076271D8446271F46300513B7703CA0B084A07667470757365720C4368616E67656D655F3132331F6674702F706D73796E632F32303232303530342F307831302F333838373433
+            //               71B5000101516B5A54F560084A07667470757365720C4368616E67656D655F3132334F2F6674702F3130323139303332323137352F31373334333338353235313132313030375F313032332F4C494353554E323030305F56323030523030325F32303232303731345836313436302E7A6970
             // 410e响应报文样例
             // inputValue = "0E04 1002 6101".replaceAll(" ", "");
             var dataArray = inputValue.split("");
@@ -860,39 +888,42 @@
             var transFlag = getDataSegment(dataArray, 2);
             result.push([transFlag, "传输类型", transFlag]);
 
-            var tag50 = getDataSegment(dataArray, 2);
-            result.push([tag50, "tag50", tag50]);
-            var tag50DataLength = getDataSegment(dataArray, 2);
-            result.push([tag50DataLength, "Tag50数据长度", parseInt(tag50DataLength, 16).toString(10)]);
-            var tag50DevId = getDataSegment(dataArray, 2);
-            result.push([tag50DevId, "设备编号", tag50DevId]);
-            var tag50StartTime = getDataSegment(dataArray, 8);
-            result.push([tag50StartTime, "开始时间", transferUnixTimestampToLocalTimeStr((parseInt(tag50StartTime, 16) + 8 * 3600).toString(10), "+00")]);
-            var tag50EndTime = getDataSegment(dataArray, 8);
-            result.push([tag50EndTime, "结束时间", transferUnixTimestampToLocalTimeStr((parseInt(tag50EndTime, 16) + 8 * 3600).toString(10), "+00")]);
-            var tag50ReversedSegment = getDataSegment(dataArray, 2);
-            result.push([tag50ReversedSegment, "保留位", tag50ReversedSegment]);
-
-            var tag51 = getDataSegment(dataArray, 2);
-            result.push([tag51, "tag51", tag51]);
-            var tag51DataLength = getDataSegment(dataArray, 2);
-            result.push([tag51DataLength, "Tag51数据长度", parseInt(tag51DataLength, 16).toString(10)]);
-            var ip = getDataSegment(dataArray, 8);
-            result.push([ip, "IP", parseIp(ip)]);
-            var port = getDataSegment(dataArray, 4);
-            result.push([port, "Port", parseInt(port, 16).toString(10)]);
-            var userNameLen = getDataSegment(dataArray, 2);
-            result.push([userNameLen, "用户名长度", parseInt(userNameLen, 16).toString(10)]);
-            var userName = getDataSegment(dataArray, parseInt(userNameLen, 16) * 2);
-            result.push([userName, "用户名", parseStr(userName)]);
-            var passWordLen = getDataSegment(dataArray, 2);
-            result.push([passWordLen, "密码长度", parseInt(passWordLen, 16).toString(10)]);
-            var passWord = getDataSegment(dataArray, parseInt(passWordLen, 16) * 2);
-            result.push([passWord, "密码", parseStr(passWord)]);
-            var pathLen = getDataSegment(dataArray, 2);
-            result.push([pathLen, "路径长度", parseInt(pathLen, 16).toString(10)]);
-            var path = getDataSegment(dataArray, parseInt(pathLen, 16) * 2);
-            result.push([path, "路径", parseStr(path)]);
+            var tag = getDataSegment(dataArray, 2);
+            if (tag == "50") {
+                result.push([tag, "tag50", tag]);
+                var tag50DataLength = getDataSegment(dataArray, 2);
+                result.push([tag50DataLength, "Tag50数据长度", parseInt(tag50DataLength, 16).toString(10)]);
+                var tag50DevId = getDataSegment(dataArray, 2);
+                result.push([tag50DevId, "设备编号", tag50DevId]);
+                var tag50StartTime = getDataSegment(dataArray, 8);
+                result.push([tag50StartTime, "开始时间", transferUnixTimestampToLocalTimeStr((parseInt(tag50StartTime, 16) + 8 * 3600).toString(10), "+00")]);
+                var tag50EndTime = getDataSegment(dataArray, 8);
+                result.push([tag50EndTime, "结束时间", transferUnixTimestampToLocalTimeStr((parseInt(tag50EndTime, 16) + 8 * 3600).toString(10), "+00")]);
+                var tag50ReversedSegment = getDataSegment(dataArray, 2);
+                result.push([tag50ReversedSegment, "保留位", tag50ReversedSegment]);            
+                tag = getDataSegment(dataArray, 2);
+            } 
+            if (tag == "51") {
+                result.push([tag, "tag51", tag]);
+                var tag51DataLength = getDataSegment(dataArray, 2);
+                result.push([tag51DataLength, "Tag51数据长度", parseInt(tag51DataLength, 16).toString(10)]);
+                var ip = getDataSegment(dataArray, 8);
+                result.push([ip, "IP", parseIp(ip)]);
+                var port = getDataSegment(dataArray, 4);
+                result.push([port, "Port", parseInt(port, 16).toString(10)]);
+                var userNameLen = getDataSegment(dataArray, 2);
+                result.push([userNameLen, "用户名长度", parseInt(userNameLen, 16).toString(10)]);
+                var userName = getDataSegment(dataArray, parseInt(userNameLen, 16) * 2);
+                result.push([userName, "用户名", parseStr(userName)]);
+                var passWordLen = getDataSegment(dataArray, 2);
+                result.push([passWordLen, "密码长度", parseInt(passWordLen, 16).toString(10)]);
+                var passWord = getDataSegment(dataArray, parseInt(passWordLen, 16) * 2);
+                result.push([passWord, "密码", parseStr(passWord)]);
+                var pathLen = getDataSegment(dataArray, 2);
+                result.push([pathLen, "路径长度", parseInt(pathLen, 16).toString(10)]);
+                var path = getDataSegment(dataArray, parseInt(pathLen, 16) * 2);
+                result.push([path, "路径", parseStr(path)]);
+            }
 
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
@@ -904,20 +935,20 @@
             var result = [];
             var index = 0;
             var dataLengthMsg = inputValue.substr(index, 2)
-            var dataLength= parseInt(dataLengthMsg, 16);
+            var dataLength = parseInt(dataLengthMsg, 16);
             index += 2;
             result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
 
             var fileTypeMsg = inputValue.substr(index, 2)
             index += 2;
             result.push([fileTypeMsg, "文件类型", "0x" + fileTypeMsg]);
-            if (inputValue.length-index>0) {
-                var custDataMsg = inputValue.substr(index, inputValue.length-index)
+            if (inputValue.length - index > 0) {
+                var custDataMsg = inputValue.substr(index, inputValue.length - index)
                 result.push([custDataMsg, "自定义数据", custDataMsg]);
             }
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
-        } 
+        }
 
         function parse4105resp(inputValue) {
             // 4105响应报文样例
@@ -925,7 +956,7 @@
             var result = [];
             var index = 2;
             var dataLengthMsg = inputValue.substr(index, 2)
-            var dataLength= parseInt(dataLengthMsg, 16);
+            var dataLength = parseInt(dataLengthMsg, 16);
             index += 2;
             result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
 
@@ -934,23 +965,23 @@
             result.push([fileTypeMsg, "文件类型", "0x" + fileTypeMsg]);
 
             var fileLengthMsg = inputValue.substr(index, 8)
-            var fileLength= parseInt(fileLengthMsg, 16);
+            var fileLength = parseInt(fileLengthMsg, 16);
             index += 8;
             result.push([fileLengthMsg, "文件长度", fileLength.toString(10)]);
 
 
             var frameLengthMsg = inputValue.substr(index, 8)
-            var frameLength= parseInt(frameLengthMsg, 16);
+            var frameLength = parseInt(frameLengthMsg, 16);
             index += 8;
             result.push([frameLengthMsg, "数据帧长", frameLength.toString(10)]);
 
-            if (inputValue.length-index>0) {
-                var custDataMsg = inputValue.substr(index, inputValue.length-index)
+            if (inputValue.length - index > 0) {
+                var custDataMsg = inputValue.substr(index, inputValue.length - index)
                 result.push([custDataMsg, "自定义数据", custDataMsg]);
             }
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
-        } 
+        }
 
 
         function parse4106req(inputValue) {
@@ -959,7 +990,7 @@
             var result = [];
             var index = 0;
             var dataLengthMsg = inputValue.substr(index, 2)
-            var dataLength= parseInt(dataLengthMsg, 16);
+            var dataLength = parseInt(dataLengthMsg, 16);
             index += 2;
             result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
 
@@ -968,7 +999,7 @@
             result.push([fileTypeMsg, "文件类型", "0x" + fileTypeMsg]);
 
             var frameNumMsg = inputValue.substr(index, 4)
-            var frameNum= parseInt(frameNumMsg, 16);
+            var frameNum = parseInt(frameNumMsg, 16);
             index += 4;
             result.push([frameNumMsg, "帧序号", frameNum]);
 
@@ -982,7 +1013,7 @@
             var result = [];
             var index = 2;
             var dataLengthMsg = inputValue.substr(index, 2)
-            var dataLength= parseInt(dataLengthMsg, 16);
+            var dataLength = parseInt(dataLengthMsg, 16);
             index += 2;
             result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
 
@@ -991,16 +1022,115 @@
             result.push([fileTypeMsg, "文件类型", "0x" + fileTypeMsg]);
 
             var frameNumMsg = inputValue.substr(index, 4)
-            var frameNum= parseInt(frameNumMsg, 16);
+            var frameNum = parseInt(frameNumMsg, 16);
             index += 4;
             result.push([frameNumMsg, "帧序号", frameNum.toString(10)]);
 
-            var frameDataMsg = inputValue.substr(index, inputValue.length-index)
+            var frameDataMsg = inputValue.substr(index, inputValue.length - index)
             result.push([frameDataMsg, "帧数据", frameDataMsg]);
 
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
-        } 
+        }
+
+        function parseB350017Req(inputValue) {
+            // 0017请求报文样例
+            // inputValue = "0x0017,0,3231 3032 3331 3051 5258 4254 4543 3030 3130 3230 0A1A 4B55 0200 0000 0000 0000 0001 01FF FFFF FFFF FFFF FFFF FFFF FFFF FFFF FFFF FFFF FF25 9F6E 6FDB 49C9 BB5E 92C2 40A4 DEDC FE3C EC9E 6000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0100 0100 0300 00".replaceAll(" ", "");
+            var cmdCode = inputValue.split(",")[0]
+            var handle = inputValue.split(",")[1]
+            var inputValue = inputValue.split(",")[2]
+
+            var result = [];
+            var index = 0;
+            var esnMsg = inputValue.substr(index, 40)
+            var esn = parseStr(esnMsg);
+            index += 40;
+            result.push([esnMsg, "ESN", esn]);
+
+            var ipMsg = inputValue.substr(index, 8)
+            var ip = parseIp(ipMsg);
+            index += 8;
+            result.push([ipMsg, "GPRS IP/DHCP IP", ip]);
+
+            var ipFlagMsg = inputValue.substr(index, 2)
+            var ipFlag = parseInt(ipFlagMsg, 16);
+            index += 2;
+            map = {
+                1: "GPRS模式",
+                2: "IP模式",
+                3: "E1模式",
+                4: "增强GPRS(已占用)",
+                5: "切换成带内模式"
+            }
+            result.push([ipFlagMsg, "IP Flag", map[ipFlag]]);
+
+            var siteIdMsg = inputValue.substr(index, 16)
+            var siteId = parseStr(siteIdMsg)
+            index += 16;
+            result.push([siteIdMsg, "Site ID", siteId]);
+
+
+            var sslStatusMsg = inputValue.substr(index, 2)
+            var sslStatus = parseInt(sslStatusMsg, 16)
+            index += 2;
+            map = {
+                0: "禁用",
+                1: "启用",
+            }
+            result.push([sslStatusMsg, "SSLStatus", map[sslStatus]]);
+
+            var supportBackboardEsnMsg = inputValue.substr(index, 2)
+            var supportBackboardEsn = parseInt(supportBackboardEsnMsg, 16)
+            index += 2;
+            map = {
+                0: "NetEco使用背板ESN建站",
+                1: "NetEco使用主控板ESN建站",
+            }
+            result.push([supportBackboardEsnMsg, "SupportBackboardESN", map[supportBackboardEsn]]);
+
+            var backboardEsnMsg = inputValue.substr(index, 40)
+            var backboardEsn = parseStr(backboardEsnMsg)
+            index += 40;
+            result.push([backboardEsnMsg, "BackboardESN", backboardEsnMsg]);
+
+            var cerHashMsg = inputValue.substr(index, 80)
+            var cerHash = parseStr(cerHashMsg)
+            index += 80;
+            result.push([cerHashMsg, "CerHash", cerHashMsg]);
+
+            index += 8;
+
+            var paramNumMsg = inputValue.substr(index, 4)
+            var paramNum = parseInt(paramNumMsg, 16)
+            index += 4;
+            result.push([paramNumMsg, "携带参数数量", paramNum]);
+
+            for (i = 0; i < paramNum; i++) {
+                var paramTagMsg = inputValue.substr(index, 4)
+                var paramTag = parseInt(paramTagMsg, 16)
+                index += 4;
+                map = {
+                    1: "代表siteID",
+                    2: "代表IPV6的IP地址",
+                    3: "代表设备实例信号数据管理同步号是否连续，参数长度填0；有该标识则为主动上报的同步号连续；没有则表示同步号不连续",
+                }
+                result.push([paramTagMsg, "参数" + i + "标识", paramTag]);
+
+                var paramLengthMsg = inputValue.substr(index, 4)
+                var paramLength = parseInt(paramLengthMsg, 16)
+                index += 4;
+                result.push([paramLengthMsg, "参数" + i + "长度", paramLength]);
+
+                if (paramLength > 0) {
+                    var paramValueMsg = inputValue.substr(index, paramLength)
+                    var paramValue = parseStr(paramValueMsg)
+                    index += paramLength;
+                    result.push([paramValueMsg, "参数" + i + "内容", paramValue]);
+                }
+            }
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
 
 
         function getDataSegment(dataArray, len) {
@@ -1063,7 +1193,7 @@
             if (encodedUrl.length == 0) {
                 return;
             }
-            console.log(encodedUrl);
+            // console.log(encodedUrl);
 
             var fiedls = encodedUrl.split("?");
             if (fiedls.length == 1 && encodedUrl.startsWith("http")) {
@@ -1088,8 +1218,8 @@
                 decodedUrl.push(key += "=" + val);
                 lineNum += 1;
             });
-            console.log(decodedUrl);
-            console.log(decodedUrl.length);
+            // console.log(decodedUrl);
+            // console.log(decodedUrl.length);
             document.getElementById("decodedUrl").value = decodedUrl.join("\n");
             extendTextArea("decodedUrl", decodedUrl.length, -1);
         }
@@ -1115,7 +1245,7 @@
                 var val = encodeURIComponent(param.substring(index + 1));
                 encodedUrl += key + "=" + val + "&";
             });
-            console.log(encodedUrl);
+            // console.log(encodedUrl);
             document.getElementById("encodedUrl").value = encodedUrl.substr(0, encodedUrl.length - 1);
         }
 
@@ -1125,6 +1255,18 @@
             }
             if (width !== -1) {
                 document.getElementById(elementById).style.width = width * 18 + 'px';
+            }
+        }
+
+        function onProtocolChanged(event) {
+            // debugger
+            // console.log(event.target.value);
+            if (event.target.value == "imodbus") {
+                document.getElementById('imodbusMessageType').style.display = 'inline';
+                document.getElementById('bin35MessageType').style.display = 'none';
+            } else {
+                document.getElementById('imodbusMessageType').style.display = 'none';
+                document.getElementById('bin35MessageType').style.display = 'inline';
             }
         }
 
@@ -1396,12 +1538,16 @@
         <p>
             <label style="font-weight: bold;">报文解析</label>
         </p>
+
         <div class="field">
-            <select name="messageType" id="messageType">
+            <select name="protocolType" id="protocolType" onchange="onProtocolChanged(event)">
+                <option value="imodbus" selected>IMODBUS</option>
+                <option value="bin35">BIN3.5</option>
+            </select>
+            <select name="imodbusMessageType" id="imodbusMessageType" style="width:150px;">
                 <option value="03_REQ">0x03 请求(读寄存器)</option>
                 <option value="06_REQ">0x06 请求(写单个寄存器)</option>
                 <option value="10_REQ">0x10 请求(写多个寄存器)</option>
-
 
                 <option value="4105_REQ">0x4105 请求</option>
                 <option value="4105_RESP">0x4105 响应</option>
@@ -1414,7 +1560,10 @@
                 <option value="414b_REQ">0x414b 请求</option>
                 <option value="4147_RESP">0x4147 响应</option>
             </select>
-            <input id="414bMessage" type="text" style="width:305px;text-align:left" size="12"
+            <select name="bin35MessageType" id="bin35MessageType" style="width:150px;display:none">
+                <option value="0017_REQ" selected>0x0010 请求(申请接入)</option>
+            </select>
+            <input id="toParseMessage" type="text" style="width:305px;text-align:left" size="12"
                 onblur="elementBlur('2')" />
             <input type="button" value="解析" onclick="parseMessage()" />
         </div>
