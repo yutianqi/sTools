@@ -8,7 +8,7 @@ import git
 
 CHROME_PATH=r'C:\Program Files\Google\Chrome\Application\chrome.exe'
 CODE_DIR=r'D:\NetEco\01.code'
-REPO_URL= 'https://codehub-y.huawei.com/y00290641'
+REPO_URL= 'https://codehub-y.huawei.com/y00801659'
 
 
 
