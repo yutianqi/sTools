@@ -931,7 +931,7 @@
 
         function parse4105req(inputValue) {
             // 4105请求报文样例
-            // inputValue = "0145".replaceAll(" ", "");
+            // inputValue = "0F11 100C 62F6 6190 62F6 62BB 0000 0000".replaceAll(" ", "");
             var result = [];
             var index = 0;
             var dataLengthMsg = inputValue.substr(index, 2)
@@ -944,7 +944,23 @@
             result.push([fileTypeMsg, "文件类型", "0x" + fileTypeMsg]);
             if (inputValue.length - index > 0) {
                 var custDataMsg = inputValue.substr(index, inputValue.length - index)
-                result.push([custDataMsg, "自定义数据", custDataMsg]);
+                // result.push([custDataMsg, "自定义数据", custDataMsg]);
+                var tag = inputValue.substr(index, 2)
+                index += 2;
+                result.push([tag, "tag", "0x" + tag]);
+                var custDataLen = inputValue.substr(index, 2)
+                index += 2;
+                result.push([custDataLen, "自定义数据长度", parseInt(custDataLen, 16)]);
+                var startTime = inputValue.substr(index, 8)
+                index += 8;
+                result.push([startTime, "开始时间", transferUnixTimestampToLocalTimeStr(parseInt(startTime, 16).toString(10), "+00")]);
+                var endTime = inputValue.substr(index, 8)
+                index += 8;
+                result.push([endTime, "结束时间", transferUnixTimestampToLocalTimeStr(parseInt(endTime, 16).toString(10), "+00")]);
+                var reservedData = inputValue.substr(index, 8)
+                index += 8;
+                result.push([reservedData, "保留字段", reservedData]);
+
             }
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
@@ -952,7 +968,7 @@
 
         function parse4105resp(inputValue) {
             // 4105响应报文样例
-            // inputValue = "0506 4500 0054 6EE0".replaceAll(" ", "");
+            // inputValue = "050A 1100 0001 1AE0 0000 010E".replaceAll(" ", "");
             var result = [];
             var index = 2;
             var dataLengthMsg = inputValue.substr(index, 2)
@@ -969,10 +985,9 @@
             index += 8;
             result.push([fileLengthMsg, "文件长度", fileLength.toString(10)]);
 
-
-            var frameLengthMsg = inputValue.substr(index, 8)
+            var frameLengthMsg = inputValue.substr(index, 2)
             var frameLength = parseInt(frameLengthMsg, 16);
-            index += 8;
+            index += 2;
             result.push([frameLengthMsg, "数据帧长", frameLength.toString(10)]);
 
             if (inputValue.length - index > 0) {
