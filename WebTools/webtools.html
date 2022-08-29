@@ -189,6 +189,33 @@
             document.getElementById(outputZoneTimeId).value = convertJsDateToString(new Date(timestamp));
         }
 
+        /**
+         * JSON格式化
+         */
+         function formatJson() {
+            rawJson = document.getElementById("rawJson").value;
+            ret = JSON.stringify(JSON.parse(rawJson), null, "    ")
+            // console.log(ret)
+            // extendTextArea("formatedJson", 20)
+            document.getElementById("formatedJson").value = ret
+        }
+
+        /**
+         * transRawHeaderToCode
+         */
+        function transRawHeaderToCode() {
+            rawHeader = document.getElementById("headerCode").value;
+            lines = rawHeader.split("\n")
+            ret = ''
+            for (i = 0; i < lines.length; i++) {
+                ret += "'" + lines[i].replace(": ", "': '") + "'"
+                if (i != lines.length - 1) {
+                    ret += ",\n"
+                }
+            }
+
+            document.getElementById("headerCode").value = ret
+        }
 
         /**
          * 将unicode转为中文
@@ -231,7 +258,6 @@
                 return "\\u" + RegExp["$1"].charCodeAt(0).toString(16);
             });
         }
-
 
         /**
          * 进制转换 
@@ -1601,15 +1627,41 @@
         <div class="field">
             <textarea rows="1" cols="160" id="decodedUrl"></textarea>
         </div>
+        <br />
+
+        <!-- JSON格式化 -->
+        <p>
+            <label style="font-weight: bold;">JSON格式化</label>
+        </p>
+        <div class="field">
+            <input id="rawJson" type="text" style="width:300px" size="12" />
+            <input type="button" value="格式化" onclick="formatJson()" />
+            <div class="field" style="margin-top:05px">
+                <textarea rows="3" cols="85" id="formatedJson"></textarea>                
+            </div>
+        </div>
+        <br />
+
+        <!-- Header生成 -->
+        <p>
+            <label style="font-weight: bold;">Header生成</label>
+        </p>
+        <div class="field">
+            <!--
+                        <input id="rawHeader" type="text" style="width:300px" size="12" />
+                    -->
+            <input type="button" value="生成Header" onclick="transRawHeaderToCode()" />
+            <div class="field" style="margin-top:05px">
+                <textarea rows="3" cols="85" id="headerCode"></textarea>
+            </div>
+        </div>
+        <br />
 
         <div class="field">
         </div>
         <div class="footer">
             ---- Powered by y00290641 ----
         </div>
-
-
-
 
     </div>
 
