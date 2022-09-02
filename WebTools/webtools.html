@@ -192,12 +192,24 @@
         /**
          * JSON格式化
          */
-         function formatJson() {
+        function formatJson() {
             rawJson = document.getElementById("rawJson").value;
+            if (rawJson.startsWith("\"")) {
+                rawJson = rawJson.substr(1, rawJson.length-2)
+            }
+            rawJson = rawJson.replaceAll("\\\"", "\"")
             ret = JSON.stringify(JSON.parse(rawJson), null, "    ")
-            // console.log(ret)
-            // extendTextArea("formatedJson", 20)
             document.getElementById("formatedJson").value = ret
+        }
+
+        /**
+         * JSON格式化
+         */
+         function jsonToStr() {
+            ret = document.getElementById("rawJson").value
+            ret = JSON.stringify(JSON.parse(ret))
+            ret = ret.replaceAll("\"", "\\\"")
+            document.getElementById("formatedJson").value = "\"" + ret + "\""
         }
 
         /**
@@ -1636,6 +1648,7 @@
         <div class="field">
             <input id="rawJson" type="text" style="width:300px" size="12" />
             <input type="button" value="格式化" onclick="formatJson()" />
+            <input type="button" value="转字符串" onclick="jsonToStr()" />
             <div class="field" style="margin-top:05px">
                 <textarea rows="3" cols="85" id="formatedJson"></textarea>                
             </div>
