@@ -7,9 +7,8 @@ import git
 
 
 CHROME_PATH=r'C:\Program Files\Google\Chrome\Application\chrome.exe'
-CODE_DIR=r'D:\NetEco\01.code'
-REPO_URL= 'https://codehub-y.huawei.com/y00801659'
-
+CODE_DIR=r'D:\neteco\01.code'
+REPO_URL= 'https://codehub-g.huawei.com/y00801659'
 
 
 def main():
@@ -18,10 +17,10 @@ def main():
     
     field = pwd.split('\\')
    
-    basicDir = '\\'.join(field[0:4])
+    basicDir = '\\'.join(field[0:5])
     # print('执行目录是:' + basicDir)
     
-    projectName=field[3]
+    projectName=field[4]
     # print('工程是:' + projectName)
     
     repo = git.Repo(basicDir)

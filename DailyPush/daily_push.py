@@ -9,14 +9,14 @@ from time import sleep
 
 def init_logger(logger):
     logger.setLevel(logging.DEBUG)
-    fileHandler = logging.FileHandler("D:\\Code\\Github\\sTools\\DailyPush\\log.log")
+    fileHandler = logging.FileHandler("D:\\yutianqi\\Code\\sTools\\DailyPush\\log.log")
     fileHandler.setLevel(logging.DEBUG)
     fileHandler.setFormatter(logging.Formatter('%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s - %(message)s'))
     logger.addHandler(fileHandler)
 
     
 def backup_files():
-    shutil.copyfile("C:\\Users\\y00290641\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Bookmarks", "D:\\Notes\\Bookmarks")
+    shutil.copyfile("C:\\Users\\y00290641\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Bookmarks", "D:\\yutianqi\\Notes\\Bookmarks")
     # shutil.copyfile("C:\\Users\\y00290641\\AppData\\Local\\Google\\Chrome\\User Data\\Profile 1\\Bookmarks", "D:\\Notes\\Bookmarks_Duke")
     
   
@@ -42,7 +42,7 @@ def main():
         commitMessage = "Daily commit from cloud desktop"
 
     backup_files()
-    repo = git.Repo("D:\\Notes") 	
+    repo = git.Repo("D:\\yutianqi\\Notes\\") 	
     if repo.is_dirty():
         commit_files(repo, commitMessage)
         logger.debug("Commited successfully.")
