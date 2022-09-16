@@ -2,6 +2,7 @@
 # coding=utf-8
 
 import sys
+import os
 import logging
 import git
 import shutil
@@ -18,6 +19,8 @@ def init_logger(logger):
 def backup_files():
     shutil.copyfile("C:\\Users\\y00290641\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Bookmarks", "D:\\yutianqi\\Notes\\Bookmarks")
     # shutil.copyfile("C:\\Users\\y00290641\\AppData\\Local\\Google\\Chrome\\User Data\\Profile 1\\Bookmarks", "D:\\Notes\\Bookmarks_Duke")
+    print("dos2unix.exe D:\\yutianqi\\Notes\\Bookmarks")
+    os.system("dos2unix.exe D:\\yutianqi\\Notes\\Bookmarks")
     
   
 def commit_files(repo, commitMessage):
