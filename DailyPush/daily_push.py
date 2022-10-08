@@ -11,14 +11,14 @@ from time import sleep
 
 def init_logger(logger):
     logger.setLevel(logging.DEBUG)
-    fileHandler = logging.FileHandler("D:\\yutianqi\\Code\\sTools\\DailyPush\\log.log")
+    fileHandler = logging.FileHandler("D:\\yutianqi\\Code\\Github\\sTools\\DailyPush\\log.log")
     fileHandler.setLevel(logging.DEBUG)
     fileHandler.setFormatter(logging.Formatter('%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s - %(message)s'))
     logger.addHandler(fileHandler)
 
     
 def backup_files():
-    shutil.copyfile("C:\\Users\\y00290641\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Bookmarks", "D:\\yutianqi\\Notes\\Bookmarks")
+    shutil.copyfile("C:\\Users\\y00801659\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Bookmarks", "D:\\yutianqi\\Notes\\Bookmarks")
     # shutil.copyfile("C:\\Users\\y00290641\\AppData\\Local\\Google\\Chrome\\User Data\\Profile 1\\Bookmarks", "D:\\Notes\\Bookmarks_Duke")
     cmd = "D:\\Program Files\\Git\\usr\\bin\\dos2unix.exe D:\\yutianqi\\Notes\\Bookmarks"
     p = subprocess.Popen((cmd),stdout=subprocess.PIPE).stdout
