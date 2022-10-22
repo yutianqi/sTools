@@ -594,6 +594,9 @@
                 case '410e_REQ':
                     validAndParseMessage("410e请求", inputValue, -1, parse410e)
                     break;
+                case '410f_RESP':
+                    validAndParseMessage("410e请求", inputValue, -1, parse410fResp)
+                    break;
                 case '03_REQ':
                     validAndParseMessage("03请求", inputValue, -1, parse03req)
                     break;
@@ -963,6 +966,34 @@
                 result.push([path, "路径", parseStr(path)]);
             }
 
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
+        
+        function parse410fResp(inputValue) {
+            // 410f响应报文样例
+            // inputValue = "0F 04 215F 00 64".replaceAll(" ", "");
+
+            var dataArray = inputValue.split("");
+            var result = [];
+            var subCode = getDataSegment(dataArray, 2);
+            var dataLength = getDataSegment(dataArray, 2);
+            result.push([dataLength, "数据长度", parseInt(dataLength, 16).toString(10)]);
+            
+            var sessionId = getDataSegment(dataArray, 4);
+            result.push([sessionId, "SessionID", sessionId + "(" + parseInt(sessionId, 16).toString(10) + ")"]);
+            var transFlag = getDataSegment(dataArray, 2);
+            
+            var transStatusMap = {
+                "00": "传输完成",
+                "01": "传输中",
+                "02": "传输失败"            
+            }
+            result.push([transFlag, "传输状态", transFlag+"("+transStatusMap[transFlag]+")"]);
+            
+            var transFlag = getDataSegment(dataArray, 2);
+            result.push([transFlag, "传输进度", transFlag]);
+            
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
         }
@@ -1605,12 +1636,13 @@
                 <option value="4105_REQ">0x4105 请求</option>
                 <option value="4105_RESP">0x4105 响应</option>
                 <option value="4106_REQ">0x4106 请求</option>
-                <option value="4106_RESP" selected>0x4106 响应</option>
+                <option value="4106_RESP">0x4106 响应</option>
 
                 <option value="410e_REQ">0x410e 请求</option>
+                <option value="410f_RESP">0x410f 响应</option>
                 <option value="4133_REQ">0x4133 请求(多段数据查询)</option>
                 <option value="4133_RESP">0x4133 响应(多段数据查询)</option>
-                <option value="414b_REQ">0x414b 请求</option>
+                <option value="414b_REQ" selected>0x414b 请求</option>
                 <option value="4147_RESP">0x4147 响应</option>
             </select>
             <select name="bin35MessageType" id="bin35MessageType" style="width:150px;display:none">
