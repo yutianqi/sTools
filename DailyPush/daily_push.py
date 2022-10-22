@@ -22,7 +22,7 @@ def backup_files():
     # shutil.copyfile("C:\\Users\\y00290641\\AppData\\Local\\Google\\Chrome\\User Data\\Profile 1\\Bookmarks", "D:\\Notes\\Bookmarks_Duke")
     cmd = "D:\\Program Files\\Git\\usr\\bin\\dos2unix.exe D:\\yutianqi\\Notes\\Bookmarks"
     p = subprocess.Popen((cmd),stdout=subprocess.PIPE).stdout
-    print(p.readlines())
+    p.readlines()
     # subprocess.Popen((cmd))
     
   
