@@ -586,7 +586,7 @@
                     validAndParseMessage("4133响应", inputValue, -1, parse4133Resp)
                     break;
                 case '414b_REQ':
-                    validAndParseMessage("414b请求", inputValue, 34, parse414b)
+                    validAndParseMessage("414b请求", inputValue, -1, parse414b)
                     break;
                 case '4147_RESP':
                     validAndParseMessage("4147请求", inputValue, -1, parse4147)
@@ -731,38 +731,50 @@
         function parse414b(inputValue) {
             // 414b请求报文样例
             // inputValue = "000F1102100B0001616621806166CA4001".replaceAll(" ", "");
+            // inputValue = "0002 1C1C".replaceAll(" ", "");
             // 414b响应报文样例
             // inputValue = "".replaceAll(" ", "");
+            
             var result = [];
             // 数据长度
             var dataLength = inputValue.substr(0, 4);
             result.push([dataLength, "数据长度", parseInt(dataLength, 16).toString(10)]);
+            
             // 文件类型
             var fileType = inputValue.substr(4, 2);
             result.push([fileType, "文件类型", fileType]);
-            // 会话ID
-            var sessionId = inputValue.substr(6, 2);
-            result.push([sessionId, "会话ID", sessionId]);
-            // Tag
-            var custTag = "0x" + inputValue.substr(8, 2);
-            result.push([custTag, "Tag", custTag]);
-            // Size
-            var custDataLength = inputValue.substr(10, 2);
-            result.push([custDataLength, "自定义数据长度", parseInt(custDataLength, 16).toString(10)]);
-            // 设备ID
-            var custDeivceId = inputValue.substr(12, 4);
-            result.push([custDeivceId, "设备ID", custDeivceId]);
-            // 开始时间
-            var custStartTime = inputValue.substr(16, 8);
-            result.push([custStartTime, "开始时间", transferUnixTimestampToLocalTimeStr(parseInt(custStartTime, 16).toString(10), "+00")]);
-            // 结束时间
-            var custEndTime = inputValue.substr(24, 8);
-            result.push([custEndTime, "结束时间", transferUnixTimestampToLocalTimeStr(parseInt(custEndTime, 16).toString(10), "+00")]);
-            // 时间类型
-            var custTimeType = inputValue.substr(32, 2);
-            custTimeTypeStr = custTimeType == 00 ? "GMT" : "本地时间";
-            result.push([custTimeType, "时间类型", custTimeType + " " + custTimeTypeStr]);
-
+            
+            console.log(fileType)
+            
+            if (fileType == "11") {
+                // 会话ID
+                var sessionId = inputValue.substr(6, 2);
+                result.push([sessionId, "会话ID", sessionId]);
+                // Tag
+                var custTag = "0x" + inputValue.substr(8, 2);
+                result.push([custTag, "Tag", custTag]);
+                // Size
+                var custDataLength = inputValue.substr(10, 2);
+                result.push([custDataLength, "自定义数据长度", parseInt(custDataLength, 16).toString(10)]);
+                // 设备ID
+                var custDeivceId = inputValue.substr(12, 4);
+                result.push([custDeivceId, "设备ID", custDeivceId]);
+                // 开始时间
+                var custStartTime = inputValue.substr(16, 8);
+                result.push([custStartTime, "开始时间", transferUnixTimestampToLocalTimeStr(parseInt(custStartTime, 16).toString(10), "+00")]);
+                // 结束时间
+                var custEndTime = inputValue.substr(24, 8);
+                result.push([custEndTime, "结束时间", transferUnixTimestampToLocalTimeStr(parseInt(custEndTime, 16).toString(10), "+00")]);
+                // 时间类型
+                var custTimeType = inputValue.substr(32, 2);
+                custTimeTypeStr = custTimeType == 00 ? "GMT" : "本地时间";
+                result.push([custTimeType, "时间类型", custTimeType + " " + custTimeTypeStr]);            
+            }
+            if (fileType == "1C") {
+                // 会话ID
+                var sessionId = inputValue.substr(6, 2);
+                result.push([sessionId, "会话ID", sessionId]);
+            }
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
         }
