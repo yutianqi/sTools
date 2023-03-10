@@ -11,10 +11,10 @@ from time import sleep
 
 def init_logger(logger):
     logger.setLevel(logging.DEBUG)
-    fileHandler = logging.FileHandler("D:\\yutianqi\\Code\\Github\\sTools\\DailyPush\\log.log")
-    fileHandler.setLevel(logging.DEBUG)
-    fileHandler.setFormatter(logging.Formatter('%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s - %(message)s'))
-    logger.addHandler(fileHandler)
+    # fileHandler = logging.FileHandler("D:\\yutianqi\\Code\\Github\\sTools\\DailyPush\\log.log")
+    # fileHandler.setLevel(logging.DEBUG)
+    # fileHandler.setFormatter(logging.Formatter('%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s - %(message)s'))
+    # logger.addHandler(fileHandler)
 
     
 def backup_files():
