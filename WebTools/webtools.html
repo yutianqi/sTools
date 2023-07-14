@@ -585,6 +585,9 @@
                 case '4133_RESP':
                     validAndParseMessage("4133响应", inputValue, -1, parse4133Resp)
                     break;
+                case '4144_RESP':
+                    validAndParseMessage("4144响应", inputValue, -1, parse4144Resp)
+                    break;
                 case '414b_REQ':
                     validAndParseMessage("414b请求", inputValue, -1, parse414b)
                     break;
@@ -734,8 +737,104 @@
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
         }
+        
+        
+        function parse4144Resp(inputValue) {
+            let index = 0
+            // 4144响应报文样例
+            // inputValue = "4400 A600 0000 0002 B600 0201 0012 4A31 3D53 446F 6E67 6C65 412D 3035 3B32 3D56 3230 3052 3032 3243 3130 5350 4331 3037 3B33 3D50 312E 3135 2D44 3530 2E30 3B34 3D48 5632 3137 3030 3139 3933 393B 353D 3130 303B 363D 312E 3301 0012 4C31 3D53 554E 3230 3030 2D31 304B 544C 2D4D 313B 323D 5631 3030 5230 3031 4330 3053 5043 3135 353B 333D 5031 2E31 352D 4435 2E30 3B34 3D54 4132 3336 3030 3132 3438 393B 353D 323B 363D 312E 31".replaceAll(" ", "");
+
+            var result = [];
+            // subCode
+            var subCode = inputValue.substr(index, 2);
+            index += 2
+            // result.push([subCode, "subCode", subCode]);
+
+            // 数据长度
+            var dataLength = inputValue.substr(index, 4);
+            index += 4
+            result.push([dataLength, "数据长度", parseInt(dataLength, 16).toString(10)]);
+
+            // 传输原因
+            var transReason = inputValue.substr(index, 2);
+            index += 2
+            if (transReason == "00") {
+                transReasonStr = "0 响应全量请求"
+            } else if (transReason == "01") {
+                transReasonStr = "1 主动上报(只携带通信模块的设备描述信息)"
+            } else {
+                transReasonStr = transReason
+            }
+            result.push([transReason, "传输原因", transReasonStr]);
+
+            // 帧序号
+            var frameNo = inputValue.substr(index, 4);
+            index += 4
+            result.push([frameNo, "帧序号", parseInt(frameNo, 16).toString(10)]);
+
+            // 后续标识
+            var flag = inputValue.substr(index, 2);
+            index += 2
+            if (flag == "00") {
+                flagStr = "0 无后续帧"
+            } else if (flag == "01") {
+                flagStr = "1 有后续帧"
+            } else {
+                flagStr = flag
+            }
+            result.push([flag, "后续标识", flagStr]);
+
+            // 设备变更流水号
+            var changeSn = inputValue.substr(index, 4);
+            index += 4
+            result.push([changeSn, "设备变更流水号", parseInt(changeSn, 16).toString(10)]);
+
+            // 设备个数
+            var devNum = inputValue.substr(index, 4);
+            index += 4
+            result.push([devNum, "设备个数", parseInt(devNum, 16).toString(10)]);
+            
+            
+            for (let i = 0; i < parseInt(devNum, 16); i++) {
+                result.push(["设备" + (i+1) + "信息", "", ""]);
+                // Tag数目
+                var tagNum = inputValue.substr(index, 2);
+                index += 2
+                // result.push([tagNum, "Tag数目", parseInt(tagNum, 16).toString(10)]);
+                
+                for (let j = 0; j < parseInt(tagNum, 16); j++) {
+                    result.push(["TagNo", j+1, ""]);
+                
+                    var tagName = inputValue.substr(index, 4);
+                    index += 4
+                    result.push([tagName, "Tag名称", parseInt(tagName, 16).toString(10)]);
+                
+                    var tagLen = inputValue.substr(index, 2);
+                    index += 2
+                    result.push([tagLen, "Tag长度", parseInt(tagLen, 16).toString(10)]);
+
+                    var tagValue = inputValue.substr(index, 2*parseInt(tagLen, 16));
+                    index += 2*parseInt(tagLen, 16)
+                    result.push([tagName, "Tag值",hexToAscii(tagValue)]);          
+                }
+            }
+
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
+        
+        
+        function hexToAscii(hex) {
+          let str = '';
+          for (let i = 0; i < hex.length; i += 2) {
+            const byte = parseInt(hex.substr(i, 2), 16);
+            str += String.fromCharCode(byte);
+          }
+          return str;
+        }
 
 
+        
         function parse414b(inputValue) {
             // 414b请求报文样例
             // inputValue = "000F1102100B0001616621806166CA4001".replaceAll(" ", "");
@@ -1740,10 +1839,11 @@
                 <option value="410f_RESP">0x410f 响应</option>
                 <option value="4133_REQ">0x4133 请求(多段数据查询)</option>
                 <option value="4133_RESP">0x4133 响应(多段数据查询)</option>
+                <option value="4144_RESP" selected>0x4144 响应(自注册数据查询)</option>
                 <option value="414b_REQ">0x414b 请求</option>
                 <option value="4147_RESP">0x4147 响应</option>
                 <option value="419b_REQ">0x419b 请求</option>
-                <option value="4196_RESP" selected>0x4196 请求</option>
+                <option value="4196_RESP">0x4196 请求</option>
             </select>
             <select name="bin35MessageType" id="bin35MessageType" style="width:150px;display:none">
                 <option value="0017_REQ" selected>0x0010 请求(申请接入)</option>
