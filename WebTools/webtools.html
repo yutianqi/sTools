@@ -579,27 +579,7 @@
 
         function parseImodbusMessage(messageType, inputValue) {
             switch (messageType) {
-                case '4133_REQ':
-                    validAndParseMessage("4133请求", inputValue, -1, parse4133Req)
-                    break;
-                case '4133_RESP':
-                    validAndParseMessage("4133响应", inputValue, -1, parse4133Resp)
-                    break;
-                case '4144_RESP':
-                    validAndParseMessage("4144响应", inputValue, -1, parse4144Resp)
-                    break;
-                case '414b_REQ':
-                    validAndParseMessage("414b请求", inputValue, -1, parse414b)
-                    break;
-                case '4147_RESP':
-                    validAndParseMessage("4147请求", inputValue, -1, parse4147)
-                    break;
-                case '410e_REQ':
-                    validAndParseMessage("410e请求", inputValue, -1, parse410e)
-                    break;
-                case '410f_RESP':
-                    validAndParseMessage("410e请求", inputValue, -1, parse410fResp)
-                    break;
+
                 case '03_REQ':
                     validAndParseMessage("03请求", inputValue, -1, parse03req)
                     break;
@@ -609,6 +589,7 @@
                 case '10_REQ':
                     validAndParseMessage("10请求", inputValue, -1, parse10req)
                     break;
+
                 case '4105_REQ':
                     validAndParseMessage("4105请求", inputValue, -1, parse4105req)
                     break;
@@ -621,12 +602,54 @@
                 case '4106_RESP':
                     validAndParseMessage("4106响应", inputValue, -1, parse4106resp)
                     break;
+
+                case '410e_REQ':
+                    validAndParseMessage("410e请求", inputValue, -1, parse410e)
+                    break;
+                case '410f_RESP':
+                    validAndParseMessage("410e请求", inputValue, -1, parse410fResp)
+                    break;
+
+                case '4133_REQ':
+                    validAndParseMessage("4133请求", inputValue, -1, parse4133Req)
+                    break;
+                case '4133_RESP':
+                    validAndParseMessage("4133响应", inputValue, -1, parse4133Resp)
+                    break;
+                case '4144_RESP':
+                    validAndParseMessage("4144响应", inputValue, -1, parse4144Resp)
+                    break;
+
+                case '414b_REQ':
+                    validAndParseMessage("414b请求", inputValue, -1, parse414b)
+                    break;
+                case '4147_RESP':
+                    validAndParseMessage("4147请求", inputValue, -1, parse4147)
+                    break;
+
                 case '419b_REQ':
                     debugger
                     validAndParseMessage("419B请求", inputValue, -1, parse419breq)
                     break;
                 case '4196_RESP':
                     validAndParseMessage("4196响应", inputValue, -1, parse4196resp)
+                    break;
+
+                case '41a9_REQ':
+                    debugger
+                    validAndParseMessage("41a9请求", inputValue, -1, parse41a9Req)
+                    break;
+                case '41a9_RESP':
+                    validAndParseMessage("41a9响应", inputValue, -1, parse41a9Resp)
+                    break;
+
+
+                case '41aa_REQ':
+                    debugger
+                    validAndParseMessage("41aa请求", inputValue, -1, parse41aaReq)
+                    break;
+                case '41aa_RESP':
+                    validAndParseMessage("41aa响应", inputValue, -1, parse41aaResp)
                     break;
 
                 default:
@@ -737,8 +760,8 @@
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
         }
-        
-        
+
+
         function parse4144Resp(inputValue) {
             let index = 0
             // 4144响应报文样例
@@ -793,48 +816,48 @@
             var devNum = inputValue.substr(index, 4);
             index += 4
             result.push([devNum, "设备个数", parseInt(devNum, 16).toString(10)]);
-            
-            
+
+
             for (let i = 0; i < parseInt(devNum, 16); i++) {
-                result.push(["设备" + (i+1) + "信息", "", ""]);
+                result.push(["设备" + (i + 1) + "信息", "", ""]);
                 // Tag数目
                 var tagNum = inputValue.substr(index, 2);
                 index += 2
                 // result.push([tagNum, "Tag数目", parseInt(tagNum, 16).toString(10)]);
-                
+
                 for (let j = 0; j < parseInt(tagNum, 16); j++) {
-                    result.push(["TagNo", j+1, ""]);
-                
+                    result.push(["TagNo", j + 1, ""]);
+
                     var tagName = inputValue.substr(index, 4);
                     index += 4
                     result.push([tagName, "Tag名称", parseInt(tagName, 16).toString(10)]);
-                
+
                     var tagLen = inputValue.substr(index, 2);
                     index += 2
                     result.push([tagLen, "Tag长度", parseInt(tagLen, 16).toString(10)]);
 
-                    var tagValue = inputValue.substr(index, 2*parseInt(tagLen, 16));
-                    index += 2*parseInt(tagLen, 16)
-                    result.push([tagName, "Tag值",hexToAscii(tagValue)]);          
+                    var tagValue = inputValue.substr(index, 2 * parseInt(tagLen, 16));
+                    index += 2 * parseInt(tagLen, 16)
+                    result.push([tagName, "Tag值", hexToAscii(tagValue)]);
                 }
             }
 
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
         }
-        
-        
+
+
         function hexToAscii(hex) {
-          let str = '';
-          for (let i = 0; i < hex.length; i += 2) {
-            const byte = parseInt(hex.substr(i, 2), 16);
-            str += String.fromCharCode(byte);
-          }
-          return str;
+            let str = '';
+            for (let i = 0; i < hex.length; i += 2) {
+                const byte = parseInt(hex.substr(i, 2), 16);
+                str += String.fromCharCode(byte);
+            }
+            return str;
         }
 
 
-        
+
         function parse414b(inputValue) {
             // 414b请求报文样例
             // inputValue = "000F1102100B0001616621806166CA4001".replaceAll(" ", "");
@@ -1413,6 +1436,205 @@
             extendTextArea("resultListTextArea", result.length, -1);
         }
 
+        function parse41a9Req(inputValue) {
+            // 41a9请求报文样例
+            // inputValue = "000E 0000 0000 0000 0001 0065 0002 AAAA".replaceAll(" ", "");
+            var result = [];
+            var index = 0;
+            var dataLengthMsg = inputValue.substr(index, 4)
+            var dataLength = parseInt(dataLengthMsg, 16);
+            index += 4;
+            result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
+
+            var reservedSeg = inputValue.substr(index, 8)
+            index += 8;
+            result.push([reservedSeg, "保留字段", reservedSeg]);
+
+            var devId = inputValue.substr(index, 4)
+            index += 4;
+            result.push([devId, "设备ID", parseInt(devId, 16)]);
+
+            var funcNum = inputValue.substr(index, 4)
+            var funcNumVal = parseInt(funcNum, 16)
+            index += 4;
+            result.push([funcNum, "功能点数量", funcNumVal]);
+
+            for (let i = 0; i < funcNumVal; i++) {
+                var funcId = inputValue.substr(index, 4)
+                index += 4;
+                result.push([funcId, "ID", parseInt(funcId, 16)]);
+
+                var funcParamLen = inputValue.substr(index, 4)
+                var funcParamLenVal = parseInt(funcParamLen, 16)
+                index += 4;
+                result.push([funcParamLen, "len", funcParamLenVal]);
+
+                var funcParam = inputValue.substr(index, funcParamLenVal * 2)
+                index += funcParamLenVal * 2;
+                result.push([funcParam, "param", funcParam]);
+            }
+
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
+
+        function parse41a9Resp(inputValue) {
+            // 41a9响应报文样例
+            // inputValue = "A900 1000 0000 0000 0000 0100 6500 0100 0201 00".replaceAll(" ", "");
+            var result = [];
+            var index = 2;
+            var dataLengthMsg = inputValue.substr(index, 4)
+            var dataLength = parseInt(dataLengthMsg, 16);
+            index += 4;
+            result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
+
+            var reservedSeg = inputValue.substr(index, 8)
+            index += 8;
+            result.push([reservedSeg, "预留字段", reservedSeg]);
+
+            var devId = inputValue.substr(index, 4)
+            index += 4;
+            result.push([devId, "设备ID", parseInt(devId, 16)]);
+
+            var tagNum = inputValue.substr(index, 4)
+            index += 4;
+            result.push([tagNum, "功能点数量", parseInt(tagNum, 16)]);
+
+            while (index < inputValue.length - 1) {
+                var funcId = inputValue.substr(index, 4)
+                index += 4;
+                result.push([funcId, "ID", parseInt(funcId, 16)]);
+
+                var support = inputValue.substr(index, 4)
+                supportMsg = support
+                index += 4;
+                switch (support) {
+                    case '0000':
+                        supportMsg += " 不支持"
+                        break;
+                    case '0001':
+                        supportMsg += " 支持"
+                        break;
+                    default:
+                        break;
+                }
+                result.push([support, "是否支持", supportMsg]);
+
+                var funcParamLen = inputValue.substr(index, 4)
+                var funcParamLenVal = parseInt(funcParamLen, 16)
+                index += 4;
+                result.push([funcParamLen, "len", funcParamLenVal]);
+
+                var funcParam = inputValue.substr(index, funcParamLenVal * 2)
+                index += funcParamLenVal * 2;
+                result.push([funcParam, "param", funcParam]);
+            }
+
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
+
+        function parse41aaReq(inputValue) {
+            // 41aa请求报文样例
+            // inputValue = "0008 0002 0101 0002 0001 0002".replaceAll(" ", "");
+            var result = [];
+            var index = 0;
+            var dataLengthMsg = inputValue.substr(index, 4)
+            var dataLength = parseInt(dataLengthMsg, 16);
+            index += 4;
+            result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
+
+            var cfgNum = inputValue.substr(index, 4)
+            index += 4;
+            result.push([cfgNum, "配置项数量", parseInt(cfgNum, 16)]);
+
+            var tagNum = inputValue.substr(index, 2)
+            index += 2;
+            result.push([tagNum, "Tag数量", parseInt(tagNum, 16)]);
+
+            var tag = inputValue.substr(index, 2)
+            index += 2;
+            result.push([tag, "Tag", tag]);
+
+            var contentLen = inputValue.substr(index, 4)
+            index += 4;
+            result.push([contentLen, "内容长度", contentLen]);
+
+            for (let i = 0; i < cfgNum; i++) {
+                var cfgItemId = inputValue.substr(index, 4)
+                index += 4;
+                result.push([cfgItemId, "配置项", cfgItemId]);
+            }
+
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
+
+        function parse41aaResp(inputValue) {
+            // 41aa响应报文样例
+            // inputValue = "AA00 0E00 0001 0102 0007 0001 017F FFFF FF".replaceAll(" ", "");
+            var result = [];
+            var index = 2;
+            var dataLengthMsg = inputValue.substr(index, 4)
+            var dataLength = parseInt(dataLengthMsg, 16);
+            index += 4;
+            result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
+
+            var status = inputValue.substr(index, 2)
+            index += 2;
+            result.push([status, "核查状态", status]);
+
+            var cfgNum = inputValue.substr(index, 4)
+            index += 4;
+            result.push([cfgNum, "配置项数量", parseInt(cfgNum, 16)]);
+
+            var tagNum = inputValue.substr(index, 2)
+            index += 2;
+            result.push([tagNum, "Tag数量", parseInt(tagNum, 16)]);
+
+            var tag = inputValue.substr(index, 2)
+            index += 2;
+            result.push([tag, "Tag", tag]);
+
+            var contentLen = inputValue.substr(index, 4)
+            index += 4;
+            result.push([contentLen, "内容长度", contentLen]);
+
+            // for (let i = 0; i < cfgNum; i++) {
+            while (index < inputValue.length - 1) {
+                var cfgItemId = inputValue.substr(index, 4)
+                index += 4;
+                result.push([cfgItemId, "配置项", cfgItemId]);
+
+                var level = inputValue.substr(index, 2)
+                index += 2;
+                levelMsg = level
+                switch (level) {
+                    case '00':
+                        levelMsg += " 无风险"
+                        break;
+                    case '01':
+                        levelMsg += " 低风险"
+                        break;
+                    case '02':
+                        levelMsg += " 中风险"
+                        break;
+                    case '03':
+                        levelMsg += " 高风险"
+                        break;
+                    default:
+                        break;
+                }
+                result.push([level, "风险等级", levelMsg]);
+
+                var cfgItemValue = inputValue.substr(index, 8)
+                index += 8;
+                result.push([cfgItemValue, "配置值", cfgItemValue]);
+            }
+
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
 
         function getDataSegment(dataArray, len) {
             var ret = "";
@@ -1839,11 +2061,17 @@
                 <option value="410f_RESP">0x410f 响应</option>
                 <option value="4133_REQ">0x4133 请求(多段数据查询)</option>
                 <option value="4133_RESP">0x4133 响应(多段数据查询)</option>
-                <option value="4144_RESP" selected>0x4144 响应(自注册数据查询)</option>
+                <option value="4144_RESP">0x4144 响应(自注册数据查询)</option>
                 <option value="414b_REQ">0x414b 请求</option>
-                <option value="4147_RESP">0x4147 响应</option>
+                <option value="4147_RESP" selected>0x4147 响应</option>
                 <option value="419b_REQ">0x419b 请求</option>
                 <option value="4196_RESP">0x4196 请求</option>
+
+                <option value="41a9_REQ">0x41a9 请求</option>
+                <option value="41a9_RESP">0x41a9 响应</option>
+                <option value="41aa_REQ">0x41aa 请求</option>
+                <option value="41aa_RESP">0x41aa 响应</option>
+
             </select>
             <select name="bin35MessageType" id="bin35MessageType" style="width:150px;display:none">
                 <option value="0017_REQ" selected>0x0010 请求(申请接入)</option>
