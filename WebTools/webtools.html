@@ -761,7 +761,6 @@
             extendTextArea("resultListTextArea", result.length, -1);
         }
 
-
         function parse4144Resp(inputValue) {
             let index = 0
             // 4144响应报文样例
@@ -846,7 +845,6 @@
             extendTextArea("resultListTextArea", result.length, -1);
         }
 
-
         function hexToAscii(hex) {
             let str = '';
             for (let i = 0; i < hex.length; i += 2) {
@@ -856,15 +854,33 @@
             return str;
         }
 
-
+        function getFileTypeStr(fileTypeId) {
+            switch (fileTypeId) {
+                case "11":
+                    return "性能数据文件"
+                case "1C":
+                    return "IV扫描数据文件"
+                case "44":
+                    return "优化器性能数据文件"
+                case "45":
+                    return "优化器特征数据文件"
+                case "A1":
+                    return "当前告警文件"
+                case "A2":
+                    return "历史告警文件"
+                default:
+                    return "未知文件类型"
+            }
+        }
 
         function parse414b(inputValue) {
             // 414b请求报文样例
             // inputValue = "000F1102100B0001616621806166CA4001".replaceAll(" ", "");
             // inputValue = "0002 1C1C".replaceAll(" ", "");
-            // 414b响应报文样例
-            // inputValue = "".replaceAll(" ", "");
-
+            // 历史告警
+            // inputValue = "0008 A20A 2304 0000 0000".replaceAll(" ", "");
+            // 活动告警
+            // inputValue = "0008 A15C 1104 0000 0000".replaceAll(" ", "");
             var result = [];
             // 数据长度
             var dataLength = inputValue.substr(0, 4);
@@ -872,10 +888,7 @@
 
             // 文件类型
             var fileType = inputValue.substr(4, 2);
-            result.push([fileType, "文件类型", fileType]);
-
-            console.log(fileType)
-
+            result.push([fileType, "文件类型", fileType + "(" + getFileTypeStr(fileType) + ")"]);
             if (fileType == "11" || fileType == "44") {
                 // 会话ID
                 var sessionId = inputValue.substr(6, 2);
@@ -900,10 +913,72 @@
                 custTimeTypeStr = custTimeType == 00 ? "GMT" : "本地时间";
                 result.push([custTimeType, "时间类型", custTimeType + " " + custTimeTypeStr]);
             }
+            // IV扫描文件
             if (fileType == "1C") {
                 // 会话ID
                 var sessionId = inputValue.substr(6, 2);
                 result.push([sessionId, "会话ID", sessionId]);
+            }
+            // 当前告警文件
+            if (fileType == "A1") {
+                // 会话ID
+                var sessionId = inputValue.substr(6, 2);
+                result.push([sessionId, "会话ID", sessionId]);
+                // 查询类型
+                valueFileName = ""
+                var queryType = inputValue.substr(8, 2);
+                switch (queryType) {
+                    case "11":
+                        queryTypeStr = "(按告警流水号查询)";
+                        valueFileName = "开始流水号"
+                        break;
+                    default:
+                        queryTypeStr = "(未知查询类型)";
+                        valueFileName = "数据段内容"
+                        break;
+                }
+                result.push([queryType, "查询类型", queryType + queryTypeStr]);
+                // 数据段长度
+                var subDataLen = inputValue.substr(10, 2);
+                result.push([subDataLen, "数据段长度", parseInt(subDataLen, 16).toString(10)]);
+                // 开始流水号
+                var startSn = inputValue.substr(12, 8);
+                result.push([startSn, valueFileName, parseInt(startSn, 16).toString(10)]);
+            }
+            // 历史告警文件
+            if (fileType == "A2") {
+                // 会话ID
+                var sessionId = inputValue.substr(6, 2);
+                result.push([sessionId, "会话ID", sessionId]);
+                // 查询类型
+                valueFileName = ""
+                var queryType = inputValue.substr(8, 2);
+
+                switch (queryType) {
+                    case "20":
+                        queryTypeStr = "(按产生时间查询)";
+                        valueFileName = "开始时间"
+                        break;
+                    case "21":
+                        queryTypeStr = "(按恢复时间查询)";
+                        valueFileName = "开始时间"
+                        break;
+                    case "23":
+                        queryTypeStr = "(按告警流水号查询)";
+                        valueFileName = "开始流水号"
+                        break;
+                    default:
+                        queryTypeStr = "(未知查询类型)";
+                        valueFileName = "数据段内容"
+                        break;
+                }
+                result.push([queryType, "查询类型", queryType + queryTypeStr]);
+                // 数据段长度
+                var subDataLen = inputValue.substr(10, 2);
+                result.push([subDataLen, "数据段长度", parseInt(subDataLen, 16).toString(10)]);
+                // 开始流水号
+                var startSn = inputValue.substr(12, 8);
+                result.push([startSn, valueFileName, parseInt(startSn, 16).toString(10)]);
             }
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
