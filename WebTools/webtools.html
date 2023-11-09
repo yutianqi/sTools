@@ -619,22 +619,27 @@
                 case '4144_RESP':
                     validAndParseMessage("4144响应", inputValue, -1, parse4144Resp)
                     break;
-
                 case '414b_REQ':
                     validAndParseMessage("414b请求", inputValue, -1, parse414b)
                     break;
                 case '4147_RESP':
                     validAndParseMessage("4147请求", inputValue, -1, parse4147)
                     break;
-
+                case '4190_REQ':
+                    validAndParseMessage("4190请求", inputValue, -1, parse4190req)
+                    break;
+                case '4191_RESP':
+                    validAndParseMessage("4191响应", inputValue, -1, parse4191resp)
+                    break;
+                case '4192_REQ':
+                    validAndParseMessage("4192请求", inputValue, -1, parse4192req)
+                    break;
                 case '419b_REQ':
-                    debugger
                     validAndParseMessage("419B请求", inputValue, -1, parse419breq)
                     break;
                 case '4196_RESP':
                     validAndParseMessage("4196响应", inputValue, -1, parse4196resp)
                     break;
-
                 case '41a9_REQ':
                     debugger
                     validAndParseMessage("41a9请求", inputValue, -1, parse41a9Req)
@@ -1334,6 +1339,155 @@
             extendTextArea("resultListTextArea", result.length, -1);
         }
 
+
+        function parse4190req(inputValue) {
+            // 4190请求报文样例
+            // inputValue = "00 2700 000A 0000 0001 000B 0007 7579 0002 7D45 0009 7D50 0006 7D57 0003 7D5B 0004 7D6A 0002 7D72 0002".replaceAll(" ", "");
+            if (inputValue.length == 0) {
+                return
+            }
+            var result = [];
+            var index = 0;
+
+            var dataLengthMsg = inputValue.substr(index, 4)
+            var dataLength = parseInt(dataLengthMsg, 16);
+            index += 4;
+            result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
+
+            var subscribeType = inputValue.substr(index, 2)
+            index += 2;
+            result.push([subscribeType, "订阅类型", subscribeType]);
+
+            var reportPeriod = inputValue.substr(index, 4)
+            index += 4;
+            result.push([reportPeriod, "上报周期", parseInt(reportPeriod, 16).toString(10)]);
+
+            var subscribeRetention = inputValue.substr(index, 4)
+            index += 4;
+            result.push([subscribeRetention, "订阅时长", parseInt(subscribeRetention, 16).toString(10)]);
+
+            var devNumStr = inputValue.substr(index, 4)
+            var devNum = parseInt(devNumStr, 16);
+            index += 4;
+            result.push([devNumStr, "设备个数", devNum.toString(10)]);
+
+            for (i = 0; i < devNum; i++) {
+                result.push(["", "\n设备", i]);
+                var devAddress = inputValue.substr(index, 4)
+                index += 4;
+                result.push([devAddress, "设备地址", parseInt(devAddress, 16).toString(10)]);
+                var segNumStr = inputValue.substr(index, 4)
+                var segNum = parseInt(segNumStr, 16)
+                index += 4;
+                result.push([segNumStr, "寄存器分段数", segNum.toString(10)]);
+
+                for (j = 0; j < segNum; j++) {
+                    var startAddressStr = inputValue.substr(index, 4)
+                    var startAddress = parseInt(startAddressStr, 16)
+                    index += 4;
+                    result.push([startAddressStr, "起始寄存器地址", startAddress.toString(10)]);
+                    var regNumStr = inputValue.substr(index, 4)
+                    var regNum = parseInt(regNumStr, 16)
+                    index += 4;
+                    result.push([regNumStr, "寄存器数目", regNum]);
+                }
+            }
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
+
+        function parse4191resp(inputValue) {
+            // 4191响应报文样例
+            // inputValue = "9103 A500 000F 000C 0007 7579 0000 7D45 0009 08EB 08EB 08EB 0000 08EB 0000 08EB 0000 08EB 7D50 0006 0000 08EB 0000 0503 0000 0000 7D57 0000 7D5B 0000 7D6A 0000 7D72 0000 000D 0007 7579 0000 7D45 0009 08EB 08EB 08EB 0000 08EB 0000 08EB 0000 08EB 7D50 0006 0000 08EB 0000 0503 0000 0000 7D57 0000 7D5B 0000 7D6A 0000 7D72 0000 0009 0007 7579 0000 7D45 0009 08EB 08EB 08EB 0000 08EB 0000 08EB 0000 08EB 7D50 0006 0000 08EB 0000 0503 0000 0000 7D57 0000 7D5B 0000 7D6A 0000 7D72 0000 0001 0007 7579 0000 7D45 0009 08EB 08EB 08EB 0000 08EB 0000 08EB 0000 08EB 7D50 0006 0000 08EB 0000 0503 0000 0000 7D57 0000 7D5B 0000 7D6A 0000 7D72 0000 0005 0007 7579 0000 7D45 0009 08EB 08EB 08EB 0000 08EB 0000 08EB 0000 08EB 7D50 0006 0000 08EB 0000 0503 0000 0000 7D57 0000 7D5B 0000 7D6A 0000 7D72 0000 000B 0007 7579 0000 7D45 0009 08EB 08EB 08EB 0000 08EB 0000 08EB 0000 08EB 7D50 0006 0000 08EB 0000 0503 0000 0000 7D57 0000 7D5B 0000 7D6A 0000 7D72 0000 0006 0007 7579 0000 7D45 0009 08EB 08EB 08EB 0000 08EB 0000 08EB 0000 08EB 7D50 0006 0000 08EB 0000 0503 0000 0000 7D57 0000 7D5B 0000 7D6A 0000 7D72 0000 0003 0007 7579 0000 7D45 0009 08EB 08EB 08EB 0000 08EB 0000 08EB 0000 08EB 7D50 0006 0000 08EB 0000 0503 0000 0000 7D57 0000 7D5B 0000 7D6A 0000 7D72 0000 0008 0007 7579 0000 7D45 0009 08EB 08EB 08EB 0000 08EB 0000 08EB 0000 08EB 7D50 0006 0000 08EB 0000 0503 0000 0000 7D57 0000 7D5B 0000 7D6A 0000 7D72 0000 0007 0007 7579 0000 7D45 0009 08EB 08EB 08EB 0000 08EB 0000 08EB 0000 08EB 7D50 0006 0000 08EB 0000 0503 0000 0000 7D57 0000 7D5B 0000 7D6A 0000 7D72 0000 000A 0007 7579 0000 7D45 0009 08EB 08EB 08EB 0000 08EB 0000 08EB 0000 08EB 7D50 0006 0000 08EB 0000 0503 0000 0000 7D57 0000 7D5B 0000 7D6A 0000 7D72 0000 0002 0007 7579 0000 7D45 0009 08EB 08EB 08EB 0000 08EB 0000 08EB 0000 08EB 7D50 0006 0000 08EB 0000 0503 0000 0000 7D57 0000 7D5B 0000 7D6A 0000 7D72 0000 000F 0007 7579 0000 7D45 0009 08EB 08EB 08EB 0000 08EB 0000 08EB 0000 08EB 7D50 0006 0000 08EB 0000 0503 0000 0000 7D57 0000 7D5B 0000 7D6A 0000 7D72 0000 000E 0007 7579 0000 7D45 0009 08EB 08EB 08EB 0000 08EB 0000 08EB 0000 08EB 7D50 0006 0000 08EB 0000 0503 0000 0000 7D57 0000 7D5B 0000 7D6A 0000 7D72 0000 0004 0007 7579 0000 7D45 0009 08EB 08EB 08EB 0000 08EB 0000 08EB 0000 08EB 7D50 0006 0000 08EB 0000 0503 0000 0000 7D57 0000 7D5B 0000 7D6A 0000 7D72 0000".replaceAll(" ", "");
+            if (inputValue.length == 0) {
+                return
+            }
+            var result = [];
+            var index = 2;
+
+            var dataLengthMsg = inputValue.substr(index, 4)
+            var dataLength = parseInt(dataLengthMsg, 16);
+            index += 4;
+            result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
+
+            var reportType = inputValue.substr(index, 2)
+            index += 2;
+            result.push([reportType, "上报类型", reportType]);
+
+            var devNumStr = inputValue.substr(index, 4)
+            var devNum = parseInt(devNumStr, 16);
+            index += 4;
+            result.push([devNumStr, "设备个数", devNum.toString(10)]);
+
+            for (i = 0; i < devNum; i++) {
+                result.push(["", "", ""]);
+                result.push(["", "设备", i]);
+                var devAddress = inputValue.substr(index, 4)
+                index += 4;
+                result.push([devAddress, "设备地址", parseInt(devAddress, 16).toString(10)]);
+                var segNumStr = inputValue.substr(index, 4)
+                var segNum = parseInt(segNumStr, 16)
+                index += 4;
+                result.push([segNumStr, "寄存器分段数", segNum.toString(10)]);
+
+                for (j = 0; j < segNum; j++) {
+                    var startAddressStr = inputValue.substr(index, 4)
+                    var startAddress = parseInt(startAddressStr, 16)
+                    index += 4;
+                    result.push([startAddressStr, "起始寄存器地址", startAddress.toString(10)]);
+                    var regNumStr = inputValue.substr(index, 4)
+                    var regNum = parseInt(regNumStr, 16)
+                    index += 4;
+                    result.push([regNumStr, "寄存器数目", regNum]);
+
+                    for (k = 0; k < regNum; k++) {
+                        var segValue = inputValue.substr(index, 4)
+                        index += 4;
+                        result.push(["[" + (startAddress + k) + "]", "", segValue]);
+                    }
+                }
+            }
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
+
+        function parse4192req(inputValue) {
+            // 4192请求报文样例
+            // inputValue = "00 0800 0A00 0000 0100 0B".replaceAll(" ", "");
+            if (inputValue.length == 0) {
+                return
+            }
+            var result = [];
+            var index = 0;
+
+            var dataLengthMsg = inputValue.substr(index, 4)
+            var dataLength = parseInt(dataLengthMsg, 16);
+            index += 4;
+            result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
+
+            var reportPeriod = inputValue.substr(index, 4)
+            index += 4;
+            result.push([reportPeriod, "上报周期", parseInt(reportPeriod, 16).toString(10)]);
+
+            var subscribeRetention = inputValue.substr(index, 4)
+            index += 4;
+            result.push([subscribeRetention, "订阅时长", parseInt(subscribeRetention, 16).toString(10)]);
+
+            var devNumStr = inputValue.substr(index, 4)
+            var devNum = parseInt(devNumStr, 16);
+            index += 4;
+            result.push([devNumStr, "设备个数", devNum.toString(10)]);
+
+            for (i = 0; i < devNum; i++) {
+                result.push(["", "设备", i]);
+                var devAddress = inputValue.substr(index, 4)
+                index += 4;
+                result.push([devAddress, "设备地址", parseInt(devAddress, 16).toString(10)]);
+            }
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length + 1, -1);
+        }
+
         function parse419breq(inputValue) {
             // 419b请求报文样例
             // inputValue = "001EMARKTYPERESE00165108SNFFSTART000000C000000000000000000000END".replaceAll(" ", "");
@@ -1857,7 +2011,7 @@
     </div>
 
     <div id="frame">
-        <div id="header1">sTool v0.9.4 beta</div>
+        <div id="header1">sTool v0.9.8 beta</div>
 
         <!-- 时间转换 -->
         <p>
@@ -2123,22 +2277,28 @@
                 <option value="bin35">BIN3.5</option>
             </select>
             <select name="imodbusMessageType" id="imodbusMessageType" style="width:150px;">
-                <option value="03_REQ">0x03 请求(读寄存器)</option>
-                <option value="06_REQ">0x06 请求(写单个寄存器)</option>
-                <option value="10_REQ">0x10 请求(写多个寄存器)</option>
+                <option value="03_REQ">0x03 请求 (读寄存器)</option>
+                <option value="06_REQ">0x06 请求 (写单个寄存器)</option>
+                <option value="10_REQ">0x10 请求 (写多个寄存器)</option>
 
-                <option value="4105_REQ">0x4105 请求</option>
-                <option value="4105_RESP">0x4105 响应</option>
-                <option value="4106_REQ">0x4106 请求</option>
-                <option value="4106_RESP">0x4106 响应</option>
+                <option value="4105_REQ">0x4105 请求 (开始多帧传输)</option>
+                <option value="4105_RESP">0x4105 响应 (开始多帧传输)</option>
+                <option value="4106_REQ">0x4106 请求 (执行多帧传输)</option>
+                <option value="4106_RESP">0x4106 响应 (执行多帧传输)</option>
 
-                <option value="410e_REQ">0x410e 请求</option>
+                <option value="410e_REQ">0x410e 请求 (开始FTP传输)</option>
                 <option value="410f_RESP">0x410f 响应</option>
                 <option value="4133_REQ">0x4133 请求(多段数据查询)</option>
                 <option value="4133_RESP">0x4133 响应(多段数据查询)</option>
                 <option value="4144_RESP">0x4144 响应(自注册数据查询)</option>
                 <option value="414b_REQ">0x414b 请求</option>
-                <option value="4147_RESP" selected>0x4147 响应</option>
+                <option value="4147_RESP">0x4147 响应</option>
+
+
+                <option value="4190_REQ">0x4190 请求(秒级上报注册订阅)</option>
+                <option value="4191_RESP" selected>0x4191 响应(秒级上报)</option>
+                <option value="4192_REQ">0x4192 请求(秒级上报取消订阅)</option>
+
                 <option value="419b_REQ">0x419b 请求</option>
                 <option value="4196_RESP">0x4196 请求</option>
 
@@ -2208,7 +2368,7 @@
         <div class="field">
         </div>
         <div class="footer">
-            ---- Powered by y00290641 ----
+            ---- Powered by y00801659 ----
         </div>
 
     </div>
