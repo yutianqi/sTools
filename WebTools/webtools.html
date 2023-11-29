@@ -873,6 +873,8 @@
                     return "当前告警文件"
                 case "A2":
                     return "历史告警文件"
+                case "33":
+                    return "设备日志"
                 default:
                     return "未知文件类型"
             }
@@ -919,13 +921,13 @@
                 result.push([custTimeType, "时间类型", custTimeType + " " + custTimeTypeStr]);
             }
             // IV扫描文件
-            if (fileType == "1C") {
+            else if (fileType == "1C") {
                 // 会话ID
                 var sessionId = inputValue.substr(6, 2);
                 result.push([sessionId, "会话ID", sessionId]);
             }
             // 当前告警文件
-            if (fileType == "A1") {
+            else if (fileType == "A1") {
                 // 会话ID
                 var sessionId = inputValue.substr(6, 2);
                 result.push([sessionId, "会话ID", sessionId]);
@@ -951,7 +953,7 @@
                 result.push([startSn, valueFileName, parseInt(startSn, 16).toString(10)]);
             }
             // 历史告警文件
-            if (fileType == "A2") {
+            else if (fileType == "A2") {
                 // 会话ID
                 var sessionId = inputValue.substr(6, 2);
                 result.push([sessionId, "会话ID", sessionId]);
@@ -984,6 +986,37 @@
                 // 开始流水号
                 var startSn = inputValue.substr(12, 8);
                 result.push([startSn, valueFileName, parseInt(startSn, 16).toString(10)]);
+            }
+            // 历史告警文件
+            else if (fileType == "33") {
+                // 会话ID
+                var sessionId = inputValue.substr(6, 2);
+                result.push([sessionId, "会话ID", sessionId]);
+                console.log(inputValue.length)
+                if (inputValue.length > 8) {
+                    // Tag
+                    var custTag = "0x" + inputValue.substr(8, 2);
+                    result.push([custTag, "Tag", custTag]);
+                    // Size
+                    var custDataLength = inputValue.substr(10, 4);
+                    result.push([custDataLength, "Tag数据长度", parseInt(custDataLength, 16).toString(10)]);
+                    // 设备数量
+                    var custDeivceNumStr = inputValue.substr(14, 4);
+                    var custDeivceNum = parseInt(custDeivceNumStr, 16)
+                    result.push([custDeivceNumStr, "设备数量", custDeivceNum.toString(10)]);
+
+                    for (i=0;i<custDeivceNum;i++) {
+                        // 设备ID
+                        var custDeivceId = inputValue.substr(18 + i*(4+2), 4);
+                        result.push([custDeivceId, "设备ID", custDeivceId]);
+                        var custSessionId = inputValue.substr(18 + i*(4+2) + 4, 2);
+                        result.push([custSessionId, "SessionID", custSessionId]);
+                    }
+                }
+            } else {
+                // 会话ID
+                var sessionId = inputValue.substr(6, 2);
+                result.push([sessionId, "会话ID", sessionId]);
             }
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
@@ -2292,11 +2325,10 @@
                 <option value="4133_RESP">0x4133 响应(多段数据查询)</option>
                 <option value="4144_RESP">0x4144 响应(自注册数据查询)</option>
                 <option value="414b_REQ">0x414b 请求</option>
-                <option value="4147_RESP">0x4147 响应</option>
-
+                <option value="4147_RESP" selected>0x4147 响应</option>
 
                 <option value="4190_REQ">0x4190 请求(秒级上报注册订阅)</option>
-                <option value="4191_RESP" selected>0x4191 响应(秒级上报)</option>
+                <option value="4191_RESP">0x4191 响应(秒级上报)</option>
                 <option value="4192_REQ">0x4192 请求(秒级上报取消订阅)</option>
 
                 <option value="419b_REQ">0x419b 请求</option>
