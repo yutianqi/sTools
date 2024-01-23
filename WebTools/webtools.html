@@ -875,6 +875,10 @@
                     return "历史告警文件"
                 case "33":
                     return "设备日志"
+                case "57":
+                    return "设备日志"
+                case "58":
+                    return "设备日志"
                 default:
                     return "未知文件类型"
             }
@@ -988,7 +992,7 @@
                 result.push([startSn, valueFileName, parseInt(startSn, 16).toString(10)]);
             }
             // 历史告警文件
-            else if (fileType == "33") {
+            else if (fileType == "33" || fileType == "57" || fileType == "58") {
                 // 会话ID
                 var sessionId = inputValue.substr(6, 2);
                 result.push([sessionId, "会话ID", sessionId]);
@@ -1099,7 +1103,7 @@
 
             // frameId
             var frameId = inputValue.substr(14 + custDataLengthVal, 4);
-            result.push([frameId, "帧序号", frameId]);
+            result.push([frameId, "帧序号", parseInt(frameId, 16)]);
             // data
             var data = inputValue.substr(18 + custDataLengthVal);
             var messageLength = (dataLengthVal - 4 - custDataLengthVal / 2 - 2)
@@ -1265,25 +1269,47 @@
 
             var fileTypeMsg = inputValue.substr(index, 2)
             index += 2;
-            result.push([fileTypeMsg, "文件类型", "0x" + fileTypeMsg]);
+            result.push([fileTypeMsg, "文件类型", "0x" + fileTypeMsg + "(" + getFileTypeStr(fileTypeMsg) + ")"]);
             if (inputValue.length - index > 0) {
                 var custDataMsg = inputValue.substr(index, inputValue.length - index)
                 // result.push([custDataMsg, "自定义数据", custDataMsg]);
-                var tag = inputValue.substr(index, 2)
-                index += 2;
-                result.push([tag, "tag", "0x" + tag]);
-                var custDataLen = inputValue.substr(index, 2)
-                index += 2;
-                result.push([custDataLen, "自定义数据长度", parseInt(custDataLen, 16)]);
-                var startTime = inputValue.substr(index, 8)
-                index += 8;
-                result.push([startTime, "开始时间", transferUnixTimestampToLocalTimeStr(parseInt(startTime, 16).toString(10), "+00")]);
-                var endTime = inputValue.substr(index, 8)
-                index += 8;
-                result.push([endTime, "结束时间", transferUnixTimestampToLocalTimeStr(parseInt(endTime, 16).toString(10), "+00")]);
-                var reservedData = inputValue.substr(index, 8)
-                index += 8;
-                result.push([reservedData, "保留字段", reservedData]);
+                
+                if (fileTypeMsg == "11" || fileTypeMsg == "44") {
+                    var tag = inputValue.substr(index, 2)
+                    index += 2;
+                    result.push([tag, "tag", "0x" + tag]);
+                    var custDataLen = inputValue.substr(index, 2)
+                    index += 2;
+                    result.push([custDataLen, "自定义数据长度", parseInt(custDataLen, 16)]);
+                    var startTime = inputValue.substr(index, 8)
+                    index += 8;
+                    result.push([startTime, "开始时间", transferUnixTimestampToLocalTimeStr(parseInt(startTime, 16).toString(10), "+00")]);
+                    var endTime = inputValue.substr(index, 8)
+                    index += 8;
+                    result.push([endTime, "结束时间", transferUnixTimestampToLocalTimeStr(parseInt(endTime, 16).toString(10), "+00")]);
+                    var reservedData = inputValue.substr(index, 8)
+                    index += 8;
+                    result.push([reservedData, "保留字段", reservedData]);
+                }
+                if (fileTypeMsg == "A1") {
+                    var syncTypeStr = inputValue.substr(index, 2)
+                    index += 2;
+                    if (syncTypeStr == "11") {
+                        syncTypeMsg = "按流水号查询"
+                    } else {
+                        syncTypeMsg = "UNKNOWN"
+                    }
+                    result.push([syncTypeStr, "同步类型", syncTypeMsg]);
+                    
+                    var syncSnLenStr = inputValue.substr(index, 2)
+                    index += 2;
+                    result.push([syncSnLenStr, "起始流水号长度", parseInt(syncSnLenStr, 16).toString(10)]);
+                
+
+                    var startSnStr = inputValue.substr(index, 8)
+                    index += 8;
+                    result.push([startSnStr, "起始流水号", parseInt(startSnStr, 16).toString(10)]);
+                }
 
             }
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
