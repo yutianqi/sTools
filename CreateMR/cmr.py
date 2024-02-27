@@ -16,11 +16,16 @@ def main():
     # pwd = r'D:\NetEco\01.code\NetEcoBasicService\base'
     
     field = pwd.split('\\')
-   
-    basicDir = '\\'.join(field[0:5])
+    # print('执行目录是:' + str(field))
+
+    if field[4] != "Chart":   
+        basicDir = '\\'.join(field[0:5])
+        projectName=field[4]
+    else:
+        basicDir = '\\'.join(field[0:6])
+        projectName=field[5]
+
     # print('执行目录是:' + basicDir)
-    
-    projectName=field[4]
     # print('工程是:' + projectName)
     
     repo = git.Repo(basicDir)
