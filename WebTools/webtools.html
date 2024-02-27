@@ -584,7 +584,7 @@
                     validAndParseMessage("03请求", inputValue, -1, parse03req)
                     break;
                 case '06_REQ':
-                    validAndParseMessage("03请求", inputValue, 8, parse06req)
+                    validAndParseMessage("06请求", inputValue, 8, parse06req)
                     break;
                 case '10_REQ':
                     validAndParseMessage("10请求", inputValue, -1, parse10req)
@@ -1122,7 +1122,7 @@
             result.push([regAddr, "寄存器地址", regAddr + "(" + regAddrVal + ")"]);
             var hexValue = inputValue.substr(4, 8);
             var value = parseInt(hexValue, 16).toString(10);
-            result.push([hexValue, "写入值", hexValue + "(" + value + ")"]);
+            result.push([hexValue, "读取寄存器数", hexValue + "(" + value + ")"]);
 
             document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
             extendTextArea("resultListTextArea", result.length, -1);
