@@ -610,6 +610,10 @@
                     validAndParseMessage("410e请求", inputValue, -1, parse410fResp)
                     break;
 
+                case '412a_REQ':
+                    validAndParseMessage("412a请求", inputValue, -1, parse412aReq)
+                    break;                    
+
                 case '4133_REQ':
                     validAndParseMessage("4133请求", inputValue, -1, parse4133Req)
                     break;
@@ -1400,6 +1404,79 @@
             extendTextArea("resultListTextArea", result.length, -1);
         }
 
+        function parse412aReq(inputValue) {
+            // 412a响应报文样例
+            // inputValue = "1460 1280 0100 0005 C600 0008 6C1B F700 0000 0000 00".replaceAll(" ", "");
+            var result = [];
+            var index = 0;
+            var dataLengthMsg = inputValue.substr(index, 2)
+            var dataLength = parseInt(dataLengthMsg, 16);
+            index += 2;
+            result.push([dataLengthMsg, "数据长度", dataLength.toString(10)]);
+            
+            while(index < inputValue.length - 1) {
+                var tag = inputValue.substr(index, 2)
+                index += 2;
+                result.push([tag, "Tag", "0x" + tag]);
+                
+                if (tag == "60") {
+                
+                    var tagLengthMsg = inputValue.substr(index, 2)
+                    var tagLength = parseInt(tagLengthMsg, 16);
+                    index += 2;
+                    result.push([tagLengthMsg, "tagLength", tagLength.toString(10)]);
+
+                    var fileTypeMsg = inputValue.substr(index, 2)
+                    if (fileTypeMsg == "80") {
+                        fileType = "License"
+                    } else {
+                        fileType = "未知文件类型"
+                    }
+                    index += 2;
+                    result.push([fileTypeMsg, "文件类型", fileType]);
+                    
+                    var compressTypeMsg = inputValue.substr(index, 2)
+                    if (compressTypeMsg == "00") {
+                        compressType = "非压缩"
+                    } else {
+                        compressType = "压缩"
+                    }
+                    index += 2;
+                    result.push([compressTypeMsg, "压缩类型", compressType]);
+
+                    var fileSizeMsg = inputValue.substr(index, 8)
+                    var fileSize = parseInt(fileSizeMsg, 16);
+                    index += 8;
+                    result.push([fileSizeMsg, "压缩文件大小", fileSize.toString(10)]);
+                    
+                    var fileOriginSizeMsg = inputValue.substr(index, 8)
+                    var fileOriginSize = parseInt(fileOriginSizeMsg, 16);
+                    index += 8;
+                    result.push([fileOriginSizeMsg, "原始文件大小", fileOriginSize.toString(10)]);
+                    
+                    var crc = inputValue.substr(index, 4)
+                    index += 4;
+                    result.push([crc, "CRC", crc]);
+                    
+                    var deviceTypeMsg = inputValue.substr(index, 4)
+                    if (deviceTypeMsg == "0000") {
+                        deviceType = "逆变器"
+                    } else {
+                        deviceType = "未知设备类型"
+                    }
+                    index += 4;
+                    result.push([deviceTypeMsg, "设备类型", deviceType]);
+                    
+                    var reservedData = inputValue.substr(index, 8)
+                    index += 8;
+                    result.push([reservedData, "保留字段", reservedData]);                    
+                }
+            }
+            
+
+            document.getElementById("resultListTextArea").value = getDisplayResult(result, 8);
+            extendTextArea("resultListTextArea", result.length, -1);
+        }
 
         function parse4190req(inputValue) {
             // 4190请求报文样例
@@ -2349,6 +2426,9 @@
 
                 <option value="410e_REQ">0x410e 请求 (开始FTP传输)</option>
                 <option value="410f_RESP">0x410f 响应</option>
+                
+                <option value="412a_REQ">0x412a 请求 (批量文件传输)</option>
+                
                 <option value="4133_REQ">0x4133 请求(多段数据查询)</option>
                 <option value="4133_RESP">0x4133 响应(多段数据查询)</option>
                 <option value="4144_RESP">0x4144 响应(自注册数据查询)</option>
