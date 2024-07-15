@@ -20,9 +20,9 @@ def init_logger(logger):
 def backup_files():
     shutil.copyfile("C:\\Users\\y00801659\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Bookmarks", "D:\\yutianqi\\Notes\\Bookmarks")
     # shutil.copyfile("C:\\Users\\y00290641\\AppData\\Local\\Google\\Chrome\\User Data\\Profile 1\\Bookmarks", "D:\\Notes\\Bookmarks_Duke")
-    cmd = "D:\\Program Files\\Git\\usr\\bin\\dos2unix.exe D:\\yutianqi\\Notes\\Bookmarks"
-    p = subprocess.Popen((cmd),stdout=subprocess.PIPE).stdout
-    p.readlines()
+    # cmd = "D:\\Program Files\\Git\\usr\\bin\\dos2unix.exe D:\\yutianqi\\Notes\\Bookmarks"
+    # p = subprocess.Popen((cmd),stdout=subprocess.PIPE).stdout
+    # p.readlines()
     # subprocess.Popen((cmd))
     
   
